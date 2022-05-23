@@ -20,6 +20,19 @@ ADD SUPPORT FOR ROUNDING (for now it only supports 0)
 ]]
 
 
+--// Log Function
+local log = "_LOG_\n"
+function Log(...)
+    local temp = ""
+    for i,v in pairs({...}) do
+        temp = temp..tostring(v).." "
+    end
+    log = log..temp.."\n"
+    dx9.DrawString({1700,800}, {255,255,255}, log);
+end
+Log("X:", dx9.GetMouse().x, "Y:", dx9.GetMouse().y)
+
+
 --// Boundary Check
 function mouse_in_boundary(v1, v2)
     if Mouse.x > v1[1] and Mouse.y > v1[2] and Mouse.x < v2[1] and Mouse.y < v2[2] then
@@ -323,7 +336,7 @@ function Lib:CreateWindow(index)
                         Text = params.Text;
                         Boundary = {0,0,0,0};
                         Holding = false;
-                        Value = (1 / (params.Max/tonumber(params.Default)));
+                        Value = params.Default or params.Min or 0;
                         Rounding = (params.Rounding or 0);
                         Suffix = (params.Suffix or "");
 
@@ -337,9 +350,8 @@ function Lib:CreateWindow(index)
                 Slider.Suffix = (params.Suffix or "");
     
                 function Slider:SetValue(num)
-                    if Slider.StoredVal ~= num then
-                        Slider.Value = 1 / (params.Max/tonumber(num))
-                        Slider.StoredVal = num 
+                    if Slider.Value ~= num then
+                        Slider.Value = num
 
                         function Slider:OnChanged(func)
                             func()
@@ -352,8 +364,12 @@ function Lib:CreateWindow(index)
 
                 --// Draw Slider in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
-                    local temp = math.floor((((params.Max - params.Min) * Slider.Value) + params.Min))..Slider.Suffix.."/"..params.Max..Slider.Suffix
+                    local temp = math.floor(Slider.Value)..Slider.Suffix.."/"..params.Max..Slider.Suffix
                     local bar_length = 235
+
+                    local val = (1 / ((params.Max - params.Min) / Slider.Value) )
+                    if val >= .98 then val = 1 end
+                    if val <= .02 then val = 0 end
 
                     Groupbox.Vertical = Groupbox.Vertical + 40
 
@@ -368,9 +384,9 @@ function Lib:CreateWindow(index)
                     end
 
                     if Win.Rainbow == true then 
-                        dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 36 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 6 + (bar_length * Slider.Value), Groupbox.Root[2] + 53 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
+                        dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 36 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 6 + (bar_length * val), Groupbox.Root[2] + 53 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
                     else
-                        dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 36 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 6 + (bar_length * Slider.Value), Groupbox.Root[2] + 53 + Groupbox.ToolSpacing}, Lib.AccentColor)
+                        dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 36 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 6 + (bar_length * val), Groupbox.Root[2] + 53 + Groupbox.ToolSpacing}, Lib.AccentColor)
                     end
 
                     dx9.DrawString({Groupbox.Root[1] + 4, Groupbox.Root[2] + 18 + Groupbox.ToolSpacing}, Lib.FontColor, params.Text)
@@ -385,13 +401,15 @@ function Lib:CreateWindow(index)
                     if dx9.isLeftClickHeld() then
                         if mouse_in_boundary({Slider.Boundary[1], Slider.Boundary[2]}, {Slider.Boundary[3], Slider.Boundary[4]}) then
                             Slider.Holding = true;
-                            local bar_length = 235
-                            local cursor = (Mouse.x) - (Groupbox.Root[1] + 6)
+
+                            local bar_length = 234
+
+                            local cursor = ((Mouse.x) - (Groupbox.Root[1] + 6))
+
                             local val = 1 / (bar_length/cursor)
                             if val >= .98 then val = 1 end
                             if val <= .02 then val = 0 end
-                            Slider.Value = val
-                            Slider.StoredVal = cursor
+                            Slider.Value = val * (params.Max - params.Min)
                             function Slider:OnChanged(func)
                                 func()
                             end
