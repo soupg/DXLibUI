@@ -1,13 +1,9 @@
 --// Supg's DX9Ware UI Win | Open Source //--
-local game = dx9.GetDatamodel();
-local Workspace = dx9.FindFirstChild(game,"Workspace");
-local Mouse = dx9.GetMouse();
-local LocalPlayer = dx9.get_localplayer();
-local Players = dx9.get_players();
 
 --[[
 ADD SUPPORT FOR ROUNDING (for now it only supports 0)
 
+ADD INPUT PROTECTION (for keybinds and more)
 ]]
 
 --[[
@@ -35,7 +31,7 @@ Log("X:", dx9.GetMouse().x, "Y:", dx9.GetMouse().y)
 
 --// Boundary Check
 function mouse_in_boundary(v1, v2)
-    if Mouse.x > v1[1] and Mouse.y > v1[2] and Mouse.x < v2[1] and Mouse.y < v2[2] then
+    if dx9.GetMouse().x > v1[1] and dx9.GetMouse().y > v1[2] and dx9.GetMouse().x < v2[1] and dx9.GetMouse().y < v2[2] then
         return true
     else
         return false
@@ -69,17 +65,29 @@ if _G.Lib == nil then
 
         FocusedWindow = nil; -- Dynamic
 
+        Keybind = "[F5]";
+
         WindowCount = 0; -- Dynamic
+
+        Active = true;
 
         Watermark = {
             Text = "";
             Visible = true;
             Location = {150, 10};
-        }
+        };
     };
 end
 local Lib = _G.Lib
 
+
+if (dx9.GetKey() == Lib.Keybind) then
+    Lib.Active = not Lib.Active;
+end
+
+function Lib:SetKeybind(keybind)
+    Lib.Keybind = keybind;
+end
 
 
 --[[
@@ -112,7 +120,7 @@ function Lib:CreateWindow(index)
 
             Tabs = {}; -- Dynamic
 
-            CurrentTab = nil; -- Dynamic
+            CurrentTab = "none"; -- Dynamic
 
             TabMargin = 0; -- REALLY DYNAMIC OMG
 
@@ -122,18 +130,17 @@ function Lib:CreateWindow(index)
     end
     local Win = _G[index]
 
-
     --// Left Click Held
-    if dx9.isLeftClickHeld() then
+    if dx9.isLeftClickHeld() and Lib.Active then
 
         --// Drag Func
         if mouse_in_boundary({Win.Location[1] - 5, Win.Location[2] - 10}, {Win.Location[1] + Win.Size[1] + 5, Win.Location[2] + 30}) then
             if Lib.FocusedWindow == nil or Lib.FocusedWindow == Win.ID then
                 Lib.FocusedWindow = Win.ID
                 if Win.WinMouseOffset == nil then
-                    Win.WinMouseOffset = {Mouse.x - Win.Location[1], Mouse.y - Win.Location[2]}
+                    Win.WinMouseOffset = {dx9.GetMouse().x - Win.Location[1], dx9.GetMouse().y - Win.Location[2]}
                 end
-                Win.Location = {Mouse.x - Win.WinMouseOffset[1], Mouse.y - Win.WinMouseOffset[2]}
+                Win.Location = {dx9.GetMouse().x - Win.WinMouseOffset[1], dx9.GetMouse().y - Win.WinMouseOffset[2]}
             else
                 if Win.WindowNum > _G[Lib.FocusedWindow].WindowNum then
                     Lib.FocusedWindow = Win.ID
@@ -159,18 +166,20 @@ function Lib:CreateWindow(index)
     --// Display Window //--
 
     --// Main Window
-    dx9.DrawFilledBox({Win.Location[1] - 1, Win.Location[2] - 1}, {Win.Location[1] + Win.Size[1] + 1, Win.Location[2] + Win.Size[2] + 1}, Lib.Black) --// Outline
-    if Win.Rainbow == true then
-        dx9.DrawFilledBox(Win.Location, {Win.Location[1] + Win.Size[1], Win.Location[2] + Win.Size[2]}, Lib.CurrentRainbowColor) --// Accent (Rainbow)
-    else
-        dx9.DrawFilledBox(Win.Location, {Win.Location[1] + Win.Size[1], Win.Location[2] + Win.Size[2]}, Lib.AccentColor) --// Accent
+    if Lib.Active then
+        dx9.DrawFilledBox({Win.Location[1] - 1, Win.Location[2] - 1}, {Win.Location[1] + Win.Size[1] + 1, Win.Location[2] + Win.Size[2] + 1}, Lib.Black) --// Outline
+        if Win.Rainbow == true then
+            dx9.DrawFilledBox(Win.Location, {Win.Location[1] + Win.Size[1], Win.Location[2] + Win.Size[2]}, Lib.CurrentRainbowColor) --// Accent (Rainbow)
+        else
+            dx9.DrawFilledBox(Win.Location, {Win.Location[1] + Win.Size[1], Win.Location[2] + Win.Size[2]}, Lib.AccentColor) --// Accent
+        end
+        dx9.DrawFilledBox({Win.Location[1] + 1, Win.Location[2] + 1}, {Win.Location[1] + Win.Size[1] - 1, Win.Location[2] + Win.Size[2] - 1}, Lib.MainColor) --// Main Outer (light gray)
+        dx9.DrawFilledBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.BackgroundColor) --// Main Inner (dark gray)
+        dx9.DrawBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.OutlineColor) --// Main Inner Outline
+        dx9.DrawString(Win.Location, Lib.FontColor, " "..Win.Name)
+        dx9.DrawFilledBox({Win.Location[1] + 10, Win.Location[2] + 49}, {Win.Location[1] + Win.Size[1] - 10, Win.Location[2] + Win.Size[2] - 10}, Lib.Black) --// Main Tab Box Outline
+        dx9.DrawFilledBox({Win.Location[1] + 11, Win.Location[2] + 50}, {Win.Location[1] + Win.Size[1] - 11, Win.Location[2] + Win.Size[2] - 11}, Lib.MainColor) --// Main Tab Box
     end
-    dx9.DrawFilledBox({Win.Location[1] + 1, Win.Location[2] + 1}, {Win.Location[1] + Win.Size[1] - 1, Win.Location[2] + Win.Size[2] - 1}, Lib.MainColor) --// Main Outer (light gray)
-    dx9.DrawFilledBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.BackgroundColor) --// Main Inner (dark gray)
-    dx9.DrawBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.OutlineColor) --// Main Inner Outline
-    dx9.DrawString(Win.Location, Lib.FontColor, " "..Win.Name)
-    dx9.DrawFilledBox({Win.Location[1] + 10, Win.Location[2] + 49}, {Win.Location[1] + Win.Size[1] - 10, Win.Location[2] + Win.Size[2] - 10}, Lib.Black) --// Main Tab Box Outline
-    dx9.DrawFilledBox({Win.Location[1] + 11, Win.Location[2] + 50}, {Win.Location[1] + Win.Size[1] - 11, Win.Location[2] + Win.Size[2] - 11}, Lib.MainColor) --// Main Tab Box
 
 
     --// Change Name Function
@@ -202,22 +211,27 @@ function Lib:CreateWindow(index)
         Win.Tabs[TabName].Name = TabName;
 
         Tab = Win.Tabs[TabName];
+
+        -- Focus first tab
+        if Win.CurrentTab == "none" then Win.CurrentTab = Tab.Name end
         
         --// Display Tab
-        if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
-            dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.Black)
-            dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
-            dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
-        else
-            dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.Black)
-            dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 49}, Lib.MainColor)
-            dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 48}, Lib.BackgroundColor)
+        if Lib.Active then
+            if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.Black)
+                dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
+                dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
+            else
+                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.Black)
+                dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 49}, Lib.MainColor)
+                dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 48}, Lib.BackgroundColor)
+            end
+            
+            dx9.DrawString({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, Lib.FontColor, " "..Tab.Name)
+            
+            Win.Tabs[TabName].Boundary = {Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26, Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}
+            Win.TabMargin = Win.TabMargin + Tab.Length + 4
         end
-        
-        dx9.DrawString({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, Lib.FontColor, " "..Tab.Name)
-        
-        Win.Tabs[TabName].Boundary = {Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26, Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}
-        Win.TabMargin = Win.TabMargin + Tab.Length + 4
 
         --// Add Groupbox to Tab
         function Tab:AddGroupbox(name, side)
@@ -238,7 +252,7 @@ function Lib:CreateWindow(index)
             Groupbox = Tab.Groupboxes[name]
 
             --// Display Groupbox
-            if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+            if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                 if Groupbox.Side == "Left" then 
                     dx9.DrawFilledBox({Win.Location[1] + 20, Win.Location[2] + Tab.leftstack}, {Win.Location[1] + 270, Win.Location[2] + Tab.leftstack + Groupbox.Vertical}, Lib.Black)
                     if Win.Rainbow == true then 
@@ -286,7 +300,7 @@ function Lib:CreateWindow(index)
                 Button = Groupbox.Tools[idx]
 
                 --// Draw Button in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                     Groupbox.Vertical = Groupbox.Vertical + 25
 
                     dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 19 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing}, Lib.Black)
@@ -362,7 +376,7 @@ function Lib:CreateWindow(index)
 
 
                 --// Draw Slider in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                     local temp = math.floor(Slider.Value)..Slider.Suffix.."/"..params.Max..Slider.Suffix
                     local bar_length = 235
 
@@ -403,7 +417,7 @@ function Lib:CreateWindow(index)
 
                             local bar_length = 234
 
-                            local cursor = ((Mouse.x) - (Groupbox.Root[1] + 6))
+                            local cursor = ((dx9.GetMouse().x) - (Groupbox.Root[1] + 6))
 
                             local val = 1 / (bar_length/cursor)
                             if val >= .98 then val = 1 end
@@ -458,7 +472,7 @@ function Lib:CreateWindow(index)
                 
 
                 --// Draw Toggle in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                     Groupbox.Vertical = Groupbox.Vertical + 25
 
                     dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 21 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 23, Groupbox.Root[2] + 38 + Groupbox.ToolSpacing}, Lib.Black)
@@ -577,4 +591,5 @@ do
         Lib.CurrentRainbowColor = {Lib.RainbowHue - 510, 0, 765 - Lib.RainbowHue}
     end
 end
+
 
