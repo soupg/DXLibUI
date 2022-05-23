@@ -74,6 +74,7 @@ if _G.Lib == nil then
         Watermark = {
             Text = "";
             Visible = true;
+            Location = {150, 10};
         }
     };
 end
@@ -544,19 +545,20 @@ end
 
 --// Watermark
 if Lib.Watermark.Visible then
-    dx9.DrawFilledBox({150, 10}, {500, 32}, Lib.Black)
-    dx9.DrawFilledBox({151, 11}, {499, 31}, Lib.CurrentRainbowColor)
-    dx9.DrawFilledBox({152, 12}, {498, 30}, Lib.MainColor)
+    dx9.DrawFilledBox({Lib.Watermark.Location[1], Lib.Watermark.Location[2]}, {Lib.Watermark.Location[1] + 302, Lib.Watermark.Location[2] + 22}, Lib.Black)
+    dx9.DrawFilledBox({Lib.Watermark.Location[1]+1, Lib.Watermark.Location[2]+1}, {Lib.Watermark.Location[1] + 301, Lib.Watermark.Location[2] + 21}, Lib.CurrentRainbowColor)
+    dx9.DrawFilledBox({Lib.Watermark.Location[1]+2, Lib.Watermark.Location[2]+2}, {Lib.Watermark.Location[1] + 300, Lib.Watermark.Location[2] + 20}, Lib.MainColor)
 
-    dx9.DrawString({152, 11}, Lib.FontColor, " "..Lib.Watermark.Text)
+    dx9.DrawString({Lib.Watermark.Location[1]+2, Lib.Watermark.Location[2]+2}, Lib.FontColor, " "..Lib.Watermark.Text)
 end
 
 function Lib:SetWatermarkVisibility(bool)
     Lib.Watermark.Visible = bool
 end
 
-function Lib:SetWatermark(text)
+function Lib:SetWatermark(text, args)
     Lib.Watermark.Text = text;
+    if args.Location ~= nil then Lib.Watermark.Location = args.Location end
 end
 
 --// Rainbow Tick
@@ -575,3 +577,4 @@ do
         Lib.CurrentRainbowColor = {Lib.RainbowHue - 510, 0, 765 - Lib.RainbowHue}
     end
 end
+
