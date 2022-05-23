@@ -339,8 +339,6 @@ function Lib:CreateWindow(index)
                         Value = params.Default or params.Min or 0;
                         Rounding = (params.Rounding or 0);
                         Suffix = (params.Suffix or "");
-
-                        StoredVal = nil;
                     }
                     Groupbox.Tools[index] = Slider
                 end
