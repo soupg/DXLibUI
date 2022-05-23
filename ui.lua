@@ -297,5 +297,3 @@ do
         Lib.CurrentRainbowColor = {Lib.RainbowHue - 510, 0, 765 - Lib.RainbowHue}
     end
 end
-
-return Lib;
