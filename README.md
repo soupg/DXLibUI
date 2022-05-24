@@ -143,6 +143,63 @@ The library was fully made by supg from scratch, but as some may notice it was h
 # Demo Script
 Here is a small demo script I made that showcases nearly all of supgLib's functions. Feel free to use and edit this however you like.
 ```lua
-	--// Working on it
+--// Loading UI
+if _G.supgLib == nil  then
+	_G.supgLib = loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))
+end  
+_G.supgLib()
+
+
+--// Building UI
+Lib:SetWatermark("Watermark name", {Location = {400, 10}})
+Lib:SetKeybind("[F5]") --// Sets keynind to F5
+
+
+local Window = Lib:CreateWindow("Window 1")
+
+local Tab1 = Window:AddTab("Tab 1", 50)
+local Tab2 = Window:AddTab("Tab 2", 50)
+
+local Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") 
+local Groupbox2 = Tab1:AddRightGroupbox("GroupBox 2")
+local Groupbox3 = Tab1:AddLeftGroupbox("GroupBox 3") 
+local Groupbox4 = Tab1:AddRightGroupbox("GroupBox 4")
+
+
+Groupbox1:AddButton("Randomize Window Name", function()
+    Window:SetWindowTitle("Random Title "..math.random(1000, 9999))
+end)
+
+
+local Toggle1 = Groupbox1:AddToggle("rgb_toggle", {Default = false, Text = "Toggle RGB UI"})
+
+Groupbox2:AddButton("Make RGB Toggle True", function() 
+    Toggle1:SetValue(true)
+end)
+
+Toggle1:OnChanged(function()
+    Window:SetRGB(Toggle1.Value)
+end)
+
+local Toggle2 = Groupbox2:AddToggle("watermarktoggle", {Default = true, Text = "Toggle Watermark"})
+Toggle2:OnChanged(function()
+    Lib:SetWatermarkVisibility(Toggle2.Value)
+end)
+
+local slider = Groupbox1:AddSlider("slider1", {Default = 0, Text = "Test Slider", Min = 0, Max = 100, Rounding = 0})
+local slider2 = Groupbox1:AddSlider("slider2", {Default = 69, Text = "Second Slider", Min = 0, Max = 100, Rounding = 0})
+
+
+Groupbox2:AddButton("Set Slider to 1%", function() 
+    slider:SetValue(1)
+end)
+
+Groupbox2:AddButton("Set Slider to 50%", function() 
+    slider:SetValue(50)
+end)
+
+Groupbox2:AddButton("Set Slider to 100%", function() 
+    slider:SetValue(100)
+end)
 ```
 
