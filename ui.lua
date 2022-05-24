@@ -540,6 +540,10 @@ function Lib:CreateWindow(index)
             return Tab:AddGroupbox(name, "Right")
         end
 
+        function Tab:Focus()
+            Win.CurrentTab = Tab.Name;
+        end
+
         --// Closing Difines and Resets | Tab
         Win.Tabs[TabName] = Tab;
 
@@ -591,5 +595,3 @@ do
         Lib.CurrentRainbowColor = {Lib.RainbowHue - 510, 0, 765 - Lib.RainbowHue}
     end
 end
-
-
