@@ -112,6 +112,8 @@ Lib:CreateWindow(WindowTitle)
 			Slider:SetValue(Int)
 			
 		Groupbox:AddLabel(text) --// Supports Multiline
+		Groupbox:AddTitle(text) --// Does not support multiline
+		Groupbox:AddBlank(sizeNum) --// Adds an empty space of said size
 ```
 ## Accessing Values
 Nearly all the tools used in supgLib have globally accessible properties. Any indexed item can be accessed like so
