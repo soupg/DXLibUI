@@ -1,20 +1,12 @@
---// DX9 Console | Made by Alleexxii and supg //--
+--// BetterConsole //--
 
 _G["print"] = Log
 _G["error"] = LogError
 
-local lg = "_LOG_\n"
-function Lg(s)
-    lg = lg..s.."\n"
-    dx9.DrawString({1700,800}, {255,255,255}, lg);
-end
-Lg("X: "..dx9.GetMouse().x.." Y: "..dx9.GetMouse().y)
-
-
 local Con = {};
 if _G.Con == nil then
     _G.Con = {
-        Location = {1300, 150}; -- Dynamic
+        Location = {1000, 150}; -- Dynamic
 
         Size = {dx9.size().width / 2.95, dx9.size().height / 1.21}; -- Static
 
@@ -31,6 +23,10 @@ if _G.Con == nil then
         WinMouseOffset = nil;
 
         StoredLogs = {};
+
+        Open = true;
+
+        Hovering = false;
     };
 end
 local Con = _G.Con
@@ -45,6 +41,15 @@ function mouse_in_boundary(v1, v2)
     end
 end
 
+if mouse_in_boundary({Con.Location[1] + Con.Size[1] - 27, Con.Location[2] + 3}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + 19}) then
+    if dx9.isLeftClick() then
+        Con.Open = not Con.Open;
+    end
+
+    Con.Hovering = true
+else
+    Con.Hovering = false
+end
 
 --// Left Click Held
 if dx9.isLeftClickHeld() then
@@ -59,22 +64,41 @@ else
     Con.WinMouseOffset = nil
 end
 
-dx9.DrawFilledBox({Con.Location[1] - 1, Con.Location[2] - 1}, {Con.Location[1] + Con.Size[1] + 1, Con.Location[2] + Con.Size[2] + 1}, Con.Black) --// Outline
-dx9.DrawFilledBox(Con.Location, {Con.Location[1] + Con.Size[1], Con.Location[2] + Con.Size[2]}, Con.AccentColor) --// Accent
-dx9.DrawFilledBox({Con.Location[1] + 1, Con.Location[2] + 1}, {Con.Location[1] + Con.Size[1] - 1, Con.Location[2] + Con.Size[2] - 1}, Con.MainColor) --// Main Outer (light gray)
-dx9.DrawFilledBox({Con.Location[1] + 5, Con.Location[2] + 20}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + Con.Size[2] - 5}, Con.BackgroundColor) --// Main Inner (dark gray)
-dx9.DrawBox({Con.Location[1] + 5, Con.Location[2] + 20}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + Con.Size[2] - 5}, Con.OutlineColor) --// Main Inner Outline 
-dx9.DrawBox({Con.Location[1] + 6, Con.Location[2] + 21}, {Con.Location[1] + Con.Size[1] - 6, Con.Location[2] + Con.Size[2] - 6}, Con.Black) --// Main Inner Outline Black
-dx9.DrawString(Con.Location, Con.FontColor, "  ".."DX9 Console | Made by Alleexxii and supg")
+if Con.Open then
+    dx9.DrawFilledBox({Con.Location[1] - 1, Con.Location[2] - 1}, {Con.Location[1] + Con.Size[1] + 1, Con.Location[2] + Con.Size[2] + 1}, Con.Black) --// Outline
+    dx9.DrawFilledBox(Con.Location, {Con.Location[1] + Con.Size[1], Con.Location[2] + Con.Size[2]}, Con.AccentColor) --// Accent
+    dx9.DrawFilledBox({Con.Location[1] + 1, Con.Location[2] + 1}, {Con.Location[1] + Con.Size[1] - 1, Con.Location[2] + Con.Size[2] - 1}, Con.MainColor) --// Main Outer (light gray)
+    dx9.DrawFilledBox({Con.Location[1] + 5, Con.Location[2] + 20}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + Con.Size[2] - 5}, Con.BackgroundColor) --// Main Inner (dark gray)
+    dx9.DrawBox({Con.Location[1] + 5, Con.Location[2] + 20}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + Con.Size[2] - 5}, Con.OutlineColor) --// Main Inner Outline 
+    dx9.DrawBox({Con.Location[1] + 6, Con.Location[2] + 21}, {Con.Location[1] + Con.Size[1] - 6, Con.Location[2] + Con.Size[2] - 6}, Con.Black) --// Main Inner Outline Black
+    dx9.DrawString(Con.Location, Con.FontColor, "  DX9 Console | Made by Alleexxii and supg")
 
-
-for i,v in pairs(Con.StoredLogs) do
-    if string.sub(v, 1, 9) == "ERROR_TAG" then
-        dx9.DrawString({Con.Location[1] + 10, Con.Location[2] + 5 + i*18}, Con.ErrorColor, string.sub(v, 10, -1))
-    else
-        dx9.DrawString({Con.Location[1] + 10, Con.Location[2] + 5 + i*18}, Con.FontColor, v)
+    for i,v in pairs(Con.StoredLogs) do
+        if string.sub(v, 1, 9) == "ERROR_TAG" then
+            dx9.DrawString({Con.Location[1] + 10, Con.Location[2] + 5 + i*18}, Con.ErrorColor, string.sub(v, 10, -1))
+        else
+            dx9.DrawString({Con.Location[1] + 10, Con.Location[2] + 5 + i*18}, Con.FontColor, v)
+        end
     end
+else
+    dx9.DrawFilledBox({Con.Location[1] + 300, Con.Location[2] - 1}, {Con.Location[1] + Con.Size[1] + 1, Con.Location[2] + 23}, Con.Black) --// Outline
+    dx9.DrawFilledBox({Con.Location[1] + 301, Con.Location[2]}, {Con.Location[1] + Con.Size[1],  Con.Location[2] + 22}, Con.AccentColor) --// Accent
+    dx9.DrawFilledBox({Con.Location[1] + 302, Con.Location[2] + 1}, {Con.Location[1] + Con.Size[1] - 1,  Con.Location[2] + 21}, Con.MainColor) --// Main Outer (light gray)
+
+    dx9.DrawString({Con.Location[1] + 300, Con.Location[2]}, Con.FontColor, "  DX9 Console | Made by Alleexxii and supg")
 end
+
+
+if Con.Hovering then
+    dx9.DrawFilledBox({Con.Location[1] + Con.Size[1] - 27, Con.Location[2] + 3}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + 19}, Con.AccentColor) --// Outline
+else
+    dx9.DrawFilledBox({Con.Location[1] + Con.Size[1] - 27, Con.Location[2] + 3}, {Con.Location[1] + Con.Size[1] - 5, Con.Location[2] + 19}, Con.Black) --// Outline
+end
+
+dx9.DrawFilledBox({Con.Location[1] + Con.Size[1] - 26, Con.Location[2] + 4}, {Con.Location[1] + Con.Size[1] - 6, Con.Location[2] + 18}, Con.OutlineColor) --// Inner Line
+dx9.DrawFilledBox({Con.Location[1] + Con.Size[1] - 25, Con.Location[2] + 5}, {Con.Location[1] + Con.Size[1] - 7, Con.Location[2] + 17}, Con.MainColor) --// Inner
+
+dx9.DrawString({Con.Location[1] + Con.Size[1] - 20, Con.Location[2] - 2}, Con.FontColor, "_")
 
 function LogError(...)
     local temp = "";
