@@ -277,7 +277,7 @@ function Lib:CreateWindow( index )
 
             --// Display Groupbox
             if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Tab.rightstack + Groupbox.Vertical + 10 < 600 then
-                Groupbox.OutOfSight = true
+                Groupbox.Visible = true
                 if Groupbox.Side == "Left" then 
                     dx9.DrawFilledBox( { Win.Location[1] + 20 , Win.Location[2] + Tab.leftstack } , { Win.Location[1] + 270 , Win.Location[2] + Tab.leftstack + Groupbox.Vertical } , Lib.OutlineColor )
                     if Win.Rainbow == true then 
@@ -327,8 +327,10 @@ function Lib:CreateWindow( index )
 
                 Button = Groupbox.Tools[idx]
 
+                Log(2)
                 --// Draw Button in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                    Log(1)
                     Groupbox.Vertical = Groupbox.Vertical + 25
 
                     if Button.Hovering then
