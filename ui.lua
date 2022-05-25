@@ -232,20 +232,22 @@ function Lib:CreateWindow( index )
         
         --// Display Tab
         if Lib.Active then
-            if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
-                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
-            else
-                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 49 } , Lib.MainColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 48 } , Lib.BackgroundColor )
+            if Win.TabMargin + TabLength + 3 < 530 then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+                    dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
+                else
+                    dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 49 } , Lib.MainColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 48 } , Lib.BackgroundColor )
+                end
+                
+                dx9.DrawString( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , Lib.FontColor , " "..Tab.Name )
+                
+                Tab.Boundary = { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 , Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 }
+                Win.TabMargin = Win.TabMargin + TabLength + 3
             end
-            
-            dx9.DrawString( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , Lib.FontColor , " "..Tab.Name )
-            
-            Tab.Boundary = { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 , Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 }
-            Win.TabMargin = Win.TabMargin + TabLength + 3
         end
 
         --// Add Groupbox to Tab
