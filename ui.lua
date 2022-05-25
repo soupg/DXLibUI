@@ -392,6 +392,31 @@ function Lib:CreateWindow( index )
                 return Button;
             end
 
+
+            --// Add Label
+            function Groupbox:AddLabel(text)
+
+                --// Draw Label in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+
+                    local n = 0;
+                    if string.gmatch(text, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(text, "([^\n]+)")) do
+                            n = n + 1
+                        end
+                    else
+                        n = 1
+                    end
+
+                    Groupbox.Vertical = Groupbox.Vertical + (7 + (18 * n))
+
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , text)
+
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
+                end
+            end
+
+
             --// Add Input to Groupbox | Groupbox2:AddInput( "input1" , { Default = "Default" , Text = "Input" , Placeholder = "Placeholder Text" , MaxLength = nil } )
             function Groupbox:AddInput( index , params )
                 local Input = {}
