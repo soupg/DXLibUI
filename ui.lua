@@ -354,6 +354,7 @@ function Lib:CreateWindow(index)
                         Value = params.Default or params.Min or 0;
                         Rounding = (params.Rounding or 0);
                         Suffix = (params.Suffix or "");
+                        Changed = false;
                     }
                     Groupbox.Tools[index] = Slider
                 end
@@ -364,14 +365,9 @@ function Lib:CreateWindow(index)
     
                 function Slider:SetValue(num)
                     if Slider.Value ~= num then
+                        Slider.Changed = true;
                         Slider.Value = num
-
-                        function Slider:OnChanged(func)
-                            func()
-                        end
                     end
-                end
-                function Slider:OnChanged(func)
                 end
 
 
@@ -423,9 +419,8 @@ function Lib:CreateWindow(index)
                             if val >= .98 then val = 1 end
                             if val <= .02 then val = 0 end
                             Slider.Value = val * (params.Max - params.Min)
-                            function Slider:OnChanged(func)
-                                func()
-                            end
+                            
+                            Slider.Changed = true;
                         else
                             Slider.Holding = false;
                         end
@@ -433,6 +428,13 @@ function Lib:CreateWindow(index)
                         if Slider.Holding == true then
                             Slider.Holding = false;
                         end
+                    end
+                end
+
+                function Slider:OnChanged(func)
+                    if Slider.Changed then
+                        Slider.Changed = false
+                        func()
                     end
                 end
 
@@ -453,6 +455,7 @@ function Lib:CreateWindow(index)
                         Boundary = {0,0,0,0};
                         Value = params.Default or false;
                         Holding = false;
+                        Changed = false;
                     }
                     Groupbox.Tools[index] = Toggle
                 end
@@ -462,14 +465,8 @@ function Lib:CreateWindow(index)
 
                 function Toggle:SetValue(value)
                     Toggle.Value = value;
-
-                    function Toggle:OnChanged(func)
-                        func()
-                    end
+                    Toggle.Changed = true;
                 end
-                function Toggle:OnChanged(func)
-                end
-                
 
                 --// Draw Toggle in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
@@ -512,6 +509,14 @@ function Lib:CreateWindow(index)
                             Toggle:SetValue(not Toggle.Value)
                             Toggle.Holding = false;
                         end
+                    end
+                end
+
+                --// Toggle Onchanged
+                function Toggle:OnChanged(func)
+                    if Toggle.Changed then
+                        Toggle.Changed = false
+                        func()
                     end
                 end
 
