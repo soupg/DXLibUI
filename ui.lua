@@ -1,9 +1,11 @@
---// Supg's DX9Ware UI Win | Open Source //--
+--// supgLib DX9Ware UI //--
 
 --[[
 ADD SUPPORT FOR ROUNDING (for now it only supports 0)
 
 ADD INPUT PROTECTION (for keybinds and more)
+
+MAKE UI SCALABLE WITH SCREEN SIZE
 ]]
 
 --[[
@@ -115,7 +117,7 @@ function Lib:CreateWindow(index)
         Lib.Windows[index] = {
             Location = {1300, 300}; -- Dynamic
 
-            Size = {550, 600}; -- Static
+            Size = {dx9.size().width / 3.5, dx9.size().height / 1.7}; -- Static
 
             Rainbow = false; -- Dynamic + [Changeable]
     
@@ -206,13 +208,12 @@ function Lib:CreateWindow(index)
     end
     
     --// Add Tab Function
-    function Win:AddTab(TabName, TabLength)
+    function Win:AddTab(TabName)
         local Tab = {}
         if Win.Tabs[TabName] == nil then
             Tab = {
                 Name = TabName;
                 Boundary = {0,0,0,0};
-                Length = TabLength;
                 Groupboxes = {};
 
                 rightstack = 60;
@@ -220,10 +221,10 @@ function Lib:CreateWindow(index)
             };
             Win.Tabs[TabName] = Tab;
         end
-        Win.Tabs[TabName].Length = TabLength;
         Win.Tabs[TabName].Name = TabName;
-
         Tab = Win.Tabs[TabName];
+
+        local TabLength = dx9.CalcTextWidth(TabName) + 7
 
         -- Focus first tab
         if Win.CurrentTab == "none" then Win.CurrentTab = Tab.Name end
@@ -231,19 +232,19 @@ function Lib:CreateWindow(index)
         --// Display Tab
         if Lib.Active then
             if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
-                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.OutlineColor)
-                dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
-                dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
+                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + TabLength + Win.TabMargin, Win.Location[2] + 50}, Lib.OutlineColor)
+                dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + TabLength + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
+                dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + TabLength + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
             else
-                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.OutlineColor)
-                dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 49}, Lib.MainColor)
-                dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 48}, Lib.BackgroundColor)
+                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + TabLength + Win.TabMargin, Win.Location[2] + 50}, Lib.OutlineColor)
+                dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + TabLength + Win.TabMargin, Win.Location[2] + 49}, Lib.MainColor)
+                dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + TabLength + Win.TabMargin, Win.Location[2] + 48}, Lib.BackgroundColor)
             end
             
             dx9.DrawString({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, Lib.FontColor, " "..Tab.Name)
             
-            Win.Tabs[TabName].Boundary = {Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26, Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}
-            Win.TabMargin = Win.TabMargin + Tab.Length + 3
+            Tab.Boundary = {Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26, Win.Location[1] + 14 + TabLength + Win.TabMargin, Win.Location[2] + 50}
+            Win.TabMargin = Win.TabMargin + TabLength + 3
         end
 
         --// Add Groupbox to Tab
