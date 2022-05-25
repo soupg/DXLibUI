@@ -96,7 +96,7 @@ function Lib:SetKeybind( keybind )
 end
 
 function WinCheck( Win )
-    for i ,v in pairs( Lib.Windows ) do
+    for i,v in pairs( Lib.Windows ) do
         if v.WindowNum > Win.WindowNum then
             v:Render()
         end
@@ -249,7 +249,7 @@ function Lib:CreateWindow( index )
         end
 
         --// Add Groupbox to Tab
-        function Tab:AddGroupbox( name , side )
+        function Tab:AddGroupbox(name , side)
             local Groupbox = {}
             if  Tab.Groupboxes[name] == nil then
                 Groupbox = { 
@@ -265,6 +265,7 @@ function Lib:CreateWindow( index )
             end
             Tab.Groupboxes[name].Name = name
             Groupbox = Tab.Groupboxes[name]
+            Groupbox.Side = side
 
             --// Display Groupbox
             if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
@@ -482,8 +483,8 @@ function Lib:CreateWindow( index )
                             local cursor = ( ( dx9.GetMouse().x ) - ( Groupbox.Root[1] + 6 ) )
 
                             local val = 1 / ( bar_length/cursor )
-                            if val >= .98 then val = 1 end
-                            if val <= .02 then val = 0 end
+                            if val >= .98 then val = params.Max end
+                            if val <= .02 then val = params.Min end
                             Slider.Value = val * ( params.Max - params.Min )
                             
                             Slider.Changed = true;
@@ -653,7 +654,6 @@ function Lib:CreateWindow( index )
 
     return( Win )
 end
-
 
 --// Watermark
 if Lib.Watermark.Visible then
