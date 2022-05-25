@@ -33,7 +33,7 @@ local  Window = Lib:CreateWindow("Window Name") --// Creates and displays a wind
 local  Window2 = Lib:CreateWindow("Window Name 2") --// Creates and displays a second stand-
 
 Window:SetWindowTitle("New Window Name") --// Changes a window's name
-Window:AddTab("Tab Name", tabLength) --// Creates a tab in the window, tabLength needs to be an integer
+Window:AddTab("Tab Name") --// Creates a tab in the window
 ```
 By defining windows in such a way, you can access a window's properties. Here are some common window properties:
 ```lua
@@ -48,8 +48,8 @@ Window.Tools --// Returns all window tools such as buttons, toggles, sliders, an
 ## Creating a tab
 Tabs help the UI keep content organized. Each tab contains a collection of group boxes, and those group boxes contain the actual tools such as buttons and toggles.
 ```lua
-local  Tab = Window:AddTab("Tab Name", tabLength) --// Tablength should be scaled based of the name
-local  Tab2 = Window:AddTab("Tab Name 2", tabLength) --// Second stand-alone tab
+local  Tab = Window:AddTab("Tab Name") --// First Tab
+local  Tab2 = Window:AddTab("Tab Name 2") --// Second stand-alone tab
 Tab2:Focus() --// Opens the second tab and sets the Window.CurrentTab property to the tab name
 
 local  Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") --// Creates a groupbox on the LEFT side of tab 1
@@ -94,7 +94,7 @@ Lib:SetKeybind("[KEY]")
 Lib:CreateWindow(WindowTitle)
 
 	Window:SetWindowTitle(NewTitle)
-	Window:AddTab(TabName, TabLengthInt)
+	Window:AddTab(TabName)
 	
 		Tab:Focus()
 		Tab:AddGroupbox(Name, Side) --// Side can be "Left" or "Right" | I recommend using the two functions below instead
@@ -158,8 +158,8 @@ Lib:SetKeybind("[F5]") --// Sets keynind to F5
 local Window = Lib:CreateWindow("Window 1")
 
 --// Creating Tabs
-local Tab1 = Window:AddTab("Tab 1", 50)
-local Tab2 = Window:AddTab("Tab 2", 50)
+local Tab1 = Window:AddTab("Tab 1")
+local Tab2 = Window:AddTab("Tab 2")
 
 --// Creating Groupboxes
 local Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") 
