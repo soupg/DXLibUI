@@ -1,5 +1,7 @@
 --// BetterConsole //--
 
+_G["oldprint"] = print
+
 _G["print"] = Log
 _G["error"] = LogError
 
