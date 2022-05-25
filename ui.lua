@@ -175,9 +175,12 @@ function Lib:CreateWindow(index)
         end
         dx9.DrawFilledBox({Win.Location[1] + 1, Win.Location[2] + 1}, {Win.Location[1] + Win.Size[1] - 1, Win.Location[2] + Win.Size[2] - 1}, Lib.MainColor) --// Main Outer (light gray)
         dx9.DrawFilledBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.BackgroundColor) --// Main Inner (dark gray)
-        dx9.DrawBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.OutlineColor) --// Main Inner Outline
-        dx9.DrawString(Win.Location, Lib.FontColor, " "..Win.Name)
-        dx9.DrawFilledBox({Win.Location[1] + 10, Win.Location[2] + 49}, {Win.Location[1] + Win.Size[1] - 10, Win.Location[2] + Win.Size[2] - 10}, Lib.Black) --// Main Tab Box Outline
+
+        dx9.DrawBox({Win.Location[1] + 5, Win.Location[2] + 20}, {Win.Location[1] + Win.Size[1] - 5, Win.Location[2] + Win.Size[2] - 5}, Lib.OutlineColor) --// Main Inner Outline 
+        dx9.DrawBox({Win.Location[1] + 6, Win.Location[2] + 21}, {Win.Location[1] + Win.Size[1] - 6, Win.Location[2] + Win.Size[2] - 6}, Lib.Black) --// Main Inner Outline Black
+
+        dx9.DrawString(Win.Location, Lib.FontColor, "  "..Win.Name)
+        dx9.DrawFilledBox({Win.Location[1] + 10, Win.Location[2] + 49}, {Win.Location[1] + Win.Size[1] - 10, Win.Location[2] + Win.Size[2] - 10}, Lib.OutlineColor) --// Main Tab Box Outline
         dx9.DrawFilledBox({Win.Location[1] + 11, Win.Location[2] + 50}, {Win.Location[1] + Win.Size[1] - 11, Win.Location[2] + Win.Size[2] - 11}, Lib.MainColor) --// Main Tab Box
     end
 
@@ -218,11 +221,11 @@ function Lib:CreateWindow(index)
         --// Display Tab
         if Lib.Active then
             if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
-                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.Black)
+                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.OutlineColor)
                 dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
                 dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.MainColor)
             else
-                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.Black)
+                dx9.DrawFilledBox({Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26}, {Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}, Lib.OutlineColor)
                 dx9.DrawFilledBox({Win.Location[1] + 11 + Win.TabMargin, Win.Location[2] + 27}, {Win.Location[1] + 13 + Tab.Length + Win.TabMargin, Win.Location[2] + 49}, Lib.MainColor)
                 dx9.DrawFilledBox({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, {Win.Location[1] + 12 + Tab.Length + Win.TabMargin, Win.Location[2] + 48}, Lib.BackgroundColor)
             end
@@ -230,7 +233,7 @@ function Lib:CreateWindow(index)
             dx9.DrawString({Win.Location[1] + 12 + Win.TabMargin, Win.Location[2] + 28}, Lib.FontColor, " "..Tab.Name)
             
             Win.Tabs[TabName].Boundary = {Win.Location[1] + 10 + Win.TabMargin, Win.Location[2] + 26, Win.Location[1] + 14 + Tab.Length + Win.TabMargin, Win.Location[2] + 50}
-            Win.TabMargin = Win.TabMargin + Tab.Length + 4
+            Win.TabMargin = Win.TabMargin + Tab.Length + 3
         end
 
         --// Add Groupbox to Tab
@@ -254,7 +257,7 @@ function Lib:CreateWindow(index)
             --// Display Groupbox
             if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                 if Groupbox.Side == "Left" then 
-                    dx9.DrawFilledBox({Win.Location[1] + 20, Win.Location[2] + Tab.leftstack}, {Win.Location[1] + 270, Win.Location[2] + Tab.leftstack + Groupbox.Vertical}, Lib.Black)
+                    dx9.DrawFilledBox({Win.Location[1] + 20, Win.Location[2] + Tab.leftstack}, {Win.Location[1] + 270, Win.Location[2] + Tab.leftstack + Groupbox.Vertical}, Lib.OutlineColor)
                     if Win.Rainbow == true then 
                         dx9.DrawFilledBox({Win.Location[1] + 21, Win.Location[2] + Tab.leftstack + 1}, {Win.Location[1] + 269, Win.Location[2] + Tab.leftstack + 3}, Lib.CurrentRainbowColor)
                     else
@@ -266,7 +269,7 @@ function Lib:CreateWindow(index)
                     Groupbox.Root = {Win.Location[1] + 21, Win.Location[2] + Tab.leftstack + 10}
                     Tab.leftstack = Tab.leftstack + Groupbox.Vertical + 10
                 else
-                    dx9.DrawFilledBox({Win.Location[1] + 280, Win.Location[2] + Tab.rightstack}, {Win.Location[1] + 530, Win.Location[2] + Tab.rightstack + Groupbox.Vertical}, Lib.Black)
+                    dx9.DrawFilledBox({Win.Location[1] + 280, Win.Location[2] + Tab.rightstack}, {Win.Location[1] + 530, Win.Location[2] + Tab.rightstack + Groupbox.Vertical}, Lib.OutlineColor)
                     if Win.Rainbow == true then 
                         dx9.DrawFilledBox({Win.Location[1] + 281, Win.Location[2] + Tab.rightstack + 1}, {Win.Location[1] + 529, Win.Location[2] + Tab.rightstack + 3}, Lib.CurrentRainbowColor)
                     else
@@ -291,6 +294,7 @@ function Lib:CreateWindow(index)
                         Function = func;
                         Boundary = {0,0,0,0};
                         Holding = false;
+                        Hovering = false;
                     }
                     Groupbox.Tools[idx] = Button
                 end
@@ -303,12 +307,18 @@ function Lib:CreateWindow(index)
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                     Groupbox.Vertical = Groupbox.Vertical + 25
 
-                    dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 19 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing}, Lib.Black)
-                    if Win.Rainbow == true then 
-                        dx9.DrawFilledBox({Groupbox.Root[1] + 5, Groupbox.Root[2] + 20 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 242, Groupbox.Root[2] + 39 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
+                    if Button.Hovering then
+                        if Win.Rainbow == true then 
+                            dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 19 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
+                        else
+                            dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 19 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing}, Lib.AccentColor)
+                        end
                     else
-                        dx9.DrawFilledBox({Groupbox.Root[1] + 5, Groupbox.Root[2] + 20 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 242, Groupbox.Root[2] + 39 + Groupbox.ToolSpacing}, Lib.AccentColor)
+                        dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 19 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing}, Lib.Black)
                     end
+
+                    dx9.DrawFilledBox({Groupbox.Root[1] + 5, Groupbox.Root[2] + 20 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 242, Groupbox.Root[2] + 39 + Groupbox.ToolSpacing}, Lib.OutlineColor)
+
                     if Button.Holding == true then
                         dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 21 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 241, Groupbox.Root[2] + 38 + Groupbox.ToolSpacing}, Lib.OutlineColor)
                     else
@@ -322,23 +332,53 @@ function Lib:CreateWindow(index)
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
 
                     --// Click Detect
-                    if dx9.isLeftClickHeld() then
-                        if mouse_in_boundary({Button.Boundary[1], Button.Boundary[2]}, {Button.Boundary[3], Button.Boundary[4]}) then
+                    if mouse_in_boundary({Button.Boundary[1], Button.Boundary[2]}, {Button.Boundary[3], Button.Boundary[4]}) then
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() then
                             Button.Holding = true;
                         else
-                            Button.Holding = false;
+                            if Button.Holding == true then
+                                Button.Function();
+                                Button.Holding = false;
+                            end
                         end
+
+                        --// Hover Detection
+                        Button.Hovering = true;
                     else
-                        if Button.Holding == true then
-                            Button.Function();
-                            Button.Holding = false;
-                        end
+                        Button.Hovering = false;
                     end
                 end
 
                 --// Closing Difines and Resets | Button
                 Groupbox.Tools[idx] = Button;
                 return Button;
+            end
+
+            --// Add Input to Groupbox | Groupbox2:AddInput("input1", {Default = "Default", Text = "Input", Placeholder = "Placeholder Text", MaxLength = nil})
+            function Groupbox:AddInput(index, params)
+                local Input = {}
+                
+                if Groupbox.Tools[index] == nil then
+                    Input = {
+                        Text = params.Text;
+                        Placeholder = params.Placeholder or nil;
+                        Boundary = {0,0,0,0};
+                        Holding = false;
+                        Value = params.Default or "";
+                        Rounding = (params.Rounding or 0);
+                        Suffix = (params.Suffix or "");
+                        Changed = false;
+                    }
+                    Groupbox.Tools[index] = Input
+                end
+                Input = Groupbox.Tools[index]
+                Input.Text = params.Text;
+                Input.Rounding = (params.Rounding or 0);
+                Input.Suffix = (params.Suffix or "");
+
+
+
             end
 
 
@@ -355,6 +395,7 @@ function Lib:CreateWindow(index)
                         Rounding = (params.Rounding or 0);
                         Suffix = (params.Suffix or "");
                         Changed = false;
+                        Hovering = false;
                     }
                     Groupbox.Tools[index] = Slider
                 end
@@ -382,11 +423,19 @@ function Lib:CreateWindow(index)
 
                     Groupbox.Vertical = Groupbox.Vertical + 40
 
-                    dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 34 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing}, Lib.Black)
+                    if Slider.Hovering then
+                        if Win.Rainbow == true then 
+                            dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 34 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
+                        else
+                            dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 34 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing}, Lib.AccentColor)
+                        end
+                    else
+                        dx9.DrawFilledBox({Groupbox.Root[1] + 4, Groupbox.Root[2] + 34 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 243, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing}, Lib.Black)
+                    end
 
                     dx9.DrawFilledBox({Groupbox.Root[1] + 5, Groupbox.Root[2] + 35 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 242, Groupbox.Root[2] + 54 + Groupbox.ToolSpacing}, Lib.OutlineColor)
 
-                    if Slider.Holding == true then
+                    if Slider.Holding then
                         dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 36 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 241, Groupbox.Root[2] + 53 + Groupbox.ToolSpacing}, Lib.OutlineColor)
                     else
                         dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 36 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 241, Groupbox.Root[2] + 53 + Groupbox.ToolSpacing}, Lib.MainColor)
@@ -406,9 +455,10 @@ function Lib:CreateWindow(index)
 
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 40
 
-                    --// Click Detect
-                    if dx9.isLeftClickHeld() then
-                        if mouse_in_boundary({Slider.Boundary[1], Slider.Boundary[2]}, {Slider.Boundary[3], Slider.Boundary[4]}) then
+                    --// Hovering
+                    if mouse_in_boundary({Slider.Boundary[1], Slider.Boundary[2]}, {Slider.Boundary[3], Slider.Boundary[4]}) then
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() then
                             Slider.Holding = true;
 
                             local bar_length = 234
@@ -422,12 +472,14 @@ function Lib:CreateWindow(index)
                             
                             Slider.Changed = true;
                         else
-                            Slider.Holding = false;
+                            if Slider.Holding == true then
+                                Slider.Holding = false;
+                            end
                         end
+
+                        Slider.Hovering = true;
                     else
-                        if Slider.Holding == true then
-                            Slider.Holding = false;
-                        end
+                        Slider.Hovering = false;
                     end
                 end
 
@@ -456,6 +508,7 @@ function Lib:CreateWindow(index)
                         Value = params.Default or false;
                         Holding = false;
                         Changed = false;
+                        Hovering = false;
                     }
                     Groupbox.Tools[index] = Toggle
                 end
@@ -472,13 +525,17 @@ function Lib:CreateWindow(index)
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active then
                     Groupbox.Vertical = Groupbox.Vertical + 25
 
-                    dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 21 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 23, Groupbox.Root[2] + 38 + Groupbox.ToolSpacing}, Lib.Black)
-
-                    if Win.Rainbow then 
-                        dx9.DrawFilledBox({Groupbox.Root[1] + 7, Groupbox.Root[2] + 22 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 22, Groupbox.Root[2] + 37 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
+                    if Toggle.Hovering then
+                        if Win.Rainbow then 
+                            dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 21 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 23, Groupbox.Root[2] + 38 + Groupbox.ToolSpacing}, Lib.CurrentRainbowColor)
+                        else
+                            dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 21 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 23, Groupbox.Root[2] + 38 + Groupbox.ToolSpacing}, Lib.AccentColor)
+                        end
                     else
-                        dx9.DrawFilledBox({Groupbox.Root[1] + 7, Groupbox.Root[2] + 22 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 22, Groupbox.Root[2] + 37 + Groupbox.ToolSpacing}, Lib.AccentColor)
+                        dx9.DrawFilledBox({Groupbox.Root[1] + 6, Groupbox.Root[2] + 21 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 23, Groupbox.Root[2] + 38 + Groupbox.ToolSpacing}, Lib.Black)
                     end
+
+                    dx9.DrawFilledBox({Groupbox.Root[1] + 7, Groupbox.Root[2] + 22 + Groupbox.ToolSpacing}, {Groupbox.Root[1] + 22, Groupbox.Root[2] + 37 + Groupbox.ToolSpacing}, Lib.OutlineColor)
 
                     if Toggle.Value then
                         if Win.Rainbow then 
@@ -498,17 +555,22 @@ function Lib:CreateWindow(index)
 
 
                     --// Click Detect
-                    if dx9.isLeftClickHeld() then
-                        if mouse_in_boundary({Toggle.Boundary[1], Toggle.Boundary[2]}, {Toggle.Boundary[3], Toggle.Boundary[4]}) then
+                    if mouse_in_boundary({Toggle.Boundary[1], Toggle.Boundary[2]}, {Toggle.Boundary[3], Toggle.Boundary[4]}) then
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() then
                             Toggle.Holding = true;
                         else
-                            Toggle.Holding = false;
+                            if Toggle.Holding == true then
+                                Toggle:SetValue(not Toggle.Value)
+                                Toggle.Holding = false;
+                            end
                         end
+
+                        --// Hover Detection
+                        Toggle.Hovering = true;
                     else
-                        if Toggle.Holding == true then
-                            Toggle:SetValue(not Toggle.Value)
-                            Toggle.Holding = false;
-                        end
+                        Toggle.Hovering = false;
+
                     end
                 end
 
