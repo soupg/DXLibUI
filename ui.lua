@@ -434,7 +434,7 @@ function Lib:CreateWindow( index )
                     local temp = math.floor( Slider.Value )..Slider.Suffix.."/"..params.Max..Slider.Suffix
                     local bar_length = 235
 
-                    local val = ( 1 / ( ( params.Max - params.Min ) / Slider.Value )  )
+                    local val = ( 1 / ( ( params.Max - params.Min ) / (Slider.Value - params.Min) )  )
                     if val >= .98 then val = 1 end
                     if val <= .02 then val = 0 end
 
@@ -483,9 +483,9 @@ function Lib:CreateWindow( index )
                             local cursor = ( ( dx9.GetMouse().x ) - ( Groupbox.Root[1] + 6 ) )
 
                             local val = 1 / ( bar_length/cursor )
-                            if val >= .98 then val = params.Max end
-                            if val <= .02 then val = params.Min end
-                            Slider.Value = val * ( params.Max - params.Min )
+                            if val >= .98 then val = 1 end
+                            if val <= .02 then val = 0 end
+                            Slider.Value = (val * ( params.Max - params.Min )) + params.Min
                             
                             Slider.Changed = true;
                         else
