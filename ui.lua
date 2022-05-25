@@ -327,35 +327,43 @@ function Lib:CreateWindow( index )
 
                 Button = Groupbox.Tools[idx]
 
-                Log(2)
                 --// Draw Button in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
-                    Log(1)
-                    Groupbox.Vertical = Groupbox.Vertical + 25
+
+                    local n = 0;
+                    if string.gmatch(Button.Name, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(Button.Name, "([^\n]+)")) do
+                            n = n + 1
+                        end
+                    else
+                        n = 1
+                    end
+                    
+                    Groupbox.Vertical = Groupbox.Vertical + (7 + (18 * n))
 
                     if Button.Hovering then
                         if Win.Rainbow == true then 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.CurrentRainbowColor )
                         else
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.AccentColor )
                         end
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 39 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 21 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.OutlineColor )
 
                     if Button.Holding == true then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 20 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.OutlineColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 20 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.MainColor )
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , " "..Button.Name )
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , Button.Name )
 
-                    Button.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
+                    Button.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) }
 
-                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
 
                     --// Click Detect
                     if mouse_in_boundary( { Button.Boundary[1] , Button.Boundary[2] } , { Button.Boundary[3] , Button.Boundary[4] } ) then
@@ -383,6 +391,31 @@ function Lib:CreateWindow( index )
                 WinCheck( Win )
                 return Button;
             end
+
+
+            --// Add Label
+            function Groupbox:AddLabel(text)
+
+                --// Draw Label in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+
+                    local n = 0;
+                    if string.gmatch(text, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(text, "([^\n]+)")) do
+                            n = n + 1
+                        end
+                    else
+                        n = 1
+                    end
+
+                    Groupbox.Vertical = Groupbox.Vertical + (7 + (18 * n))
+
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , text)
+
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
+                end
+            end
+
 
             --// Add Input to Groupbox | Groupbox2:AddInput( "input1" , { Default = "Default" , Text = "Input" , Placeholder = "Placeholder Text" , MaxLength = nil } )
             function Groupbox:AddInput( index , params )

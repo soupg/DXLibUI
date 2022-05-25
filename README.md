@@ -101,7 +101,7 @@ Lib:CreateWindow(WindowTitle)
 		Tab:AddLeftGroupbox(Name)
 		Tab:AddRightGroupbox(Name)
 		
-		Groupbox:AddButton(Text, Function) --// Function can by one-line or multi-line
+		Groupbox:AddButton(Text, Function) --// Function AND Text can be one-line or multi-line
 
 		Groupbox:AddToggle(index, {Default = false, Text = "Text"})
 			Toggle:OnChanged(Function)
@@ -110,6 +110,8 @@ Lib:CreateWindow(WindowTitle)
 		Groupbox:AddSlider(index, {Default = 0, Text = "Text", Min = 0, Max = 100, Suffix = "%"}
 			Slider:OnChanged(Function)
 			Slider:SetValue(Int)
+			
+		Groupbox:AddLabel(text) --// Supports Multiline
 ```
 ## Accessing Values
 Nearly all the tools used in supgLib have globally accessible properties. Any indexed item can be accessed like so
