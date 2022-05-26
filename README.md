@@ -14,7 +14,10 @@ supgLib is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which m
 
 To begin using the library, simply paste in this snippet of code at the top of your code editor.
 ```lua
-loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))()
+if  _G.supgLib == nil  then
+	_G.supgLib = loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))
+end  
+_G.supgLib()
 ```
 You can edit public Lib properties such as watermark and keybind like so
 ```lua
@@ -145,7 +148,10 @@ The library was fully made by supg from scratch, but as some may notice it was h
 Here is a small demo script I made that showcases nearly all of supgLib's functions. Feel free to use and edit this however you like.
 ```lua
 --// Loading UI
-loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))()
+if  _G.supgLib == nil  then
+	_G.supgLib = loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))
+end  
+_G.supgLib()
 
 --// Building UI
 Lib:SetWatermark("Watermark name", {Location = {400, 10}})
