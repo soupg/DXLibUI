@@ -1,7 +1,5 @@
 --// BetterConsole //--
-
 _G["oldprint"] = print
-
 _G["print"] = Log
 _G["error"] = LogError
 
@@ -183,10 +181,26 @@ Con.StoredLogs = {};
 _G.Con = Con
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+-- Fixed the Get function lag :D
+if _G.bettergetfunction == nil then
+    local oldget = _G["dx9"]["Get"] 
+    _G["bettergetfunction"] = {} 
+    _G["dx9"]["Get"] = function(url)
+        if _G["bettergetfunction"][url] == nil then
+            _G["bettergetfunction"][url] = oldget(url)
+            return _G["bettergetfunction"][url]
+        else
+            return _G["bettergetfunction"][url]
+        end
+    end
+end
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 if _G.betterdebugrun == nil then
-    local havethesamestructionchild = {"FindFirstChild","FindFirstChildOfClass","FindFirstDescendant"}
 
+    local havethesamestructionchild = {"FindFirstChild","FindFirstChildOfClass","FindFirstDescendant"}
     for i,v in pairs(havethesamestructionchild) do
         local old = _G["dx9"][v]
         _G["dx9"][v] = function(...)
