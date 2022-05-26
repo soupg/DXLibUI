@@ -112,6 +112,8 @@ Lib:CreateWindow(WindowTitle)
 			Slider:SetValue(Int)
 			
 		Groupbox:AddLabel(text) --// Supports Multiline
+		Groupbox:AddTitle(text) --// Does not support multiline
+		Groupbox:AddBlank(sizeNum) --// Adds an empty space of said size
 ```
 ## Accessing Values
 Nearly all the tools used in supgLib have globally accessible properties. Any indexed item can be accessed like so
@@ -146,11 +148,10 @@ The library was fully made by supg from scratch, but as some may notice it was h
 Here is a small demo script I made that showcases nearly all of supgLib's functions. Feel free to use and edit this however you like.
 ```lua
 --// Loading UI
-if _G.supgLib == nil  then
+if  _G.supgLib == nil  then
 	_G.supgLib = loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))
 end  
 _G.supgLib()
-
 
 --// Building UI
 Lib:SetWatermark("Watermark name", {Location = {400, 10}})

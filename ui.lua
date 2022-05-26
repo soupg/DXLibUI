@@ -7,6 +7,7 @@ ADD INPUT PROTECTION ( for keybinds and more )
 
 ]]
 
+
 --[[
  ██████╗ ██╗      ██████╗ ██████╗  █████╗ ██╗         ███████╗██╗   ██╗███╗   ██╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
 ██╔════╝ ██║     ██╔═══██╗██╔══██╗██╔══██╗██║         ██╔════╝██║   ██║████╗  ██║██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
@@ -39,6 +40,25 @@ function mouse_in_boundary( v1 , v2 )
     end
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Fixed the Get function lag :D
+if _G.bettergetfunction == nil then
+    local oldget = _G["dx9"]["Get"] 
+    _G["bettergetfunction"] = {} 
+    _G["dx9"]["Get"] = function(url)
+        if _G["bettergetfunction"][url] == nil then
+            _G["bettergetfunction"][url] = oldget(url)
+            return _G["bettergetfunction"][url]
+        else
+            return _G["bettergetfunction"][url]
+        end
+    end
+end
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 --[[
 ██╗   ██╗ █████╗ ██████╗ ██╗ █████╗ ██████╗ ██╗     ███████╗███████╗
@@ -57,12 +77,12 @@ local WinScaleY = dx9.size().height / 1017
 --// Global Dynamic Values
 if _G.Lib == nil then
     _G.Lib = { 
-        FontColor = { 255 ,255 ,255 }; -- Static + [Changeable]
-        MainColor = { 28 ,28 ,28 }; -- Static + [Changeable]
-        BackgroundColor = { 20 ,20 ,20 }; -- Static + [Changeable]
-        AccentColor = { 0 ,85 ,255 }; -- Static + [Changeable]
-        OutlineColor = { 50 ,50 ,50 }; -- Static + [Changeable]
-        Black = { 0 ,0 ,0 }; -- Static
+        FontColor = { 255 , 255 , 255 }; -- Static + [Changeable]
+        MainColor = { 28 , 28 , 28 }; -- Static + [Changeable]
+        BackgroundColor = { 20 , 20 , 20 }; -- Static + [Changeable]
+        AccentColor = { 0 , 85 , 255 }; -- Static + [Changeable]
+        OutlineColor = { 50 , 50 , 50 }; -- Static + [Changeable]
+        Black = { 0 , 0 , 0 }; -- Static
 
         RainbowHue = 0; -- Dynamic
         CurrentRainbowColor = { 0 ,0 ,0 }; -- Dynamic
@@ -176,6 +196,12 @@ function Lib:CreateWindow( index )
 
 
     --// Display Window //--
+    local TrimmedWinName = Win.Name;
+    if dx9.CalcTextWidth(TrimmedWinName) >=  540 then
+        repeat
+            TrimmedWinName = TrimmedWinName:sub(1,-2)
+        until dx9.CalcTextWidth(TrimmedWinName) <= 540
+    end
 
     function Win:Render()
         if Lib.Active then
@@ -191,7 +217,7 @@ function Lib:CreateWindow( index )
             dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 5 } , Lib.OutlineColor ) --// Main Inner Outline 
             dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + 21 } , { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 6 } , Lib.Black ) --// Main Inner Outline Black
 
-            dx9.DrawString( Win.Location , Lib.FontColor , "  "..Win.Name )
+            dx9.DrawString( Win.Location , Lib.FontColor , "  "..TrimmedWinName)
             dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 10 } , Lib.OutlineColor ) --// Main Tab Box Outline
             dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 11 } , Lib.MainColor ) --// Main Tab Box
         end
@@ -222,7 +248,7 @@ function Lib:CreateWindow( index )
              };
             Win.Tabs[TabName] = Tab;
         else
-            Log(Win.Tabs[TabName].Name)
+
         end
         Tab = Win.Tabs[TabName];
         
@@ -286,7 +312,9 @@ function Lib:CreateWindow( index )
                         dx9.DrawFilledBox( { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 1 } , { Win.Location[1] + 269 , Win.Location[2] + Tab.leftstack + 3 } , Lib.AccentColor )
                     end
                     dx9.DrawFilledBox( { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 4 } , { Win.Location[1] + 269 , Win.Location[2] + Tab.leftstack + Groupbox.Vertical - 1 } , Lib.BackgroundColor )
-                    dx9.DrawString( { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 4 } , Lib.FontColor , " "..Groupbox.Name )
+
+
+                    dx9.DrawString( { Win.Location[1] + 145 - (dx9.CalcTextWidth(Groupbox.Name) / 2) , Win.Location[2] + Tab.leftstack + 4 } , Lib.FontColor , Groupbox.Name )
 
                     Groupbox.Root = { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 10 }
                     Tab.leftstack = Tab.leftstack + Groupbox.Vertical + 10
@@ -298,7 +326,9 @@ function Lib:CreateWindow( index )
                         dx9.DrawFilledBox( { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 1 } , { Win.Location[1] + 529 , Win.Location[2] + Tab.rightstack + 3 } , Lib.AccentColor )
                     end
                     dx9.DrawFilledBox( { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 4 } , { Win.Location[1] + 529 , Win.Location[2] + Tab.rightstack + Groupbox.Vertical - 1 } , Lib.BackgroundColor )
-                    dx9.DrawString( { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 4 } , Lib.FontColor , " "..Groupbox.Name )
+
+
+                    dx9.DrawString( { Win.Location[1] + 405 - (dx9.CalcTextWidth(Groupbox.Name) / 2) , Win.Location[2] + Tab.rightstack + 4 } , Lib.FontColor , Groupbox.Name )
 
                     Groupbox.Root = { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 10 }
                     Tab.rightstack = Tab.rightstack + Groupbox.Vertical + 10
@@ -331,11 +361,22 @@ function Lib:CreateWindow( index )
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
 
                     local n = 0;
+                    local NewButtonName = "";
                     if string.gmatch(Button.Name, "([^\n]+)") ~= nil then
                         for i in (string.gmatch(Button.Name, "([^\n]+)")) do
+
+                            local temp = i;
+                            if dx9.CalcTextWidth(temp) >=  230 then
+                                repeat
+                                    temp = temp:sub(1,-2)
+                                until dx9.CalcTextWidth(temp) <= 230
+                            end
+
+                            NewButtonName = NewButtonName..temp.."\n"
                             n = n + 1
                         end
                     else
+                        NewButtonName = Button.Name
                         n = 1
                     end
                     
@@ -359,7 +400,7 @@ function Lib:CreateWindow( index )
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 20 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.MainColor )
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , Button.Name )
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , NewButtonName )
 
                     Button.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) }
 
@@ -390,6 +431,38 @@ function Lib:CreateWindow( index )
 
                 WinCheck( Win )
                 return Button;
+            end
+
+
+            --// Add Title
+            function Groupbox:AddTitle(text)
+
+                --// Draw Title in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+
+                    Groupbox.Vertical = Groupbox.Vertical + (7 + 18)
+
+                    dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , Lib.FontColor , text)
+
+                    if Win.Rainbow == true then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                    end
+
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + 18)
+                end
+            end
+
+
+            --// Add Blank
+            function Groupbox:AddBlank(size)
+                --// Draw Blank in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                    Groupbox.Vertical = Groupbox.Vertical + size
+
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + size
+                end
             end
 
 
@@ -613,7 +686,14 @@ function Lib:CreateWindow( index )
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Lib.MainColor )
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Lib.FontColor , " "..Toggle.Text )
+                    local TrimmedToggleText = Toggle.Text;
+                    if dx9.CalcTextWidth(TrimmedToggleText) >=  215 then
+                        repeat
+                            TrimmedToggleText = TrimmedToggleText:sub(1,-2)
+                        until dx9.CalcTextWidth(TrimmedToggleText) <= 215
+                    end
+
+                    dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Lib.FontColor , " "..TrimmedToggleText)
 
                     Toggle.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
 
