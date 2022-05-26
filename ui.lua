@@ -444,8 +444,8 @@ function Lib:CreateWindow( index )
 
                     dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , Lib.FontColor , text)
 
-                    if Win.Rainbow == true then 
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 300 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                    if Win.Rainbow == true then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Lib.AccentColor )
                     end
