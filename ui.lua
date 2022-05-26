@@ -40,6 +40,25 @@ function mouse_in_boundary( v1 , v2 )
     end
 end
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Fixed the Get function lag :D
+if _G.bettergetfunction == nil then
+    local oldget = _G["dx9"]["Get"] 
+    _G["bettergetfunction"] = {} 
+    _G["dx9"]["Get"] = function(url)
+        if _G["bettergetfunction"][url] == nil then
+            _G["bettergetfunction"][url] = oldget(url)
+            return _G["bettergetfunction"][url]
+        else
+            return _G["bettergetfunction"][url]
+        end
+    end
+end
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 
 --[[
 ██╗   ██╗ █████╗ ██████╗ ██╗ █████╗ ██████╗ ██╗     ███████╗███████╗
