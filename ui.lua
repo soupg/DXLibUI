@@ -5,6 +5,7 @@ ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 
 ADD INPUT PROTECTION ( for keybinds and more )
 
+Gav was here
 ]]
 
 
@@ -713,6 +714,108 @@ function Lib:CreateWindow( index )
                         end
 
                         --// Hover Detection
+                        Toggle.Hovering = true;
+                    else
+                        Toggle.Hovering = false;
+                        Toggle.Holding = false;
+                    end
+                end
+
+                --// Toggle Onchanged
+                function Toggle:OnChanged( func )
+                    if Toggle.Changed then
+                        Toggle.Changed = false
+                        func()
+                    end
+                end
+
+                --// Closing Difines and Resets | Toggle
+                Groupbox.Tools[index] = Toggle;
+                Win.Tools[index] = Toggle;
+
+                WinCheck( Win )
+                return Toggle;
+            end
+
+            --// Closing Difines and Resets | Groupbox
+            Groupbox.Vertical = 30;
+            Groupbox.ToolSpacing = 0;
+
+            Tab.Groupboxes[name] = Groupbox;
+
+            WinCheck( Win )
+            return Groupbox;
+        end
+
+
+        function Groupbox:AddColorPicker( index , params ) 
+            local Toggle = {}
+            
+            if Groupbox.Tools[index] == nil then
+                Toggle = { 
+                    Text = params.Text;
+                    Boundary = { 0 ,0 ,0 ,0 };
+                    Value = params.Default or {255,255,255};
+                    Holding = false;
+                    Changed = false;
+                    Hovering = false;
+                 }
+                Groupbox.Tools[index] = Toggle
+            end
+            Groupbox.Tools[index].Text = params.Text
+            ColorPicker = Groupbox.Tools[index]
+
+
+            function Toggle:SetValue( value )
+                Toggle.Value = value;
+                Toggle.Changed = true;
+            end
+
+            --// Draw Toggle in Groupbox
+            if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                Groupbox.Vertical = Groupbox.Vertical + 25
+
+                if Toggle.Hovering then
+                    if Win.Rainbow then 
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                    end
+                else
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.Black )
+                end
+
+                dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 22 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+
+                dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Toggle.Value )
+
+                local TrimmedToggleText = Toggle.Text;
+                if dx9.CalcTextWidth(TrimmedToggleText) >=  215 then
+                    repeat
+                        TrimmedToggleText = TrimmedToggleText:sub(1,-2)
+                    until dx9.CalcTextWidth(TrimmedToggleText) <= 215
+                end
+
+                dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Lib.FontColor , " "..TrimmedToggleText)
+
+                Toggle.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
+
+                Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
+
+
+                --// Click Detect
+                if mouse_in_boundary( { Toggle.Boundary[1] , Toggle.Boundary[2] } , { Toggle.Boundary[3] , Toggle.Boundary[4] } ) then
+                    --// Click Detection
+                    if dx9.isLeftClickHeld() then
+                        Toggle.Holding = true;
+                    else
+                        if Toggle.Holding == true then
+                            --Toggle:SetValue( not Toggle.Value )
+                            Toggle.Holding = false;
+                        end
+                    end
+
+                    --// Hover Detection
                         Toggle.Hovering = true;
                     else
                         Toggle.Hovering = false;
