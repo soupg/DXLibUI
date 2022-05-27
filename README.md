@@ -4,11 +4,12 @@
 supgLib is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which makes UI implementation within your scripts simple and effecient.
 
 ### Current Features
-- Creation of multiple dynamic windows
-- Creation of multiple dynamic tabs (per window)
-- Creation of multiple dynamic group boxes (per tab)
-- Creation of multiple dynamic buttons, toggles and sliders (per group box)
-- Easily accessible public "tools" storage (`Window.Tools.index.[Value, Name, Boundary, etc]`)
+* Creation of multiple dynamic windows
+* Creation of multiple dynamic tabs (per window)
+* Creation of multiple dynamic group boxes (per tab)
+* Easily accessible public "tools" storage (`Window.Tools.index.[Value, Name, Boundary, etc]`)
+* These Tools:
+* - Button
 
 # UI Usage
 
