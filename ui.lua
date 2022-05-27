@@ -45,6 +45,33 @@ function mouse_in_boundary( v1 , v2 )
     end
 end
 
+
+--// RGB to Hex
+function rgbToHex(rgb)
+    local hexadecimal = '#'
+
+    for key, value in pairs(rgb) do
+        local hex = ''
+
+        while(value > 0)do
+            local index = math.fmod(value, 16) + 1
+            value = math.floor(value / 16)
+            hex = string.sub('0123456789ABCDEF', index, index) .. hex            
+        end
+
+        if(string.len(hex) == 0)then
+            hex = '00'
+
+        elseif(string.len(hex) == 1)then
+            hex = '0' .. hex
+        end
+
+        hexadecimal = hexadecimal .. hex
+    end
+
+    return hexadecimal
+end
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Fixed the Get function lag :D
@@ -451,6 +478,228 @@ function Lib:CreateWindow( index )
             end
 
 
+            --// Add Colorpicker  :AddColorPicker(index, {Text = "Color Picker", Default = {0, 0, 0} } )
+            function Groupbox:AddColorPicker( index , params ) 
+                local Picker = {}
+                
+                if Groupbox.Tools[index] == nil then
+                    Picker = { 
+                        Text = params.Text or index;
+                        Boundary = { 0 , 0 , 0 , 0 };
+                        Value = params.Default or {0,0,0};
+                        Holding = false;
+                        Changed = false;
+                        Hovering = false;
+                        Open = false;
+
+                        TopColor = nil;
+                        StoredIndex = nil;
+                        StoredIndex2 = nil;
+                     }
+                    Groupbox.Tools[index] = Picker
+                end
+                Groupbox.Tools[index].Text = params.Text
+                Picker = Groupbox.Tools[index]
+
+
+                function Picker:SetValue( value )
+                    Picker.Value = value;
+                    Picker.Changed = true;
+                end
+
+                function Picker:Show()
+                    Picker.Open = true;
+                end
+
+                function Picker:Hide()
+                    Picker.Open = false;
+                end
+
+                --// Draw Color Picker in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+
+                    if Picker.Hovering then
+                        if Win.Rainbow then 
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                        else
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                        end
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.Black )
+                    end
+
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 32 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 31 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Picker.Value )
+
+                    local TrimmedToggleText = Picker.Text;
+                    if dx9.CalcTextWidth(TrimmedToggleText) >=  205 then
+                        repeat
+                            TrimmedToggleText = TrimmedToggleText:sub(1,-2)
+                        until dx9.CalcTextWidth(TrimmedToggleText) <= 205
+                    end
+
+                    dx9.DrawString( { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Lib.FontColor , " "..TrimmedToggleText)
+
+                    Picker.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
+
+                    if Picker.Open then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 223 , Groupbox.Root[2] + 125 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 43 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 222 , Groupbox.Root[2] + 124 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 123 + Groupbox.ToolSpacing } , Lib.BackgroundColor )
+
+                        if Win.Rainbow then
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                        else
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                        end
+
+                        --// DRAWING THE COLORS BRUH
+                        -- Bar 1
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                        
+
+                        -- Bar 2
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + 25 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 25 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 25 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 25 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 25 + Groupbox.ToolSpacing } , Lib.AccentColor )
+
+                        -- Rest
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 113 , Groupbox.Root[2] + 71 + 50 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 112 , Groupbox.Root[2] + 70 + 50 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 111 , Groupbox.Root[2] + 69 + 50 + Groupbox.ToolSpacing } , Lib.MainColor )
+
+                        dx9.DrawString( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Groupbox.ToolSpacing } , Lib.FontColor , " "..rgbToHex(Picker.Value))
+
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 116 , Groupbox.Root[2] + 49 + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + 50 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 117 , Groupbox.Root[2] + 50 + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 50 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 50 + Groupbox.ToolSpacing } , Lib.MainColor )
+
+                        -- rgb
+                        dx9.DrawString( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Groupbox.ToolSpacing } , Lib.FontColor , " ".. math.floor(Picker.Value[1] + 0.5)..", ".. math.floor(Picker.Value[2] + 5.0)..", ".. math.floor(Picker.Value[3] + 5.0))
+
+                        --// AIDS BELOW
+                        local FirstBarHue = 0
+                        for i = 1, 205 do 
+
+                            if FirstBarHue > 1530 then
+                                FirstBarHue = 0        
+                            end
+                            if FirstBarHue <= 255 then
+                                CurrentRainbowColor = {255, FirstBarHue, 0}
+                            elseif FirstBarHue <= 510 then
+                                CurrentRainbowColor = {510 - FirstBarHue, 255, 0}
+                            elseif FirstBarHue <= 765 then
+                                CurrentRainbowColor = {0, 255, FirstBarHue - 510}
+                            elseif FirstBarHue <= 1020 then
+                                CurrentRainbowColor = {0, 1020 - FirstBarHue, 255}
+                            elseif FirstBarHue <= 1275 then
+                                CurrentRainbowColor = {FirstBarHue - 1020, 0, 255}
+                            elseif FirstBarHue <= 1530 then
+                                CurrentRainbowColor = {255, 0, 1530 - FirstBarHue}
+                            end
+
+                            FirstBarHue = FirstBarHue + 7.5
+
+                            if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Groupbox.ToolSpacing}, { Groupbox.Root[1] + 217 + i , Groupbox.Root[2] + 69 + Groupbox.ToolSpacing }) then
+                                Picker.StoredIndex2 = i
+                            end
+
+                            if Picker.StoredIndex2 == i then Picker.TopColor = CurrentRainbowColor end
+
+                            dx9.DrawBox( { Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 69 + Groupbox.ToolSpacing }, CurrentRainbowColor)
+                        end
+
+                        local SecondBarHue = 0
+                        for i = 1, 205 do 
+                            local Color = {0,0,0}
+
+                            if SecondBarHue > 510 then
+                                SecondBarHue = 0        
+                            end
+
+                            if SecondBarHue < 255 then
+                                Color = { Picker.TopColor[1] * (SecondBarHue/255)  , Picker.TopColor[2] * (SecondBarHue/255) , Picker.TopColor[3] * (SecondBarHue/255) }
+                            else
+                                Color = { Picker.TopColor[1] + (SecondBarHue - 255)  , Picker.TopColor[2] + (SecondBarHue - 255) , Picker.TopColor[3] + (SecondBarHue - 255) }
+                            end
+
+                            SecondBarHue = SecondBarHue + 2.5
+
+                            if Color[1] > 255 then Color[1] = 255 end
+                            if Color[2] > 255 then Color[2] = 255 end
+                            if Color[3] > 255 then Color[3] = 255 end
+                            
+                            Color[2] = Color[2] - 5
+                            Color[3] = Color[3] - 5
+
+                            if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Groupbox.ToolSpacing }, { Groupbox.Root[1] + 217 + i, Groupbox.Root[2] + 69 + 25 + Groupbox.ToolSpacing }) then
+                                if i < 5 then 
+                                    Picker.StoredIndex = 1 
+                                elseif i >= 100 and i <= 106 then
+                                    Log("SNAP!")
+                                    Picker.StoredIndex = 103
+                                elseif i > 200 then 
+                                    Picker.StoredIndex = 205
+                                else 
+                                    Picker.StoredIndex = i 
+                                end
+                            end
+
+                            if Picker.StoredIndex == i then Picker.Value = Color end
+
+                            dx9.DrawBox( { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 69 + 25 + Groupbox.ToolSpacing }, Color )
+                        end
+
+                        dx9.DrawBox( { Groupbox.Root[1] + 10 + Picker.StoredIndex2 , Groupbox.Root[2] + 49 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 14 + Picker.StoredIndex2 , Groupbox.Root[2] + 71 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 11 + Picker.StoredIndex2 , Groupbox.Root[2] + 50 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 13 + Picker.StoredIndex2 , Groupbox.Root[2] + 70 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+
+                        dx9.DrawBox( { Groupbox.Root[1] + 10 + Picker.StoredIndex, Groupbox.Root[2] + 74 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 14 + Picker.StoredIndex , Groupbox.Root[2] + 96 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 11 + Picker.StoredIndex, Groupbox.Root[2] + 75 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 13 + Picker.StoredIndex , Groupbox.Root[2] + 95 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                    end
+
+                    Groupbox.Vertical = Groupbox.Vertical + 25
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
+
+                    --// Click Detect
+                    if mouse_in_boundary( { Picker.Boundary[1] , Picker.Boundary[2] } , { Picker.Boundary[3] , Picker.Boundary[4] } ) then
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() then
+                            Picker.Holding = true;
+                        else
+                            if Picker.Holding == true then
+                                if Picker.Open then Picker:Hide() else Picker:Show() end
+                                Picker.Holding = false;
+                            end
+                        end
+
+                        --// Hover Detection
+                        Picker.Hovering = true;
+                    else
+                        Picker.Hovering = false;
+                        Picker.Holding = false;
+                    end
+                end
+
+                --// Picker Onchanged
+                function Picker:OnChanged( func )
+                    if Picker.Changed then
+                        Picker.Changed = false
+                        func()
+                    end
+                end
+
+                --// Closing Difines and Resets | Picker
+                Groupbox.Tools[index] = Picker;
+                Win.Tools[index] = Picker;
+
+                WinCheck( Win )
+                return Picker;
+            end
+
+
             --// Add Title
             function Groupbox:AddTitle(text)
 
@@ -659,7 +908,7 @@ function Lib:CreateWindow( index )
                 
                 if Groupbox.Tools[index] == nil then
                     Toggle = { 
-                        Text = params.Text;
+                        Text = params.Text or index;
                         Boundary = { 0 ,0 ,0 ,0 };
                         Value = params.Default or false;
                         Holding = false;
@@ -834,4 +1083,3 @@ do
         Lib.CurrentRainbowColor = { Lib.RainbowHue - 510 , 0 , 765 - Lib.RainbowHue }
     end
 end
-
