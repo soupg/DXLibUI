@@ -9,7 +9,8 @@ supgLib is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which m
 * Creation of multiple dynamic group boxes (per tab)
 * Easily accessible public "tools" storage (`Window.Tools.index.[Value, Name, Boundary, etc]`)
 * These Tools:
- - Button
+	- Button
+	- Toggle
 
 # UI Usage
 
