@@ -24,7 +24,11 @@ local log = "_LOG_\n"
 function Log( ... )
     local temp = ""
     for i ,v in pairs( { ... } ) do
+        if type( v ) == "table" then
+            temp = temp..unpack( v ).." "
+        else
         temp = temp..tostring( v ).." "
+        end
     end
     log = log..temp.."\n"
     dx9.DrawString( { 1700 ,800 } , { 255 ,255 ,255 } , log );
@@ -45,16 +49,28 @@ end
 
 -- Fixed the Get function lag :D
 if _G.bettergetfunction == nil then
-    local oldget = _G["dx9"]["Get"] 
-    _G["bettergetfunction"] = {} 
-    _G["dx9"]["Get"] = function(url)
-        if _G["bettergetfunction"][url] == nil then
-            _G["bettergetfunction"][url] = oldget(url)
-            return _G["bettergetfunction"][url]
+    local oldget = _G["dx9"]["Get"]
+    local oldload = loadstring
+    _G["bettergetfunction"] = {}
+    _G["bettergetfunction"]["loadcaching"] = {}
+    _G["bettergetfunction"]["getaching"] = {}
+
+    function _G.loadstring(string)
+        if bettergetfunction.loadcaching[string] == nil then
+            bettergetfunction.loadcaching[string] = oldload(string)
         else
-            return _G["bettergetfunction"][url]
+            return bettergetfunction.loadcaching[string]
         end
     end
+    
+    function _G.dx9.Get(string)
+        if bettergetfunction.getaching[string] == nil then
+            bettergetfunction.getaching[string] = dxl.oldget(string)
+        else
+            return bettergetfunction.getaching[string]
+        end
+    end
+
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -737,6 +753,7 @@ function Lib:CreateWindow( index )
                 return Toggle;
             end
 
+
             --// Closing Difines and Resets | Groupbox
             Groupbox.Vertical = 30;
             Groupbox.ToolSpacing = 0;
@@ -746,6 +763,7 @@ function Lib:CreateWindow( index )
             WinCheck( Win )
             return Groupbox;
         end
+    
 
 
         --// Add Left Groupbox Function
@@ -816,3 +834,4 @@ do
         Lib.CurrentRainbowColor = { Lib.RainbowHue - 510 , 0 , 765 - Lib.RainbowHue }
     end
 end
+
