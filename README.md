@@ -10,83 +10,13 @@ supgLib is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which m
 - Creation of multiple dynamic buttons, toggles and sliders (per group box)
 - Easily accessible public "tools" storage (`Window.Tools.index.[Value, Name, Boundary, etc]`)
 
-# Getting Started
+# UI Usage
 
-To begin using the library, simply paste in this snippet of code at the top of your code editor.
-```lua
-if  _G.supgLib == nil  then
-	_G.supgLib = loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"))
-end  
-_G.supgLib()
-```
-You can edit public Lib properties such as watermark and keybind like so
-```lua
-Lib:SetWatermark("Watermark Text", {Location = {1100, 10}}) --// Sets watermark text and location
-Lib:SetWatermarkVisibility(false) --// Changes watermark visibility to true/false
-Lib:SetKeybind("[A]") --// Changes library keybind
-```
-## Creating a window
-With supgLib, you can create multiple windows, each having their own collection of tabs, groups, and tools.
-Because of this, its required that you 'attach' your window to a varaible.
-```lua
-local  Window = Lib:CreateWindow("Window Name") --// Creates and displays a window
-local  Window2 = Lib:CreateWindow("Window Name 2") --// Creates and displays a second stand-
-
-Window:SetWindowTitle("New Window Name") --// Changes a window's name
-Window:AddTab("Tab Name") --// Creates a tab in the window
-```
-By defining windows in such a way, you can access a window's properties. Here are some common window properties:
-```lua
-Window.Location
-Window.Size
-Window.Rainbow --// Whether the window is color-changing or not
-Window.WindowNum --// The # of the window (1, 2, 3, etc... depending on window count)
-Window.Tabs
-Window.CurrentTab --// Returns a name of the selected tab
-Window.Tools --// Returns all window tools such as buttons, toggles, sliders, and more. This method is very useful.
-```
-## Creating a tab
-Tabs help the UI keep content organized. Each tab contains a collection of group boxes, and those group boxes contain the actual tools such as buttons and toggles.
-```lua
-local  Tab = Window:AddTab("Tab Name") --// First Tab
-local  Tab2 = Window:AddTab("Tab Name 2") --// Second stand-alone tab
-Tab2:Focus() --// Opens the second tab and sets the Window.CurrentTab property to the tab name
-
-local  Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") --// Creates a groupbox on the LEFT side of tab 1
-local  Groupbox2 = Tab1:AddRightGroupbox("GroupBox 2")--// Creates a groupbox on the RIGHT side of tab 1
-```
-The group boxes created above will serve as storage containers for our tools. Soon we will create buttons, toggles, and more to populate the group boxes.
-## Adding buttons, toggles, and sliders to group boxes
-Each group box can be seen as a container that stores a tool.
-```lua
-local  Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") --// Left Group Box
-local  Groupbox2 = Tab1:AddRightGroupbox("GroupBox 2") --// Right Group Box
-
---// Button
-Groupbox1:AddButton("Button Text", function()
-	--// Everything here will be executed on button click
-	print("Button Clicked")
-end)
-
---// Toggle | index should be a unique ID which will be used for Window.Tools.index
-local  Toggle = Groupbox1:AddToggle("index", {Default = false, Text = "Toggle Text"})
-
--- OnChanged function (runs each time the toggle state changes)
-Toggle:OnChanged(function()
-	print("Toggle State Changed")
-end)
-
-local toggled = Toggle.Value --// Toggle.Value accesses the toggle's state
-
---// Slider | index should be a unique ID which will be used for Window.Tools.index
-local  Slider = Groupbox1:AddSlider("index", {Default = 0, Text = "Slider Text", Min = 0, Max = 100, Suffix = ""}) -- Without Suffix: [10/100] | With "%" Suffix: [10%/100%]
-
--- Similarely to a toggle, a slider also has a :OnChanged function (not demonstrated)
-local slider_value = Slider.Value -- Accessable slider value
-```
-As shown above, all of the tools available have lots of functions and properties which are accessible.
+All of the tools available have lots of functions and properties which are accessible.
 Below I will list an ordered list for each function. [Key List](https://cultofintellect.com/dx9ware/docs/GetKey.html) (for SetKeybind)
+
 ## Function List
+
 ```lua
 Lib:SetWatermarkVisibility(Bool)
 Lib:SetWatermark(Text, {Location = {x, y}})
@@ -103,6 +33,12 @@ Lib:CreateWindow(WindowTitle)
 		
 		Groupbox:AddButton(Text, Function) --// Function AND Text can be one-line or multi-line
 
+		Groupbox:AddColorPicker(index, {Default = {r,g,b}, Text = "Text"})
+			ColorPicker:OnChanged(Function)
+			ColorPicker:SetValue({r,g,b})
+			ColorPicker:Show()
+			ColorPicker:Hide()
+
 		Groupbox:AddToggle(index, {Default = false, Text = "Text"})
 			Toggle:OnChanged(Function)
 			Toggle:SetValue(Bool)
@@ -115,12 +51,17 @@ Lib:CreateWindow(WindowTitle)
 		Groupbox:AddTitle(text) --// Does not support multiline
 		Groupbox:AddBlank(sizeNum) --// Adds an empty space of said size
 ```
+
 ## Accessing Values
+
 Nearly all the tools used in supgLib have globally accessible properties. Any indexed item can be accessed like so
+
 ```lua
-local item = Window.Tools.index
+local item = Window.Tools.index --// The index was set by you when making the tool
 ```
+
 Lets do an example on a toggle
+
 ```lua
 local Toggle = Groupbox:AddToggle("toggle_1", {Default = false, Text = "Toggle 1"})
 
@@ -139,13 +80,19 @@ if Toggle.Value then
 	print("Im ON!")
 end
 ```
+
 This was simply the toggle example, each tool in supgLib has its own set of dynamic properties which you can change to your liking. Just don't mess with anything too important and you'll be fine.
 
 # Credits
-The library was fully made by supg from scratch, but as some may notice it was heavily inspired by Linora Lib. I love the way it looks so I based this library off of Linora. Huge credit to the creator of that library as it's amazing. Also credit to Alleexxii for helping with a lot of things overall.
+
+- supg#1013 | Lead UI Developer
+- Alleexxii#3440 | UI Functions Developer
+- Linora | UI Design Concept
 
 # Demo Script
+
 Here is a small demo script I made that showcases nearly all of supgLib's functions. Feel free to use and edit this however you like.
+
 ```lua
 --// Loading UI
 if  _G.supgLib == nil  then
