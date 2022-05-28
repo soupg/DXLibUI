@@ -96,16 +96,17 @@ end
   ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
 ]]
 
+--// dx9.Get fix (this took 4 fucking hours im ending it all)
 if _G.FloppaSolosBingus == nil then
-    _G.FloppaSolosBingus = {Cum = "Supg fixed your shitty code bozo"}
-    _G.FloppaSolosBingus.oldget = dx9.Get
+    local oldget = dx9.Get
     dx9.Get = function(string)
         if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" then
             return "print('No one likes loadstring')"
         else
-            return _G.FloppaSolosBingus.oldget(string)
+            return oldget(string)
         end
     end
+    _G.FloppaSolosBingus = "Supg fixed your shitty code bozo"
 end
 
 
