@@ -98,8 +98,7 @@ if _G.bettergetfunction == nil then
     function _G.loadstring(string)
         if bettergetfunction.loadcaching[string] == nil then
             bettergetfunction.loadcaching[string] = oldload(string)
-           return bettergetfunction.loadcaching[string]
-         else
+        else
             return bettergetfunction.loadcaching[string]
         end
     end
@@ -107,7 +106,6 @@ if _G.bettergetfunction == nil then
     function _G.dx9.Get(string)
         if bettergetfunction.getaching[string] == nil then
             bettergetfunction.getaching[string] = dxl.oldget(string)
-            return bettergetfunction.getaching[string]
         else
             return bettergetfunction.getaching[string]
         end
