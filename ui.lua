@@ -106,7 +106,7 @@ if _G.bettergetfunction == nil then
     
     _G["dx9"]["Get"] = function(string)
         if bettergetfunction.getaching[string] == nil then
-            bettergetfunction.getaching[string] = dxl.oldget(string)
+            bettergetfunction.getaching[string] = oldget(string)
         end
         return bettergetfunction.getaching[string]
     end
