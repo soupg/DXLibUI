@@ -93,10 +93,15 @@ if _G.bettergetfunction == nil then
     local oldload = _G.loadstring
     _G["bettergetfunction"] = {}
     _G["bettergetfunction"]["loadcaching"] = {}
-    bettergetfunction.loadcaching[dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua")] = false
+    local blacklistedurl = {
+        ["https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"] = true
+    }
     _G["bettergetfunction"]["getaching"] = {}
 
     _G["loadstring"] = function(string)
+        if blacklistedurl[string] then
+            return function() end
+        end
         if bettergetfunction.loadcaching[string] == nil then
             return oldload(string)
         else
