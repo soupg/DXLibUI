@@ -8,6 +8,8 @@ ADD INPUT PROTECTION ( for keybinds and more )
 Gav was here
 
 ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
+
+ss
 ]]
 
 
