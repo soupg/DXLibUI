@@ -72,36 +72,6 @@ function rgbToHex(rgb)
     return hexadecimal
 end
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
--- Fixed the Get function lag :D
-if _G.bettergetfunction == nil then
-    local oldget = _G["dx9"]["Get"]
-    local oldload = loadstring
-    _G["bettergetfunction"] = {}
-    _G["bettergetfunction"]["loadcaching"] = {}
-    _G["bettergetfunction"]["getaching"] = {}
-
-    function _G.loadstring(string)
-        if bettergetfunction.loadcaching[string] == nil then
-            bettergetfunction.loadcaching[string] = oldload(string)
-        else
-            return bettergetfunction.loadcaching[string]
-        end
-    end
-    
-    function _G.dx9.Get(string)
-        if bettergetfunction.getaching[string] == nil then
-            bettergetfunction.getaching[string] = dxl.oldget(string)
-        else
-            return bettergetfunction.getaching[string]
-        end
-    end
-
-end
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 
 --[[
@@ -117,7 +87,7 @@ end
 if _G.FloppaSolosBingus == nil then
     local oldget = dx9.Get
     dx9.Get = function(string)
-        if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" then
+        if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib == nil then
             return "print('No one likes loadstring')"
         else
             return oldget(string)
