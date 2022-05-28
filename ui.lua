@@ -88,7 +88,7 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Fixed the Get function lag :D
-if _G.bettergetfunction == nil then
+--[[ if _G.bettergetfunction == nil then
     local oldget = _G["dx9"]["Get"]
     local oldload = _G.loadstring
     _G["bettergetfunction"] = {}
@@ -118,7 +118,7 @@ if _G.bettergetfunction == nil then
         end
         return bettergetfunction.getaching[string]
     end
-end
+end ]]
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
