@@ -1200,25 +1200,3 @@ end
 
 
 ----
-
-
---// Creating a Window
-local Window = Lib:CreateWindow("Window 1")
-
---// Creating Tabs
-local Tab1 = Window:AddTab("Tab 1")
-local Tab2 = Window:AddTab("Tab 2")
-
---// Creating Groupboxes
-local Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") 
-
-local aids = Groupbox1:AddColorPicker("clrpicskser1", {Default = {255, 1, 1}, Text = "Aids"})
-
-local button = Groupbox1:AddButton("ts", function() end)
-
-Groupbox1:AddToggle("ssd", {Text = "bruh"})
-
-if Window.DeadZone ~= nil then Log(Window.DeadZone[1],Window.DeadZone[2],Window.DeadZone[3],Window.DeadZone[4]) end
-
-
-local ai2ds = Groupbox1:AddColorPicker("clrpics2kser1", {Default = {255, 1, 1}, Text = "Aids 2"})
