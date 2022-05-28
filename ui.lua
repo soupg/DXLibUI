@@ -86,7 +86,6 @@ function rgbToHex(rgb)
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-debug.sethook(print,"l")
 
 -- Fixed the Get function lag :D
 if _G.bettergetfunction == nil then
@@ -94,6 +93,7 @@ if _G.bettergetfunction == nil then
     local oldload = _G.loadstring
     _G["bettergetfunction"] = {}
     _G["bettergetfunction"]["loadcaching"] = {}
+    bettergetfunction.loadcaching[dx9.Get("https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua")] = false
     _G["bettergetfunction"]["getaching"] = {}
 
     _G["loadstring"] = function(string)
