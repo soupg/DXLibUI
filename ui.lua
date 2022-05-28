@@ -8,6 +8,8 @@ ADD INPUT PROTECTION ( for keybinds and more )
 Gav was here
 
 ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
+
+ss
 ]]
 
 
@@ -19,7 +21,6 @@ ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
 ╚██████╔╝███████╗╚██████╔╝██████╔╝██║  ██║███████╗    ██║     ╚██████╔╝██║ ╚████║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
  ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝    ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 ]]
-
 
 --// Log Function
 local log = "_LOG_\n"
@@ -86,8 +87,6 @@ function rgbToHex(rgb)
 end
 
 
-
-
 --[[
 ██╗   ██╗ █████╗ ██████╗ ██╗ █████╗ ██████╗ ██╗     ███████╗███████╗
 ██║   ██║██╔══██╗██╔══██╗██║██╔══██╗██╔══██╗██║     ██╔════╝██╔════╝
@@ -97,9 +96,18 @@ end
   ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
 ]]
 
---// Making vars used to scale ui to screensize
-local WinScaleX = dx9.size().width / 1920
-local WinScaleY = dx9.size().height / 1017
+--// dx9.Get fix (this took 4 fucking hours im ending it all)
+if _G.FloppaSolosBingus == nil then
+    local oldget = dx9.Get
+    dx9.Get = function(string)
+        if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
+            return "print('No one likes loadstring')"
+        else
+            return oldget(string)
+        end
+    end
+    _G.FloppaSolosBingus = "Supg fixed your shitty code bozo"
+end
 
 
 --// Global Dynamic Values
@@ -1188,3 +1196,7 @@ do
         Lib.CurrentRainbowColor = { Lib.RainbowHue - 510 , 0 , 765 - Lib.RainbowHue }
     end
 end
+
+
+
+----
