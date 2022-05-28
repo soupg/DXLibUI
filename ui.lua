@@ -98,6 +98,8 @@ if _G.bettergetfunction == nil then
     _G["loadstring"] = function(string)
         if bettergetfunction.loadcaching[string] == nil then
             return oldload(string)
+        else
+            return function() end -- useles 💀💀💀💀💀
         end
     end
     
