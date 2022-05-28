@@ -1,5 +1,5 @@
 --// supgLib DX9Ware UI //--
-
+loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/DXLib/main/main.lua"))()
 --[[
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 
@@ -85,42 +85,6 @@ function rgbToHex(rgb)
     return hexadecimal
 end
 
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
--- Fixed the Get function lag :D
---[[ if _G.bettergetfunction == nil then
-    local oldget = _G["dx9"]["Get"]
-    local oldload = _G.loadstring
-    _G["bettergetfunction"] = {}
-    _G["bettergetfunction"]["loadcaching"] = {}
-    _G["bettergetfunction"]["blacklistedurl"] = {
-        ["https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"] = true
-    }
-    _G["bettergetfunction"]["getaching"] = {}
-
-    _G["loadstring"] = function(string)
-        if _G["bettergetfunction"]["blacklistedurl"][string] ~= nil then
-            return function() end
-        end
-        if bettergetfunction.loadcaching[string] == nil then
-            return oldload(string)
-        else
-            return function() end -- useles 
-        end
-    end
-    
-    _G["dx9"]["Get"] = function(string)
-        if _G["bettergetfunction"]["blacklistedurl"][string] ~= nil then
-            return function() end
-        end
-        if bettergetfunction.getaching[string] == nil then
-            bettergetfunction.getaching[string] = oldget(string)
-        end
-        return bettergetfunction.getaching[string]
-    end
-end ]]
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
