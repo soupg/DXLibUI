@@ -89,24 +89,31 @@ end
 
 -- Fixed the Get function lag :D
 if _G.bettergetfunction == nil then
-    local oldget = dx9.Get
-    local oldload = loadstring
-    _G.bettergetfunction = {}
-    _G.bettergetfunction.loadcaching = {}
-    _G.bettergetfunction.getcaching = {}
+    local oldget = _G["dx9"]["Get"]
+    local oldload = _G.loadstring
+    _G["bettergetfunction"] = {}
+    _G["bettergetfunction"]["loadcaching"] = {}
+    local blacklistedurl = {
+        ["https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"] = true
+    }
+    _G["bettergetfunction"]["getaching"] = {}
 
-    function loadstring(string)
-        if _G.bettergetfunction.loadcaching[string] == nil then
-            _G.bettergetfunction.loadcaching[string] = oldload(string)
+    _G["loadstring"] = function(string)
+        if blacklistedurl[string] then
+            return function() end
+        end
+        if bettergetfunction.loadcaching[string] == nil then
+            return oldload(string)
         else
+            return function() end -- useles 💀💀💀💀💀
         end
     end
     
-    function dx9.Get(string)
-        if _G.bettergetfunction.getcaching[string] == nil then
-            _G.bettergetfunction.getcaching[string] = oldget(string)
-        else
+    _G["dx9"]["Get"] = function(string)
+        if bettergetfunction.getaching[string] == nil then
+            bettergetfunction.getaching[string] = oldget(string)
         end
+        return bettergetfunction.getaching[string]
     end
 end
 
