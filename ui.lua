@@ -88,32 +88,25 @@ end
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Fixed the Get function lag :D
-if _G.bettergetfunction == nil then
-    local oldget = _G["dx9"]["Get"]
-    local oldload = _G.loadstring
-    _G["bettergetfunction"] = {}
-    _G["bettergetfunction"]["loadcaching"] = {}
-    local blacklistedurl = {
-        ["https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua"] = true
-    }
-    _G["bettergetfunction"]["getaching"] = {}
+if _G.BGF == nil then
+    _G.BGF = {}
+    _G.BGF.oldget = dx9.Get
+    _G.BGF.oldload = loadstring
+    _G.BGF.loadcaching = {}
+    _G.BGF.getcaching = {}
 
-    _G["loadstring"] = function(string)
-        if blacklistedurl[string] then
-            return function() end
-        end
-        if bettergetfunction.loadcaching[string] == nil then
-            return oldload(string)
+    function loadstring(string)
+        if _G.BGF.loadcaching[string] == nil then
+            _G.BGF.loadcaching[string] = _G.BGF.oldload(string)
         else
-            return function() end -- useles 💀💀💀💀💀
         end
     end
     
-    _G["dx9"]["Get"] = function(string)
-        if bettergetfunction.getaching[string] == nil then
-            bettergetfunction.getaching[string] = oldget(string)
+    function dx9.Get(string)
+        if _G.BGF.getcaching[string] == nil then
+            _G.BGF.getcaching[string] = _G.BGF.oldget(string)
+        else
         end
-        return bettergetfunction.getaching[string]
     end
 end
 
@@ -1221,3 +1214,29 @@ do
         Lib.CurrentRainbowColor = { Lib.RainbowHue - 510 , 0 , 765 - Lib.RainbowHue }
     end
 end
+
+
+
+----
+
+
+--// Creating a Window
+local Window = Lib:CreateWindow("Window 1")
+
+--// Creating Tabs
+local Tab1 = Window:AddTab("Tab 1")
+local Tab2 = Window:AddTab("Tab 2")
+
+--// Creating Groupboxes
+local Groupbox1 = Tab1:AddLeftGroupbox("GroupBox 1") 
+
+local aids = Groupbox1:AddColorPicker("clrpicskser1", {Default = {255, 1, 1}, Text = "Aids"})
+
+local button = Groupbox1:AddButton("ts", function() end)
+
+Groupbox1:AddToggle("ssd", {Text = "bruh"})
+
+if Window.DeadZone ~= nil then Log(Window.DeadZone[1],Window.DeadZone[2],Window.DeadZone[3],Window.DeadZone[4]) end
+
+
+local ai2ds = Groupbox1:AddColorPicker("clrpics2kser1", {Default = {255, 1, 1}, Text = "Aids 2"})
