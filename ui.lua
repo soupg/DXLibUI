@@ -97,9 +97,8 @@ if _G.bettergetfunction == nil then
 
     _G["loadstring"] = function(string)
         if bettergetfunction.loadcaching[string] == nil then
-            bettergetfunction.loadcaching[string] = oldload(string)
+            oldload(string)()
         end
-        return bettergetfunction.loadcaching[string]
     end
     
     _G["dx9"]["Get"] = function(string)
