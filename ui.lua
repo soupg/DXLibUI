@@ -99,7 +99,6 @@ if _G.bettergetfunction == nil then
         if _G.bettergetfunction.loadcaching[string] == nil then
             _G.bettergetfunction.loadcaching[string] = oldload(string)
         else
-            return _G.bettergetfunction.loadcaching[string]
         end
     end
     
@@ -107,7 +106,6 @@ if _G.bettergetfunction == nil then
         if _G.bettergetfunction.getcaching[string] == nil then
             _G.bettergetfunction.getcaching[string] = oldget(string)
         else
-            return _G.bettergetfunction.getcaching[string]
         end
     end
 end
