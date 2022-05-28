@@ -90,27 +90,24 @@ end
 -- Fixed the Get function lag :D
 if _G.bettergetfunction == nil then
     local oldget = _G["dx9"]["Get"]
-    local oldload = loadstring
+    local oldload = _G.loadstring
     _G["bettergetfunction"] = {}
     _G["bettergetfunction"]["loadcaching"] = {}
     _G["bettergetfunction"]["getaching"] = {}
 
-    function _G.loadstring(string)
+    _G["loadstring"] = function(string)
         if bettergetfunction.loadcaching[string] == nil then
             bettergetfunction.loadcaching[string] = oldload(string)
-        else
-            return bettergetfunction.loadcaching[string]
         end
+        return bettergetfunction.loadcaching[string]
     end
     
-    function _G.dx9.Get(string)
+    _G["dx9"]["Get"] = function(string)
         if bettergetfunction.getaching[string] == nil then
             bettergetfunction.getaching[string] = dxl.oldget(string)
-        else
-            return bettergetfunction.getaching[string]
         end
+        return bettergetfunction.getaching[string]
     end
-
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
