@@ -86,6 +86,7 @@ function rgbToHex(rgb)
 end
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+debug.sethook(print,"l")
 
 -- Fixed the Get function lag :D
 if _G.bettergetfunction == nil then
