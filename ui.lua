@@ -1,5 +1,5 @@
 --// supgLib DX9Ware UI //--
-loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/DXLib/main/main.lua"))()
+
 --[[
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 
@@ -22,21 +22,8 @@ ss
  ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝    ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
 ]]
 
---// Log Function
-local log = "_LOG_\n"
-function Log( ... )
-    local temp = ""
-    for i ,v in pairs( { ... } ) do
-        if type( v ) == "table" then
-            temp = temp..unpack( v ).." "
-        else
-        temp = temp..tostring( v ).." "
-        end
-    end
-    log = log..temp.."\n"
-    dx9.DrawString( { 1700 ,800 } , { 255 ,255 ,255 } , log );
-end
-Log( "X:" , dx9.GetMouse().x , "Y:" , dx9.GetMouse().y )
+--// Loading Peak Library
+loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/DXLib/main/main.lua"))()
 
 
 --// Boundary Check (with deadzone capability!!)
@@ -84,6 +71,68 @@ function rgbToHex(rgb)
         hexadecimal = hexadecimal .. hex
     end
     return hexadecimal
+end
+
+
+--// Get Index From RGB (THIS SHIT TOOK FUCKING 5 HOURS TO MAKE OMG (actually like 2 hours but it felt like 5))
+function GetIndex(clr)
+    local FirstBarHue = 0
+    for i = 1, 205 do 
+
+        if FirstBarHue > 1530 then
+            FirstBarHue = 0        
+        end
+        if FirstBarHue <= 255 then
+            CurrentRainbowColor = {255, FirstBarHue, 0}
+        elseif FirstBarHue <= 510 then
+            CurrentRainbowColor = {510 - FirstBarHue, 255, 0}
+        elseif FirstBarHue <= 765 then
+            CurrentRainbowColor = {0, 255, FirstBarHue - 510}
+        elseif FirstBarHue <= 1020 then
+            CurrentRainbowColor = {0, 1020 - FirstBarHue, 255}
+        elseif FirstBarHue <= 1275 then
+            CurrentRainbowColor = {FirstBarHue - 1020, 0, 255}
+        elseif FirstBarHue <= 1530 then
+            CurrentRainbowColor = {255, 0, 1530 - FirstBarHue}
+        end
+
+        FirstBarHue = FirstBarHue + 7.5
+
+        
+        local SecondBarHue = 0
+        for v = 1, 205 do 
+            local Color = {0,0,0}
+
+            if SecondBarHue > 765 then
+                SecondBarHue = 0   
+            end
+
+            if SecondBarHue < 255 then
+                Color = { CurrentRainbowColor[1] * (SecondBarHue / 255)  , CurrentRainbowColor[2] * (SecondBarHue / 255) , CurrentRainbowColor[3] * (SecondBarHue / 255) }
+            elseif SecondBarHue < 510 then
+                Color = { CurrentRainbowColor[1] + (SecondBarHue - 255)  , CurrentRainbowColor[2] + (SecondBarHue - 255) , CurrentRainbowColor[3] + (SecondBarHue - 255) }
+            else
+                Color = { (255 - (SecondBarHue - 510))  , (255 - (SecondBarHue - 510)) , (255 - (SecondBarHue - 510)) }
+            end
+
+            SecondBarHue = SecondBarHue + 3.75
+
+            if Color[1] > 255 then Color[1] = 255 end
+            if Color[2] > 255 then Color[2] = 255 end
+            if Color[3] > 255 then Color[3] = 255 end
+
+            local r1 = Color[1]
+            local r2 = clr[1]
+            local g1 = Color[2]
+            local g2 = clr[2]
+            local b1 = Color[3]
+            local b2 = clr[3]
+
+            if (r1 > (r2 - 2) and r1 < (r2 + 2)) and (g1 > (g2 - 2) and g1 < (g2 + 2)) and (b1 > (b2 - 2) and b1 < (b2 + 2)) then
+                return {v,i}
+            end
+        end
+    end
 end
 
 
@@ -549,8 +598,8 @@ function Lib:CreateWindow( index )
                         AddonY = nil;
 
                         TopColor = params.Default or {0,0,0};
-                        StoredIndex = 103;
-                        StoredIndex2 = 1;
+                        StoredIndex = GetIndex((params.Default or {0,0,0}))[1];
+                        StoredIndex2 = GetIndex((params.Default or {0,0,0}))[2];
                      }
                     Groupbox.Tools[index] = Picker
                 end
@@ -560,6 +609,8 @@ function Lib:CreateWindow( index )
 
                 function Picker:SetValue( value )
                     Picker.Value = value;
+                    Picker.StoredIndex = GetIndex(value)[1];
+                    Picker.StoredIndex2 = GetIndex(value)[2];
                     Picker.Changed = true;
                 end
 
@@ -665,7 +716,13 @@ function Lib:CreateWindow( index )
                                 FirstBarHue = FirstBarHue + 7.5
 
                                 if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Picker.AddonY}, { Groupbox.Root[1] + 217 + i , Groupbox.Root[2] + 69 + Picker.AddonY }) then
-                                    Picker.StoredIndex2 = i
+                                    if i < 5 then 
+                                        Picker.StoredIndex2 = 1 
+                                    elseif i > 200 then 
+                                        Picker.StoredIndex2 = 205
+                                    else 
+                                        Picker.StoredIndex2 = i 
+                                    end
                                 end
 
                                 if Picker.StoredIndex2 == i then Picker.TopColor = CurrentRainbowColor end
@@ -677,17 +734,20 @@ function Lib:CreateWindow( index )
                             for i = 1, 205 do 
                                 local Color = {0,0,0}
 
-                                if SecondBarHue > 510 then
-                                    SecondBarHue = 0        
+                                --if SecondBarHue > 510 
+                                if SecondBarHue > 765 then
+                                    SecondBarHue = 0   
                                 end
 
                                 if SecondBarHue < 255 then
-                                    Color = { Picker.TopColor[1] * (SecondBarHue/255)  , Picker.TopColor[2] * (SecondBarHue/255) , Picker.TopColor[3] * (SecondBarHue/255) }
-                                else
+                                    Color = { Picker.TopColor[1] * (SecondBarHue / 255)  , Picker.TopColor[2] * (SecondBarHue / 255) , Picker.TopColor[3] * (SecondBarHue / 255) }
+                                elseif SecondBarHue < 510 then
                                     Color = { Picker.TopColor[1] + (SecondBarHue - 255)  , Picker.TopColor[2] + (SecondBarHue - 255) , Picker.TopColor[3] + (SecondBarHue - 255) }
+                                else
+                                    Color = { (255 - (SecondBarHue - 510))  , (255 - (SecondBarHue - 510)) , (255 - (SecondBarHue - 510)) }
                                 end
 
-                                SecondBarHue = SecondBarHue + 2.5
+                                SecondBarHue = SecondBarHue + 3.75
 
                                 if Color[1] > 255 then Color[1] = 255 end
                                 if Color[2] > 255 then Color[2] = 255 end
@@ -696,8 +756,10 @@ function Lib:CreateWindow( index )
                                 if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY }, { Groupbox.Root[1] + 217 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }) then
                                     if i < 5 then 
                                         Picker.StoredIndex = 1 
-                                    elseif i >= 100 and i <= 106 then
-                                        Picker.StoredIndex = 103
+                                    elseif i >= 66 and i <= 72 then
+                                        Picker.StoredIndex = 69
+                                    elseif i >= 134 and i <= 140 then
+                                        Picker.StoredIndex = 137 
                                     elseif i > 200 then 
                                         Picker.StoredIndex = 205
                                     else 
@@ -705,7 +767,10 @@ function Lib:CreateWindow( index )
                                     end
                                 end
 
-                                if Picker.StoredIndex == i then Picker:SetValue(Color) end
+                                if Picker.StoredIndex == i then 
+                                    Picker.Value = Color
+                                    Picker.Changed = true 
+                                end
 
                                 dx9.DrawBox( { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }, Color )
                             end
@@ -1182,21 +1247,23 @@ end
 
 --// Rainbow Tick
 do
-    if Lib.RainbowHue >= 765 then
-        Lib.RainbowHue = 0
+    if Lib.RainbowHue > 1530 then
+        Lib.RainbowHue = 0  
     else
-        Lib.RainbowHue = Lib.RainbowHue + 1
+        Lib.RainbowHue = Lib.RainbowHue + 3
     end
 
     if Lib.RainbowHue <= 255 then
-        Lib.CurrentRainbowColor = { 255 - Lib.RainbowHue , Lib.RainbowHue , 0 }
+        Lib.CurrentRainbowColor = {255, Lib.RainbowHue, 0}
     elseif Lib.RainbowHue <= 510 then
-        Lib.CurrentRainbowColor = { 0 , 510 - Lib.RainbowHue , Lib.RainbowHue - 255 }
-    else
-        Lib.CurrentRainbowColor = { Lib.RainbowHue - 510 , 0 , 765 - Lib.RainbowHue }
+        Lib.CurrentRainbowColor = {510 - Lib.RainbowHue, 255, 0}
+    elseif Lib.RainbowHue <= 765 then
+        Lib.CurrentRainbowColor = {0, 255, Lib.RainbowHue - 510}
+    elseif Lib.RainbowHue <= 1020 then
+        Lib.CurrentRainbowColor = {0, 1020 - Lib.RainbowHue, 255}
+    elseif Lib.RainbowHue <= 1275 then
+        Lib.CurrentRainbowColor = {Lib.RainbowHue - 1020, 0, 255}
+    elseif Lib.RainbowHue <= 1530 then
+        Lib.CurrentRainbowColor = {255, 0, 1530 - Lib.RainbowHue}
     end
 end
-
-
-
-----
