@@ -152,7 +152,7 @@ if _G.FloppaSolosBingus == nil then
     local oldget = dx9.Get
     dx9.Get = function(string)
         if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
-            return "print(' ')"
+            return "\32\32\32\32\105\102\32\102\97\108\115\101\32\61\61\32\116\114\117\101\32\116\104\97\110\10\32\32\32\32\32\32\32\32\112\114\105\110\116\40\34\84\101\115\116\34\41\10\32\32\32\32\101\110\100\10"
         else
             return oldget(string)
         end
