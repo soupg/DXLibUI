@@ -148,7 +148,7 @@ end
 ]]
 
 --// dx9.Get fix (this took 4 fucking hours im ending it all)
-if _G.FloppaSolosBingus == nil then
+--[[ if _G.FloppaSolosBingus == nil then
     local oldget = dx9.Get
     dx9.Get = function(string)
         if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
@@ -159,7 +159,7 @@ if _G.FloppaSolosBingus == nil then
     end
     _G.FloppaSolosBingus = "Supg fixed your shitty code bozo"
 end
-
+ ]]
 
 --// Global Dynamic Values
 if _G.Lib == nil then
