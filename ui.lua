@@ -1,4 +1,4 @@
---// supgLib DX9Ware UI //--
+--// dxLib UI | Made by supg //--
 
 --[[
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
@@ -7,9 +7,6 @@ ADD INPUT PROTECTION ( for keybinds and more )
 
 Gav was here
 
-ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
-
-ss
 ]]
 
 
@@ -144,6 +141,20 @@ end
  ╚████╔╝ ██║  ██║██║  ██║██║██║  ██║██████╔╝███████╗███████╗███████║
   ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
 ]]
+
+--// dx9.Get fix (this took 4 fucking hours im ending it all)
+if _G.FloppaSolosBingus == nil then
+    local oldget = dx9.Get
+    dx9.Get = function(string)
+        if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
+            return "print('No one likes loadstring')"
+        else
+            return oldget(string)
+        end
+    end
+    _G.FloppaSolosBingus = "Supg fixed your shitty code bozo"
+end
+
 
 --// Global Dynamic Values
 if _G.Lib == nil then
@@ -1215,11 +1226,13 @@ end
 
 --// Watermark
 if Lib.Watermark.Visible then
-    dx9.DrawFilledBox( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + 302 , Lib.Watermark.Location[2] + 22 } , Lib.Black )
-    dx9.DrawFilledBox( { Lib.Watermark.Location[1]+1 , Lib.Watermark.Location[2]+1 } , { Lib.Watermark.Location[1] + 301 , Lib.Watermark.Location[2] + 21 } , Lib.CurrentRainbowColor )
-    dx9.DrawFilledBox( { Lib.Watermark.Location[1]+2 , Lib.Watermark.Location[2]+2 } , { Lib.Watermark.Location[1] + 300 , Lib.Watermark.Location[2] + 20 } , Lib.MainColor )
+    local textwidth = dx9.CalcTextWidth( Lib.Watermark.Text ) + 10
 
-    dx9.DrawString( { Lib.Watermark.Location[1]+2 , Lib.Watermark.Location[2]+2 } , Lib.FontColor , " "..Lib.Watermark.Text )
+    dx9.DrawFilledBox( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } , Lib.Black )
+    dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 1 , Lib.Watermark.Location[2] + 1 } , { Lib.Watermark.Location[1] + textwidth + 1 , Lib.Watermark.Location[2] + 22 } , Lib.CurrentRainbowColor )
+    dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 2 } , { Lib.Watermark.Location[1] + textwidth , Lib.Watermark.Location[2] + 21 } , Lib.MainColor )
+
+    dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text ) 
 end
 
 function Lib:SetWatermarkVisibility( bool )
@@ -1253,7 +1266,3 @@ do
         Lib.CurrentRainbowColor = {255, 0, 1530 - Lib.RainbowHue}
     end
 end
-
-
-
-----
