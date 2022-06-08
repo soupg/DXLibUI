@@ -1,6 +1,8 @@
 --// supgLib DX9Ware UI //--
 
 --[[
+version 1.0
+
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 
 ADD INPUT PROTECTION ( for keybinds and more )
@@ -1237,9 +1239,11 @@ end
 function Lib:SetWatermark( text )
     Lib.Watermark.Text = text;
 
+    local textwidth = dx9.CalcTextWidth( text ) + 10
+
     --// Watermark Dragging
     if dx9.isLeftClickHeld() then
-
+        
         --// Drag Func
         if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) then
             
