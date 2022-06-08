@@ -1237,41 +1237,33 @@ if Lib.Watermark.Visible then
     dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 2 } , { Lib.Watermark.Location[1] + textwidth , Lib.Watermark.Location[2] + 21 } , Lib.MainColor )
 
     dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text ) 
-
-
-
-    --// Watermark Dragging
-    if dx9.isLeftClickHeld() then
-
-        --// Drag Func
-        if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) then
-            
-            if Lib.Watermark.MouseOffset == nil then
-
-                Lib.Watermark.MouseOffset = { dx9.GetMouse().x - Lib.Watermark.Location[1] , dx9.GetMouse().y - Lib.Watermark.Location[2] }
-
-            end
-
-            Lib.Watermark.Location = { dx9.GetMouse().x - Lib.Watermark.MouseOffset[1] , dx9.GetMouse().y - Lib.Watermark.MouseOffset[2] }
-
-        end
-    else
-
-        Lib.Watermark.MouseOffset = nil
-
-    end
-
 end
+
 
 function Lib:SetWatermarkVisibility( bool )
     Lib.Watermark.Visible = bool
 end
 
-function Lib:SetWatermark( text , args )
+function Lib:SetWatermark( text )
     Lib.Watermark.Text = text;
-    if args.Location ~= nil then Lib.Watermark.Location = args.Location end
 end
 
+
+--// Watermark Dragging
+if dx9.isLeftClickHeld() then
+
+    --// Drag Func
+    if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) then
+        
+        if Lib.Watermark.MouseOffset == nil then
+            Lib.Watermark.MouseOffset = { dx9.GetMouse().x - Lib.Watermark.Location[1] , dx9.GetMouse().y - Lib.Watermark.Location[2] }
+        end
+
+        Lib.Watermark.Location = { dx9.GetMouse().x - Lib.Watermark.MouseOffset[1] , dx9.GetMouse().y - Lib.Watermark.MouseOffset[2] }
+    end
+else
+    Lib.Watermark.MouseOffset = nil
+end
 
 
 --// Rainbow Tick
