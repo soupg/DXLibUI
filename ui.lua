@@ -1,4 +1,4 @@
---// dxLib UI | Made by supg //--
+--// supgLib DX9Ware UI //--
 
 --[[
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
@@ -7,6 +7,9 @@ ADD INPUT PROTECTION ( for keybinds and more )
 
 Gav was here
 
+ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
+
+ss
 ]]
 
 
@@ -183,6 +186,7 @@ if _G.Lib == nil then
             Text = "";
             Visible = true;
             Location = { 150 , 10 };
+            MouseOffset = nil;
          };
 
         Windows = {};
@@ -1233,6 +1237,30 @@ if Lib.Watermark.Visible then
     dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 2 } , { Lib.Watermark.Location[1] + textwidth , Lib.Watermark.Location[2] + 21 } , Lib.MainColor )
 
     dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text ) 
+
+
+
+    --// Watermark Dragging
+    if dx9.isLeftClickHeld() then
+
+        --// Drag Func
+        if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) then
+            
+            if Lib.Watermark.MouseOffset == nil then
+
+                Lib.Watermark.MouseOffset = { dx9.GetMouse().x - Lib.Watermark.Location[1] , dx9.GetMouse().y - Lib.Watermark.Location[2] }
+
+            end
+
+            Lib.Watermark.Location = { dx9.GetMouse().x - Lib.Watermark.MouseOffset[1] , dx9.GetMouse().y - Lib.Watermark.MouseOffset[2] }
+
+        end
+    else
+
+        Lib.Watermark.MouseOffset = nil
+
+    end
+
 end
 
 function Lib:SetWatermarkVisibility( bool )
@@ -1243,6 +1271,8 @@ function Lib:SetWatermark( text , args )
     Lib.Watermark.Text = text;
     if args.Location ~= nil then Lib.Watermark.Location = args.Location end
 end
+
+
 
 --// Rainbow Tick
 do
