@@ -150,7 +150,7 @@ if _G.FloppaSolosBingus == nil then
     local oldget = dx9.Get
     dx9.Get = function(string)
         if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
-            return "print('No one likes loadstring')"
+            return
         else
             return oldget(string)
         end
