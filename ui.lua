@@ -1,7 +1,7 @@
 --// supgLib DX9Ware UI //--
 
 --[[
-version 1.01
+version 1.02
 
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 
@@ -152,7 +152,7 @@ if _G.FloppaSolosBingus == nil then
     local oldget = dx9.Get
     dx9.Get = function(string)
         if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
-            return ""
+            return "print()"
         else
             return oldget(string)
         end
