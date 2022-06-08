@@ -1,7 +1,7 @@
 --// supgLib DX9Ware UI //--
 
 --[[
-version 1.0
+version 1.01
 
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 
@@ -152,7 +152,7 @@ if _G.FloppaSolosBingus == nil then
     local oldget = dx9.Get
     dx9.Get = function(string)
         if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
-            return
+            return ""
         else
             return oldget(string)
         end
@@ -1243,7 +1243,7 @@ function Lib:SetWatermark( text )
 
     --// Watermark Dragging
     if dx9.isLeftClickHeld() then
-        
+
         --// Drag Func
         if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) then
             
