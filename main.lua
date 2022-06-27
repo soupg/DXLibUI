@@ -165,10 +165,10 @@ end
 if _G.Lib == nil then
     _G.Lib = { 
         FontColor = { 255 , 255 , 255 }; -- Static + [Changeable]
-        MainColor = { 28 , 28 , 28 }; -- Static + [Changeable]
-        BackgroundColor = { 20 , 20 , 20 }; -- Static + [Changeable]
-        AccentColor = { 0 , 85 , 255 }; -- Static + [Changeable]
-        OutlineColor = { 50 , 50 , 50 }; -- Static + [Changeable]
+        MainColor = { 25 , 25 , 25 }; -- Static + [Changeable]
+        BackgroundColor = { 15 , 15 , 15 }; -- Static + [Changeable]
+        AccentColor = { 255 , 100 , 255 }; -- Static + [Changeable]
+        OutlineColor = { 40 , 40 , 40 }; -- Static + [Changeable]
         Black = { 0 , 0 , 0 }; -- Static
 
         RainbowHue = 0; -- Dynamic
