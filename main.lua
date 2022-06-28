@@ -1264,7 +1264,7 @@ function Lib:SetWatermark( text )
         dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 1 , Lib.Watermark.Location[2] + 1 } , { Lib.Watermark.Location[1] + textwidth + 1 , Lib.Watermark.Location[2] + 22 } , Lib.CurrentRainbowColor )
         dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 2 } , { Lib.Watermark.Location[1] + textwidth , Lib.Watermark.Location[2] + 21 } , Lib.MainColor )
     
-        dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text ) 
+        dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text )  -- bruh
     end
 end
 
