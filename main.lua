@@ -290,7 +290,6 @@ function Lib:CreateWindow( index )
                 end
                 Win.Location = { dx9.GetMouse().x - Win.WinMouseOffset[1] , dx9.GetMouse().y - Win.WinMouseOffset[2] }
             else
-                Lib.Dragging = false
                 if Win.WindowNum > Lib.Windows[Lib.FocusedWindow].WindowNum then
                     Lib.FocusedWindow = Win.ID
                 else
@@ -307,6 +306,7 @@ function Lib:CreateWindow( index )
             end
         end
     else
+        Lib.Dragging = false
         Win.WinMouseOffset = nil
         Lib.FocusedWindow = nil
     end
