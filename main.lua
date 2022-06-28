@@ -298,12 +298,12 @@ function Lib:CreateWindow( index )
                     Lib.FocusedWindow = nil
                 end
             end
-        end
-        
-        --// Tab Click Func
-        for _ , t in next , Win.Tabs do
-            if mouse_in_boundary( { t.Boundary[1] , t.Boundary[2] } , { t.Boundary[3] , t.Boundary[4] } ) and not Lib.Dragging then
-                Win.CurrentTab = t.Name;
+        else
+            --// Tab Click Func
+            for _ , t in next , Win.Tabs do
+                if mouse_in_boundary( { t.Boundary[1] , t.Boundary[2] } , { t.Boundary[3] , t.Boundary[4] } ) and not Lib.Dragging then
+                    Win.CurrentTab = t.Name;
+                end
             end
         end
     else
