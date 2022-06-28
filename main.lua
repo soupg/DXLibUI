@@ -2,15 +2,10 @@
 
 --[[
 version 1.02
-
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
-
 ADD INPUT PROTECTION ( for keybinds and more )
-
 Gav was here
-
 ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
-
 ss
 ]]
 
@@ -584,7 +579,6 @@ function Lib:CreateWindow( index )
             ██║     ██║   ██║██║     ██║   ██║██╔══██╗    ██╔═══╝ ██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
             ╚██████╗╚██████╔╝███████╗╚██████╔╝██║  ██║    ██║     ██║╚██████╗██║  ██╗███████╗██║  ██║
             ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
-
             :AddColorPicker(index, {Text = "Color Picker", Default = {0, 0, 0} } )                                                                      
             ]]
 
@@ -1258,13 +1252,13 @@ function Lib:SetWatermark( text )
     end
 
     if Lib.Watermark.Visible then
-        local textwidth = dx9.CalcTextWidth( Lib.Watermark.Text ) + 10
+        local textwidth = dx9.CalcTextWidth( Lib.Watermark.Text.." | UI Toggle: "..Lib.Keybind ) + 10
     
         dx9.DrawFilledBox( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } , Lib.Black )
         dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 1 , Lib.Watermark.Location[2] + 1 } , { Lib.Watermark.Location[1] + textwidth + 1 , Lib.Watermark.Location[2] + 22 } , Lib.CurrentRainbowColor )
         dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 2 } , { Lib.Watermark.Location[1] + textwidth , Lib.Watermark.Location[2] + 21 } , Lib.MainColor )
     
-        dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text )  -- bruh
+        dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text.." | UI Toggle: "..Lib.Keybind ) 
     end
 end
 
@@ -1292,4 +1286,4 @@ do
     end
 end
 
- return Lib
+return Lib
