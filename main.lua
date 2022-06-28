@@ -187,6 +187,9 @@ if _G.Lib == nil then
          };
 
         Windows = {};
+
+        --// Dragging
+        Dragging = false;
      };
 end
 local Lib = _G.Lib
@@ -277,7 +280,9 @@ function Lib:CreateWindow( index )
     if dx9.isLeftClickHeld() and Lib.Active then
 
         --// Drag Func
-        if mouse_in_boundary( { Win.Location[1] - 5 , Win.Location[2] - 10 } , { Win.Location[1] + Win.Size[1] + 5 , Win.Location[2] + 30 } ) then
+        if Lib.Dragging or mouse_in_boundary( { Win.Location[1] - 5 , Win.Location[2] - 10 } , { Win.Location[1] + Win.Size[1] + 5 , Win.Location[2] + 30 } ) then
+            if not Lib.Dragging then Lib.Dragging = true end
+
             if Lib.FocusedWindow == nil or Lib.FocusedWindow == Win.ID then
                 Lib.FocusedWindow = Win.ID
                 if Win.WinMouseOffset == nil then
@@ -285,6 +290,7 @@ function Lib:CreateWindow( index )
                 end
                 Win.Location = { dx9.GetMouse().x - Win.WinMouseOffset[1] , dx9.GetMouse().y - Win.WinMouseOffset[2] }
             else
+                Lib.Dragging = false
                 if Win.WindowNum > Lib.Windows[Lib.FocusedWindow].WindowNum then
                     Lib.FocusedWindow = Win.ID
                 else
@@ -384,7 +390,7 @@ function Lib:CreateWindow( index )
         --// Display Tab
         if Lib.Active and Win.Tabs[TabName].Name == TabName then
             if Win.TabMargin + TabLength + 3 < 530 then
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then --// If tab selected
                     dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
                     dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
                     dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
