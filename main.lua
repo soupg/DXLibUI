@@ -177,7 +177,7 @@ if _G.Lib == nil then
 
         WindowCount = 0; -- Dynamic
 
-        Active = false;
+        Active = true;
 
         Watermark = { 
             Text = "";
@@ -1232,7 +1232,15 @@ function Lib:CreateWindow( index )
 end
 
 
---// Watermark
+--[[
+██╗    ██╗ █████╗ ████████╗███████╗██████╗ ███╗   ███╗ █████╗ ██████╗ ██╗  ██╗
+██║    ██║██╔══██╗╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██╔══██╗██╔══██╗██║ ██╔╝
+██║ █╗ ██║███████║   ██║   █████╗  ██████╔╝██╔████╔██║███████║██████╔╝█████╔╝ 
+██║███╗██║██╔══██║   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██╔══██║██╔══██╗██╔═██╗ 
+╚███╔███╔╝██║  ██║   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║  ██║██║  ██║██║  ██╗
+ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
+]]
+
 function Lib:SetWatermarkVisibility( bool )
     Lib.Watermark.Visible = bool
 end
@@ -1240,7 +1248,7 @@ end
 function Lib:SetWatermark( text )
     Lib.Watermark.Text = text;
 
-    local textwidth = dx9.CalcTextWidth( text ) + 10
+    local textwidth = dx9.CalcTextWidth( text.." | UI Toggle: "..Lib.Keybind ) + 10
 
     --// Watermark Dragging
     if dx9.isLeftClickHeld() then
@@ -1294,5 +1302,4 @@ do
 end
 
 --// Final Statements
-Lib.Active = true
 return Lib
