@@ -1,7 +1,6 @@
 --// supgLib DX9Ware UI //--
 
 --[[
-version 1.02
 ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
 ADD INPUT PROTECTION ( for keybinds and more )
 Gav was here
@@ -974,7 +973,7 @@ function Lib:CreateWindow( index )
 
                 --// Draw Slider in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
-                    local temp = math.floor( Slider.Value )..Slider.Suffix.."/"..params.Max..Slider.Suffix
+                    local temp = Slider.Value..Slider.Suffix.."/"..params.Max..Slider.Suffix
                     local bar_length = 235
 
                     local val = ( 1 / ( ( params.Max - params.Min ) / (Slider.Value - params.Min) )  )
@@ -1028,7 +1027,7 @@ function Lib:CreateWindow( index )
                             local val = 1 / ( bar_length/cursor )
                             if val >= .98 then val = 1 end
                             if val <= .02 then val = 0 end
-                            Slider.Value = (val * ( params.Max - params.Min )) + params.Min
+                            Slider.Value = math.floor(((val * ( params.Max - params.Min )) + params.Min) + 0.5)
                             
                             Slider.Changed = true;
                         else
