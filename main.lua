@@ -142,19 +142,6 @@ end
   ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
 ]]
 
---// dx9.Get fix (this took 4 fucking hours im ending it all)
---[[ if _G.FloppaSolosBingus == nil then
-    local oldget = dx9.Get
-    dx9.Get = function(string)
-        if string == "https://raw.githubusercontent.com/soupg/supg_ui/main/ui.lua" and _G.Lib ~= nil then
-            return "\32\32\32\32\95\71\46\82\65\110\100\111\109\65\83\68\115\116\114\105\110\103\97\115\100\49\50\51\97\115\100\32\61\32\111\115\46\116\105\109\101\40\41\10"
-        else
-            return oldget(string)
-        end
-    end
-    _G.FloppaSolosBingus = "Supg fixed your shitty code bozo"
-end
-]]
 
 --// Global Dynamic Values
 if _G.Lib == nil then
@@ -162,7 +149,7 @@ if _G.Lib == nil then
         FontColor = { 255 , 255 , 255 }; -- Static + [Changeable]
         MainColor = { 25 , 25 , 25 }; -- Static + [Changeable]
         BackgroundColor = { 15 , 15 , 15 }; -- Static + [Changeable]
-        AccentColor = { 255 , 100 , 255 }; -- Static + [Changeable]
+        AccentColor = { 255 , 50 , 255 }; -- Static + [Changeable]
         OutlineColor = { 40 , 40 , 40 }; -- Static + [Changeable]
         Black = { 0 , 0 , 0 }; -- Static
 
