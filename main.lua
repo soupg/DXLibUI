@@ -177,7 +177,7 @@ if _G.Lib == nil then
 
         WindowCount = 0; -- Dynamic
 
-        Active = true;
+        Active = false;
 
         Watermark = { 
             Text = "";
@@ -302,7 +302,7 @@ function Lib:CreateWindow( index )
         
         --// Tab Click Func
         for _ , t in next , Win.Tabs do
-            if mouse_in_boundary( { t.Boundary[1] , t.Boundary[2] } , { t.Boundary[3] , t.Boundary[4] } ) then
+            if mouse_in_boundary( { t.Boundary[1] , t.Boundary[2] } , { t.Boundary[3] , t.Boundary[4] } ) and not Lib.Dragging then
                 Win.CurrentTab = t.Name;
             end
         end
@@ -552,7 +552,7 @@ function Lib:CreateWindow( index )
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
 
                     --// Click Detect
-                    if mouse_in_boundary( { Button.Boundary[1] , Button.Boundary[2] } , { Button.Boundary[3] , Button.Boundary[4] }, Win.DeadZone ) then
+                    if mouse_in_boundary( { Button.Boundary[1] , Button.Boundary[2] } , { Button.Boundary[3] , Button.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Button.Holding = true;
@@ -719,7 +719,7 @@ function Lib:CreateWindow( index )
 
                                 FirstBarHue = FirstBarHue + 7.5
 
-                                if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Picker.AddonY}, { Groupbox.Root[1] + 217 + i , Groupbox.Root[2] + 69 + Picker.AddonY }) then
+                                if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Picker.AddonY}, { Groupbox.Root[1] + 217 + i , Groupbox.Root[2] + 69 + Picker.AddonY }) and not Lib.Dragging then
                                     if i < 5 then 
                                         Picker.StoredIndex2 = 1 
                                     elseif i > 200 then 
@@ -757,7 +757,7 @@ function Lib:CreateWindow( index )
                                 if Color[2] > 255 then Color[2] = 255 end
                                 if Color[3] > 255 then Color[3] = 255 end
 
-                                if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY }, { Groupbox.Root[1] + 217 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }) then
+                                if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY }, { Groupbox.Root[1] + 217 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }) and not Lib.Dragging then
                                     if i < 5 then 
                                         Picker.StoredIndex = 1 
                                     elseif i >= 66 and i <= 72 then
@@ -791,7 +791,7 @@ function Lib:CreateWindow( index )
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
 
                     --// Click Detect
-                    if mouse_in_boundary( { Picker.Boundary[1] , Picker.Boundary[2] } , { Picker.Boundary[3] , Picker.Boundary[4] }, Win.DeadZone ) then
+                    if mouse_in_boundary( { Picker.Boundary[1] , Picker.Boundary[2] } , { Picker.Boundary[3] , Picker.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Picker.Holding = true;
@@ -1029,7 +1029,7 @@ function Lib:CreateWindow( index )
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 40
 
                     --// Hovering
-                    if mouse_in_boundary( { Slider.Boundary[1] , Slider.Boundary[2] } , { Slider.Boundary[3] , Slider.Boundary[4] }, Win.DeadZone ) then
+                    if mouse_in_boundary( { Slider.Boundary[1] , Slider.Boundary[2] } , { Slider.Boundary[3] , Slider.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Slider.Holding = true;
@@ -1148,7 +1148,7 @@ function Lib:CreateWindow( index )
 
                     
                     --// Click Detect Toggle
-                    if mouse_in_boundary( { Toggle.Boundary[1] , Toggle.Boundary[2] } , { Toggle.Boundary[3] , Toggle.Boundary[4] }, Win.DeadZone ) then
+                    if mouse_in_boundary( { Toggle.Boundary[1] , Toggle.Boundary[2] } , { Toggle.Boundary[3] , Toggle.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Toggle.Holding = true;
@@ -1246,7 +1246,7 @@ function Lib:SetWatermark( text )
     if dx9.isLeftClickHeld() then
 
         --// Drag Func
-        if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) then
+        if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) and not Lib.Dragging then
             
             if Lib.Watermark.MouseOffset == nil then
                 Lib.Watermark.MouseOffset = { dx9.GetMouse().x - Lib.Watermark.Location[1] , dx9.GetMouse().y - Lib.Watermark.Location[2] }
@@ -1293,4 +1293,6 @@ do
     end
 end
 
+--// Final Statements
+Lib.Active = true
 return Lib
