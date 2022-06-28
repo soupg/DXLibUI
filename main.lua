@@ -281,10 +281,11 @@ function Lib:CreateWindow( index )
 
         --// Drag Func
         if Lib.Dragging or mouse_in_boundary( { Win.Location[1] - 5 , Win.Location[2] - 10 } , { Win.Location[1] + Win.Size[1] + 5 , Win.Location[2] + 30 } ) then
-            if not Lib.Dragging then Lib.Dragging = true end
-
             if Lib.FocusedWindow == nil or Lib.FocusedWindow == Win.ID then
                 Lib.FocusedWindow = Win.ID
+
+                if not Lib.Dragging then Lib.Dragging = true end 
+
                 if Win.WinMouseOffset == nil then
                     Win.WinMouseOffset = { dx9.GetMouse().x - Win.Location[1] , dx9.GetMouse().y - Win.Location[2] }
                 end
