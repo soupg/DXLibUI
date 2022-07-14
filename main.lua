@@ -1,32 +1,130 @@
---// supgLib DX9Ware UI //--
+--// DXLib UI Library //--
 
 --[[
-ADD SUPPORT FOR ROUNDING ( for now it only supports 0 )
-ADD INPUT PROTECTION ( for keybinds and more )
-Gav was here
-ADD COLOR PICKER FUNCTION THAT GETS INDEX OF 1 - 205 FOR BOTH BAR 1 AND 2 BRUH
-ss
+
+Try and fix rendering bug of tools / groupboxes on tab switch
+
+ADD WINDOW DEADZONES SO U CANT CLICK THROUGH WINDOWS INFRONT
+
 ]]
 
 
+--// Log Function (Temporary)
+local log = "_LOG_\n"
+function Log( ... )
+    local temp = ""
+    for i ,v in pairs( { ... } ) do
+        temp = temp..tostring( v ).." "
+    end
+    log = log..temp.."\n"
+    dx9.DrawString( { 1500 ,0 } , { 255 ,255 ,255 } , log );
+end
+
+
+--// KeyRead (dont move anywhere lower)
+local KeyRead = dx9.GetKey()
+local uses = 0
+
 --[[
- ██████╗ ██╗      ██████╗ ██████╗  █████╗ ██╗         ███████╗██╗   ██╗███╗   ██╗ ██████╗████████╗██╗ ██████╗ ███╗   ██╗███████╗
-██╔════╝ ██║     ██╔═══██╗██╔══██╗██╔══██╗██║         ██╔════╝██║   ██║████╗  ██║██╔════╝╚══██╔══╝██║██╔═══██╗████╗  ██║██╔════╝
-██║  ███╗██║     ██║   ██║██████╔╝███████║██║         █████╗  ██║   ██║██╔██╗ ██║██║        ██║   ██║██║   ██║██╔██╗ ██║███████╗
-██║   ██║██║     ██║   ██║██╔══██╗██╔══██║██║         ██╔══╝  ██║   ██║██║╚██╗██║██║        ██║   ██║██║   ██║██║╚██╗██║╚════██║
-╚██████╔╝███████╗╚██████╔╝██████╔╝██║  ██║███████╗    ██║     ╚██████╔╝██║ ╚████║╚██████╗   ██║   ██║╚██████╔╝██║ ╚████║███████║
- ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝    ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝   ╚═╝   ╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝
+
+██████╗ ███████╗███████╗██╗███╗   ██╗██╗███╗   ██╗ ██████╗     ██╗     ██╗██████╗ 
+██╔══██╗██╔════╝██╔════╝██║████╗  ██║██║████╗  ██║██╔════╝     ██║     ██║██╔══██╗
+██║  ██║█████╗  █████╗  ██║██╔██╗ ██║██║██╔██╗ ██║██║  ███╗    ██║     ██║██████╔╝
+██║  ██║██╔══╝  ██╔══╝  ██║██║╚██╗██║██║██║╚██╗██║██║   ██║    ██║     ██║██╔══██╗
+██████╔╝███████╗██║     ██║██║ ╚████║██║██║ ╚████║╚██████╔╝    ███████╗██║██████╔╝
+╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝╚═╝  ╚═══╝ ╚═════╝     ╚══════╝╚═╝╚═════╝ 
+                                                                                  
 ]]
 
---// Loading Peak Library
-loadstring(dx9.Get("https://raw.githubusercontent.com/soupg/DXLib/main/main.lua"))()
+
+--// Global Dynamic Values
+if _G.Lib == nil then
+    _G.Lib = { 
+        FontColor = { 255 , 255 , 255 }; 
+        MainColor = { 25 , 25 , 25 };
+        BackgroundColor = { 20 , 20 , 20 };
+        AccentColor = { 255 , 50 , 255 }; 
+        OutlineColor = { 40 , 40 , 40 };
+        Black = { 0 , 0 , 0 };
+
+        RainbowHue = 0; 
+        CurrentRainbowColor = { 0 , 0 , 0 }; 
+        LogoTick = 0;
+
+        Active = true;
+
+        -- Change later
+        Watermark = { 
+            Text = "";
+            Visible = true;
+            Location = { 150 , 10 };
+            MouseOffset = nil;
+        };
+
+        --// Windows
+        Windows = {};
+        WindowCount = 0;
+        DraggingWindow = nil;
+
+        InitIndex = 0;
 
 
---// Boundary Check (with deadzone capability!!)
-function mouse_in_boundary( v1 , v2 , v3)
-    if v3 ~= nil then
-        if dx9.GetMouse().x > v1[1] and dx9.GetMouse().y > v1[2] and dx9.GetMouse().x < v2[1] and dx9.GetMouse().y < v2[2] then
-            if dx9.GetMouse().x > v3[1] and dx9.GetMouse().y > v3[2] and dx9.GetMouse().x < v3[3] and dx9.GetMouse().y < v3[4] then
+        --// Hook Storage
+        LoadstringCaching = {};
+        GetCaching = {};
+        OldLoadstring = loadstring;
+        OldGet = dx9.Get;
+
+        OldPrint = print;
+        OldError = error;
+
+        --// Console Vars
+        C_Location = {1000, 150}; -- Dynamic
+        C_Size = {dx9.size().width / 2.95, dx9.size().height / 1.21}; -- Static
+        C_Open = true;
+        C_Hovering = false;
+        C_Dragging = false;
+        C_WinMouseOffset = nil;
+        C_ErrorColor = {255,100,100};
+        C_StoredLogs = {};
+        C_Holding = false;
+
+        --// First Run 
+        FirstRun = nil;
+
+        --// Notifications
+        Notifications = {};
+        LatestNotif = nil; -- CHANGE (pretty useless but might come in handy some time)
+     };
+end
+local Lib = _G.Lib
+
+--// First Run
+if Lib.FirstRun == nil then
+    Lib.FirstRun = true
+elseif Lib.FirstRun == true then 
+    Lib.FirstRun = false
+end
+
+--[[
+
+ ██████╗ ██╗      ██████╗ ██████╗  █████╗ ██╗         ███████╗██╗   ██╗███╗   ██╗ ██████╗███████╗
+██╔════╝ ██║     ██╔═══██╗██╔══██╗██╔══██╗██║         ██╔════╝██║   ██║████╗  ██║██╔════╝██╔════╝
+██║  ███╗██║     ██║   ██║██████╔╝███████║██║         █████╗  ██║   ██║██╔██╗ ██║██║     ███████╗
+██║   ██║██║     ██║   ██║██╔══██╗██╔══██║██║         ██╔══╝  ██║   ██║██║╚██╗██║██║     ╚════██║
+╚██████╔╝███████╗╚██████╔╝██████╔╝██║  ██║███████╗    ██║     ╚██████╔╝██║ ╚████║╚██████╗███████║
+ ╚═════╝ ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝    ╚═╝      ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝╚══════╝
+
+]]
+
+
+--// Mouse in area check
+function Lib.MouseInArea(area, deadzone)
+    assert(type(area) == "table" and #area == 4, "[Error] MouseInArea: First Argument needs to be a table with 4 values!")
+
+    if deadzone ~= nil then
+        if dx9.GetMouse().x > area[1] and dx9.GetMouse().y > area[2] and dx9.GetMouse().x < area[3] and dx9.GetMouse().y < area[4] then
+            if dx9.GetMouse().x > deadzone[1] and dx9.GetMouse().y > deadzone[2] and dx9.GetMouse().x < deadzone[3] and dx9.GetMouse().y < deadzone[4] then
                 return false
             else
                 return true
@@ -35,7 +133,7 @@ function mouse_in_boundary( v1 , v2 , v3)
             return false
         end
     else
-        if dx9.GetMouse().x > v1[1] and dx9.GetMouse().y > v1[2] and dx9.GetMouse().x < v2[1] and dx9.GetMouse().y < v2[2] then
+        if dx9.GetMouse().x > area[1] and dx9.GetMouse().y > area[2] and dx9.GetMouse().x < area[3] and dx9.GetMouse().y < area[4] then
             return true
         else
             return false
@@ -45,7 +143,7 @@ end
 
 
 --// RGB to Hex
-function rgbToHex(rgb)
+function Lib:rgbToHex(rgb)
     local hexadecimal = '#'
 
     for key, value in pairs(rgb) do
@@ -71,13 +169,16 @@ end
 
 
 --// Get Index From RGB (THIS SHIT TOOK FUCKING 5 HOURS TO MAKE OMG (actually like 2 hours but it felt like 5))
-function GetIndex(clr)
+function Lib:GetIndex(clr)
     local FirstBarHue = 0
+    local CurrentRainbowColor
+
     for i = 1, 205 do 
 
         if FirstBarHue > 1530 then
             FirstBarHue = 0        
         end
+
         if FirstBarHue <= 255 then
             CurrentRainbowColor = {255, FirstBarHue, 0}
         elseif FirstBarHue <= 510 then
@@ -132,63 +233,6 @@ function GetIndex(clr)
 end
 
 
---[[
-██╗   ██╗ █████╗ ██████╗ ██╗ █████╗ ██████╗ ██╗     ███████╗███████╗
-██║   ██║██╔══██╗██╔══██╗██║██╔══██╗██╔══██╗██║     ██╔════╝██╔════╝
-██║   ██║███████║██████╔╝██║███████║██████╔╝██║     █████╗  ███████╗
-╚██╗ ██╔╝██╔══██║██╔══██╗██║██╔══██║██╔══██╗██║     ██╔══╝  ╚════██║
- ╚████╔╝ ██║  ██║██║  ██║██║██║  ██║██████╔╝███████╗███████╗███████║
-  ╚═══╝  ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝╚══════╝
-]]
-
-
---// Global Dynamic Values
-if _G.Lib == nil then
-    _G.Lib = { 
-        FontColor = { 255 , 255 , 255 }; -- Static + [Changeable]
-        MainColor = { 25 , 25 , 25 }; -- Static + [Changeable]
-        BackgroundColor = { 15 , 15 , 15 }; -- Static + [Changeable]
-        AccentColor = { 255 , 50 , 255 }; -- Static + [Changeable]
-        OutlineColor = { 40 , 40 , 40 }; -- Static + [Changeable]
-        Black = { 0 , 0 , 0 }; -- Static
-
-        RainbowHue = 0; -- Dynamic
-        CurrentRainbowColor = { 0 ,0 ,0 }; -- Dynamic
-
-        FocusedWindow = nil; -- Dynamic
-
-        Keybind = "[F5]";
-
-        InitIndex = 0;
-
-        WindowCount = 0; -- Dynamic
-
-        Active = true;
-
-        Watermark = { 
-            Text = "";
-            Visible = true;
-            Location = { 150 , 10 };
-            MouseOffset = nil;
-         };
-
-        Windows = {};
-
-        --// Dragging
-        Dragging = false;
-     };
-end
-local Lib = _G.Lib
-
---// Keybidn Open/Close
-if ( dx9.GetKey() == Lib.Keybind ) then
-    Lib.Active = not Lib.Active;
-end
-
-function Lib:SetKeybind( keybind )
-    Lib.Keybind = keybind;
-end
-
 
 --[[
 ██╗    ██╗██╗███╗   ██╗ ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗
@@ -201,143 +245,470 @@ end
 
 
 local use_count = 0
-function WinCheck( Win )
+
+function Lib:WinCheck( Win )
+    
     use_count = use_count + 1
-
+    
     if use_count > Lib.InitIndex then Lib.InitIndex = use_count end
-
+    
     if Lib.InitIndex == use_count then
         for i,v in pairs( Lib.Windows ) do
             if v.WindowNum > Win.WindowNum then
                 v:Render()
             end
-        end
 
-        if Win.OpenTool then
-            Win.OpenTool:Render()
+            if v.OpenTool then
+                v.OpenTool:Render()
+            end
         end
     end
 end
 
+
 --[[
+██╗  ██╗ ██████╗  ██████╗ ██╗  ██╗███████╗
+██║  ██║██╔═══██╗██╔═══██╗██║ ██╔╝██╔════╝
+███████║██║   ██║██║   ██║█████╔╝ ███████╗
+██╔══██║██║   ██║██║   ██║██╔═██╗ ╚════██║
+██║  ██║╚██████╔╝╚██████╔╝██║  ██╗███████║
+╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝
+]]
+
+
+if Lib.FirstRun then
+
+    --// Better Loadstring DONE
+    function Lib.loadstring(string)
+        assert(type(string) == "string", "[Error] loadstring: First Argument needs to be a string!")
+
+        if Lib.LoadstringCaching[string] == nil then
+            Lib.LoadstringCaching[string] = Lib.OldLoadstring(string)
+        else
+            return Lib.LoadstringCaching[string]
+        end
+    end
+    _G.loadstring = Lib.loadstring
+
+
+    --// Better Get DONE
+    function Lib.Get(string)
+        assert(type(string) == "string", "[Error] Get: First Argument needs to be a string!")
+
+        if Lib.GetCaching[string] == nil then
+            Lib.GetCaching[string] = Lib.OldGet(string)
+        else
+            return Lib.GetCaching[string]
+        end
+    end
+    _G.dx9.Get = Lib.Get
+end
+
+
+--[[
+
+██╗     ██╗██████╗ ██████╗  █████╗ ██████╗ ██╗   ██╗
+██║     ██║██╔══██╗██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝
+██║     ██║██████╔╝██████╔╝███████║██████╔╝ ╚████╔╝ 
+██║     ██║██╔══██╗██╔══██╗██╔══██║██╔══██╗  ╚██╔╝  
+███████╗██║██████╔╝██║  ██║██║  ██║██║  ██║   ██║   
+╚══════╝╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝   
+
+]]
+
+
+
+
+--[[
+
 ██╗    ██╗██╗███╗   ██╗██████╗  ██████╗ ██╗    ██╗
 ██║    ██║██║████╗  ██║██╔══██╗██╔═══██╗██║    ██║
 ██║ █╗ ██║██║██╔██╗ ██║██║  ██║██║   ██║██║ █╗ ██║
 ██║███╗██║██║██║╚██╗██║██║  ██║██║   ██║██║███╗██║
 ╚███╔███╔╝██║██║ ╚████║██████╔╝╚██████╔╝╚███╔███╔╝
  ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚═════╝  ╚═════╝  ╚══╝╚══╝ 
+
 ]]
 
---// Create Window Function
-function Lib:CreateWindow( index )
-    if Lib.Windows[index] == nil then
-        Lib.Windows[index] = { 
-            Location = { 1300 , 300 }; -- Dynamic
 
-            Size = { 550 , 600 }; -- Static
+function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, BackgroundColor, AccentColor, OutlineColor, Rainbow, ToggleKey, Size, StartLocation, Resizable, FooterToggle, FooterRGB, FooterMouseCoords
 
-            Rainbow = false; -- Dynamic + [Changeable]
+    assert(type(params) == "table", "[Error] CreateWindow: Parameter must be a table!")
+
+    local WindowName = params.Name or params.Title
+
+    local FontColor = params.FontColor or Lib.FontColor
+    local MainColor = params.MainColor or Lib.MainColor
+    local BackgroundColor = params.BackgroundColor or Lib.BackgroundColor
+    local AccentColor = params.AccentColor or Lib.AccentColor
+    local OutlineColor = params.OutlineColor or Lib.OutlineColor
+
+    local StartRainbow = params.Rainbow or params.RGB or false
+
+    local ToggleKeyPreset = "[ESCAPE]"
+    if params.ToggleKey ~= nil and type(params.ToggleKey) == "string" then
+        ToggleKeyPreset = string.upper(params.ToggleKey)
+    end
+
+    local resizable = params.Resizable or false
+
+    --// Error Handling
+    assert(type(WindowName) == "string" or type(WindowName) == "number", "[ERROR] CreateWindow: Window name parameter must be a string or number!")
+    assert(type(FontColor) == "table" and #FontColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
+    assert(type(MainColor) == "table" and #MainColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
+    assert(type(BackgroundColor) == "table" and #BackgroundColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
+    assert(type(AccentColor) == "table" and #AccentColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
+    assert(type(OutlineColor) == "table" and #OutlineColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
+    assert(type(StartRainbow) == "boolean", "[ERROR] CreateWindow: Rainbow parameter must be a boolean!")
+    assert(type(ToggleKeyPreset) == "string" and string.sub(ToggleKeyPreset, 1, 1) == "[", "[ERROR] CreateWindow: ToggleKey needs to have this format: [KEY]!")
+
+
+    if Lib.Windows[WindowName] == nil then
+        Lib.Windows[WindowName] = {
+            Location = params.StartLocation or { 1300 , 300 };
+            Size = params.Size or { 600 , 500 };
+
+            Rainbow = StartRainbow;
     
-            Name = index; -- Dynamic + [Changeable]
+            Title = WindowName;
 
-            ID = index; -- Static
+            WinMouseOffset = nil;
 
-            WinMouseOffset = nil; -- Dynamic
+            WindowNum = Lib.WindowCount + 1; 
 
-            WindowNum = Lib.WindowCount + 1; -- Static
+            ID = params.Index or WindowName; 
 
-            Tabs = {}; -- Dynamic
+            --// Tab Stuff
+            Tabs = {};
+            CurrentTab = nil;
+            TabMargin = 0;
 
-            CurrentTab = "none"; -- Dynamic
+            --// Dragging / Resizing
+            Dragging = false;
+            Resizing = false;
 
-            TabMargin = 0; -- REALLY DYNAMIC OMG
+            --// Toggle Key 
+            ToggleKeyHolding = false;
+            ToggleKeyHovering = false;
+            ToggleKey = ToggleKeyPreset;
+            ToggleReading = false;
+            KeyMemory = {};
 
-            OpenTool = nil; -- Dynamic, this makes it so only one tool can be open (colorpicker and dropdown wise)
+            --// RGB Key
+            RGBKeyHolding = false;
+            RGBKeyHovering = false;
 
-            DeadZone = nil; -- Zone in which clicks are not registered unless they're in a rendered form
+            --// Active 
+            Active = true;
 
-            Tools = {};
-         }
+            --// Footer
+            FooterToggle = true;
+            FooterRGB = true;
+            FooterMouseCoords = true;
+
+            --// Size Restraint
+            Restraint = {160,200};
+            InitIndex = 0;
+
+            --// Deadzone 
+            DeadZone = nil;
+
+            --// Tools 
+            OpenTool = nil;
+        }
+
         Lib.WindowCount = Lib.WindowCount + 1
     end
-    local Win = Lib.Windows[index]
+
+    local Win = Lib.Windows[WindowName]
+    local FooterWidth = 0
+
+    if params.FooterToggle == nil or params.FooterToggle then Win.FooterToggle = true else Win.FooterToggle = false end
+    if params.FooterRGB == nil or params.FooterRGB then Win.FooterRGB = true else Win.FooterRGB = false end
+    if params.FooterMouseCoords == nil or params.FooterMouseCoords then Win.FooterMouseCoords = true else Win.FooterMouseCoords = false end
+
+    --// Restraints
+    function Win:SetRestraint(table)
+        if table[1] > Win.Restraint[1] then 
+            Win.Restraint[1] = table[1] 
+        end
+
+        if table[2] > Win.Restraint[2] then 
+            Win.Restraint[2] = table[2] 
+        end
+    end
+
+    if Win.Size[1] < Win.Restraint[1] then
+        Win.Size[1] = Win.Restraint[1]
+    end
+
+    if Win.Size[2] < Win.Restraint[2] then
+        Win.Size[2] = Win.Restraint[2]
+    end
+
+    --// Title Change
+    Win.Title = WindowName 
+
+    --// Accent to rainbow change
+    if Win.Rainbow then 
+        AccentColor = Lib.CurrentRainbowColor 
+    else 
+        AccentColor = params.AccentColor or Lib.AccentColor
+    end
+
+    --// Keybind Open / Close
+    if KeyRead == Win.ToggleKey and KeyRead ~= "[ESCAPE]" and not Win.ToggleReading then
+        Win.Active = not Win.Active;
+    end
 
     --// Left Click Held
-    if dx9.isLeftClickHeld() and Lib.Active then
+    if dx9.isLeftClickHeld() and Win.Active then
 
         --// Drag Func
-        if Lib.Dragging or mouse_in_boundary( { Win.Location[1] - 5 , Win.Location[2] - 10 } , { Win.Location[1] + Win.Size[1] + 5 , Win.Location[2] + 30 } ) then
-            if Lib.FocusedWindow == nil or Lib.FocusedWindow == Win.ID then
-                Lib.FocusedWindow = Win.ID
+        if not Win.Resizing and (Win.Dragging or Lib.MouseInArea( { Win.Location[1] - 2 , Win.Location[2] - 2 , Win.Location[1] + Win.Size[1] + 2 , Win.Location[2] + 22 } )) then
+            
+            --// Window Dragging
+            if Lib.DraggingWindow == nil or Lib.DraggingWindow == Win.ID then
+                Lib.DraggingWindow = Win.ID
 
-                if not Lib.Dragging then Lib.Dragging = true end 
+                if not Win.Dragging then Win.Dragging = true end 
 
                 if Win.WinMouseOffset == nil then
                     Win.WinMouseOffset = { dx9.GetMouse().x - Win.Location[1] , dx9.GetMouse().y - Win.Location[2] }
                 end
+
                 Win.Location = { dx9.GetMouse().x - Win.WinMouseOffset[1] , dx9.GetMouse().y - Win.WinMouseOffset[2] }
             else
-                if Win.WindowNum > Lib.Windows[Lib.FocusedWindow].WindowNum then
-                    Lib.FocusedWindow = Win.ID
+                if Win.WindowNum > Lib.Windows[Lib.DraggingWindow].WindowNum then
+                    Lib.DraggingWindow = Win.ID
                 else
                     Win.WinMouseOffset = nil
-                    Lib.FocusedWindow = nil
+                    Lib.DraggingWindow = nil
                 end
             end
+
+        elseif not Win.Dragging and resizable and (Win.Resizing or Lib.MouseInArea({ Win.Location[1] + Win.Size[1] - 10, Win.Location[2] + Win.Size[2] - 10 , Win.Location[1] + Win.Size[1] + 3, Win.Location[2] + Win.Size[2] + 3} )) then
+            
+            --// Window Resizing
+            if not Win.Resizing then Win.Resizing = true end
+            
+            local x = ( dx9.GetMouse().x - Win.Location[1] )
+            local y = ( dx9.GetMouse().y - Win.Location[2] )
+
+            if x < Win.Restraint[1] then x = Win.Restraint[1] end
+            if y < Win.Restraint[2] then y = Win.Restraint[2] end
+
+            Win.Size = { x, y }
+            
         else
-            --// Tab Click Func
-            for _ , t in next , Win.Tabs do
-                if mouse_in_boundary( { t.Boundary[1] , t.Boundary[2] } , { t.Boundary[3] , t.Boundary[4] } ) and not Lib.Dragging then
-                    Win.CurrentTab = t.Name;
+
+            --// Tab Click Func 
+            for i, t in pairs(Win.Tabs) do
+                if Lib.MouseInArea( { t.Boundary[1] , t.Boundary[2] , t.Boundary[3] , t.Boundary[4] } ) and not Win.Dragging then
+                    Win.CurrentTab = i;
                 end
             end
         end
     else
-        Lib.Dragging = false
+        Win.Resizing = false
+        Win.Dragging = false
         Win.WinMouseOffset = nil
-        Lib.FocusedWindow = nil
+        Lib.DraggingWindow = nil
     end
-
 
     --// Display Window //--
-    local TrimmedWinName = Win.Name;
-    if dx9.CalcTextWidth(TrimmedWinName) >=  540 then
+
+    --// Trimming Window Name
+    local TrimmedWinName = Win.Title;
+    if dx9.CalcTextWidth(TrimmedWinName) >=  Win.Size[1] - 25 then -- CHANGE | Might need adjustments over time
         repeat
-            TrimmedWinName = TrimmedWinName:sub(1,-2)
-        until dx9.CalcTextWidth(TrimmedWinName) <= 540
+            TrimmedWinName = TrimmedWinName:sub(1, -2)
+        until dx9.CalcTextWidth(TrimmedWinName) <= Win.Size[1] - 25
     end
 
+    --// Render Window
     function Win:Render()
-        if Lib.Active then
-            dx9.DrawFilledBox( { Win.Location[1] - 1 , Win.Location[2] - 1 } , { Win.Location[1] + Win.Size[1] + 1 , Win.Location[2] + Win.Size[2] + 1 } , Lib.Black ) --// Outline
-            if Win.Rainbow == true then
-                dx9.DrawFilledBox( Win.Location , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , Lib.CurrentRainbowColor ) --// Accent ( Rainbow )
-            else
-                dx9.DrawFilledBox( Win.Location , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , Lib.AccentColor ) --// Accent
+        if Win.Active then
+
+            --// Drawing Main Box
+            if true then
+
+                --// Draw Main Outer
+                dx9.DrawFilledBox( { Win.Location[1] - 1 , Win.Location[2] - 1 } , { Win.Location[1] + Win.Size[1] + 1 , Win.Location[2] + Win.Size[2] + 1 } , Lib.Black ) 
+
+                dx9.DrawFilledBox( Win.Location , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , AccentColor )
+
+                dx9.DrawFilledBox( { Win.Location[1] + 1 , Win.Location[2] + 1 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , MainColor )
+
+                --// Draw Corner
+                if resizable then
+                    dx9.DrawFilledBox( { Win.Location[1] + Win.Size[1] - 7, Win.Location[2] + Win.Size[2] - 7} , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , AccentColor )
+
+                    dx9.DrawFilledBox( { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 6 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , MainColor )
+                end
+
+                --// Draw Main Inner
+
+                dx9.DrawFilledBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 32 } , BackgroundColor ) 
+
+                dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 31 } , OutlineColor ) 
+                dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + 21 } , { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 32 } , Lib.Black ) 
+
+                dx9.DrawString( Win.Location , FontColor , "  "..TrimmedWinName)
+                dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 36 } , OutlineColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 37 } , MainColor ) 
             end
-            dx9.DrawFilledBox( { Win.Location[1] + 1 , Win.Location[2] + 1 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , Lib.MainColor ) --// Main Outer ( light gray )
-            dx9.DrawFilledBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 5 } , Lib.BackgroundColor ) --// Main Inner ( dark gray )
 
-            dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 5 } , Lib.OutlineColor ) --// Main Inner Outline 
-            dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + 21 } , { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 6 } , Lib.Black ) --// Main Inner Outline Black
+            --// Footer //--
+            if true then 
 
-            dx9.DrawString( Win.Location , Lib.FontColor , "  "..TrimmedWinName)
-            dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 10 } , Lib.OutlineColor ) --// Main Tab Box Outline
-            dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 11 } , Lib.MainColor ) --// Main Tab Box
+                --// Watermark //--
+                local Watermark = "     DXLibUI"
+                local Watermark_Width = dx9.CalcTextWidth(Watermark)
+
+                dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { Win.Location[1] + 15 + Watermark_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+                dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { Win.Location[1] + 14 + Watermark_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
+                dx9.DrawFilledBox( { Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { Win.Location[1] + 13 + Watermark_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+
+                dx9.DrawString( { Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Lib.CurrentRainbowColor , Watermark)
+                FooterWidth = FooterWidth + Watermark_Width + 12
+
+                --// Epic Logo
+                local epic = Lib.LogoTick / 10
+
+                local TL = { Win.Location[1] + 12 + epic , Win.Location[2] + Win.Size[2] - 20 }
+                local TR = { Win.Location[1] + 20 , Win.Location[2] + Win.Size[2] - 20 + epic }
+                local BL = { Win.Location[1] + 12 , Win.Location[2] + Win.Size[2] - 12 - epic }
+                local BR = { Win.Location[1] + 20 - epic , Win.Location[2] + Win.Size[2] - 12 }
+
+                dx9.DrawLine({TL[1], TL[2]}, {TR[1], TR[2]}, Lib.CurrentRainbowColor) -- Top
+                dx9.DrawLine({BL[1], BL[2]}, {BR[1], BR[2]}, Lib.CurrentRainbowColor) -- Bottom
+                dx9.DrawLine({TR[1], TR[2]}, {BR[1], BR[2]}, Lib.CurrentRainbowColor) -- Right
+                dx9.DrawLine({BL[1], BL[2]}, {TL[1], TL[2]}, Lib.CurrentRainbowColor) -- Left
+
+
+                --// Toggle Key //--
+                if Win.FooterToggle then
+                    local Toggle = "UI Toggle: "..Win.ToggleKey
+                    if Win.ToggleKey == "[ESCAPE]" then Toggle = "UI Toggle: [NONE]" end
+
+
+                    if Win.ToggleReading then Toggle = "Reading Key..." end
+
+                    local Toggle_Width = dx9.CalcTextWidth(Toggle)
+
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + Toggle_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+
+                    if Win.ToggleKeyHovering then
+                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Toggle_Width , Win.Location[2] + Win.Size[2] - 5 } , AccentColor ) 
+                    else
+                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Toggle_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
+                    end
+
+                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + Toggle_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+
+                    if Win.ToggleReading then
+                        dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Lib.CurrentRainbowColor , Toggle)
+                    else
+                        dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , FontColor , Toggle)
+                    end
+                    
+                    --// Click Detect //--
+                    if Lib.MouseInArea( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 , FooterWidth + Win.Location[1] + 15 + Toggle_Width , Win.Location[2] + Win.Size[2] - 4 }, Win.DeadZone ) then
+                        
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() and not Win.ToggleReading then
+                            Win.ToggleKeyHolding = true;
+                        else
+                            if Win.ToggleKeyHolding and not Win.ToggleReading then
+                                Win.ToggleReading = true;
+
+                                Win.ToggleKeyHolding = false;
+                            end
+                        end
+
+                        --// Hover Detection
+                        Win.ToggleKeyHovering = true;
+                    else
+                        if dx9.isLeftClickHeld() and Win.ToggleReading then
+                            Win.ToggleReading = false
+                        end
+                        Win.ToggleKeyHovering = false;
+                        Win.ToggleKeyHolding = false;
+                    end
+                    
+
+                    --// Toggle Key Set Detect
+                    if Win.ToggleReading and KeyRead ~= "[Unknown]" and KeyRead ~= "[LBUTTON]" then
+                        Win.ToggleKey = KeyRead
+                        Win.ToggleReading = false
+                    end
+
+                    FooterWidth = FooterWidth + Toggle_Width + 12
+                end
+
+                --// RGB //--
+                if Win.FooterRGB then
+                    local RGB = "RGB: OFF"
+                    local RGB_Width = dx9.CalcTextWidth(RGB)
+                    if Win.Rainbow then RGB = "RGB: ON" end
+
+
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + RGB_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+
+                    if Win.RGBHovering then
+                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + RGB_Width , Win.Location[2] + Win.Size[2] - 5 } , AccentColor ) 
+                    else
+                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + RGB_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
+                    end
+
+                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + RGB_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+
+                    dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , FontColor , RGB)
+
+
+                    --// Click Detect
+                    if Lib.MouseInArea( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 , FooterWidth + Win.Location[1] + 15 + RGB_Width , Win.Location[2] + Win.Size[2] - 4 }, Win.DeadZone ) then
+                        
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() then
+                            Win.RGBKeyHolding = true;
+                        else
+                            if Win.RGBKeyHolding then
+                                Win.Rainbow = not Win.Rainbow
+                                Win.RGBKeyHolding = false;
+                            end
+                        end
+
+                        --// Hover Detection
+                        Win.RGBHovering = true;
+                    else
+                        Win.RGBHovering = false;
+                        Win.RGBKeyHolding = false;
+                    end
+
+
+                    FooterWidth = FooterWidth + RGB_Width + 12
+                end
+
+                --// Mouse Coords //--
+                if Win.FooterMouseCoords then
+                    local Coords = "Mouse: "..dx9.GetMouse().x..", "..dx9.GetMouse().y
+                    local Coords_Width = dx9.CalcTextWidth(Coords)
+
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + Coords_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Coords_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
+                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + Coords_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+
+                    dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , FontColor , Coords)
+                    FooterWidth = FooterWidth + 116 + 12
+                end
+
+                
+            end
         end
     end
     Win:Render()
-
-    --// Change Name Function
-    function Win:SetWindowTitle( title )
-        Win.Name = title
-    end
-
-    --// Set Window to RGB Function
-    function Win:SetRGB( bool )
-        Win.Rainbow = bool
-    end
-    
 
     --[[
     ████████╗ █████╗ ██████╗ 
@@ -347,52 +718,60 @@ function Lib:CreateWindow( index )
        ██║   ██║  ██║██████╔╝
        ╚═╝   ╚═╝  ╚═╝╚═════╝                   
     ]]
-
+    
     --// Add Tab Function
     function Win:AddTab( TabName )
+
+        --// Pre-Defs
         local Tab = {}
+
+        --// Init-Defs
         if Win.Tabs[TabName] == nil then
-            Tab = { 
-                Name = TabName;
-                Boundary = { 0 ,0 ,0 ,0 };
+            Win.Tabs[TabName] = { 
+                Boundary = { 0 , 0 , 0 , 0 };
                 Groupboxes = {};
 
-                rightstack = 60;
-                leftstack = 60;
+                Leftstack = 60;
+                Rightstack = 60;
              };
-            Win.Tabs[TabName] = Tab;
-        else
-
         end
-        Tab = Win.Tabs[TabName];
-        
-        Win.Tabs[TabName].Name = TabName;
-        
 
+        --// Re-Defining
+        Tab = Win.Tabs[TabName]; 
+
+        --// Setting TabLength
         local TabLength = dx9.CalcTextWidth( TabName ) + 7
-
-        -- Focus first tab
-        if Win.CurrentTab == "none" then Win.CurrentTab = Tab.Name end
         
+        --// Set Restraint
+        Win:SetRestraint({Win.TabMargin + TabLength + 24, 0})
+
         --// Display Tab
-        if Lib.Active and Win.Tabs[TabName].Name == TabName then
-            if Win.TabMargin + TabLength + 3 < 530 then
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name then --// If tab selected
-                    dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.MainColor )
-                else
-                    dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Lib.OutlineColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 49 } , Lib.MainColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 48 } , Lib.BackgroundColor )
-                end
-                
-                dx9.DrawString( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , Lib.FontColor , " "..Tab.Name )
-                
-                Tab.Boundary = { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 , Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 }
-                Win.TabMargin = Win.TabMargin + TabLength + 3
+        if Win.Active then
+            if Win.CurrentTab ~= nil and Win.CurrentTab == TabName then 
+
+                --// If tab selected
+                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 25 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , OutlineColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , MainColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , MainColor )
+
+                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 27 } , AccentColor )
+            else
+
+                --// Else
+                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , OutlineColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 49 } , MainColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 48 } , BackgroundColor )
             end
+
+            --// Draw Tab Name
+            dx9.DrawString( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , FontColor , " "..TabName )
+            
+            --// Defining Boundaries and Setting Margin
+            Tab.Boundary = { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 , Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 }
+            Win.TabMargin = Win.TabMargin + TabLength + 3
         end
+
+
 
         --[[
          ██████╗ ██████╗  ██████╗ ██╗   ██╗██████╗ ██████╗  ██████╗ ██╗  ██╗
@@ -403,58 +782,101 @@ function Lib:CreateWindow( index )
         ╚═════╝ ╚═╝  ╚═╝ ╚═════╝  ╚═════╝ ╚═╝     ╚═════╝  ╚═════╝ ╚═╝  ╚═╝                                                             
         ]]
 
-        function Tab:AddGroupbox(name , side)
+        function Tab:AddGroupbox(GroupboxName, side)
+
+            --// Error Handling
+            assert(type(GroupboxName) == "string" or type(GroupboxName) == "number", "[ERROR] AddGroupbox: First Argument (groupbox name) must be a string or number!")
+            side = string.lower(side)
+
             local Groupbox = {}
-            if  Tab.Groupboxes[name] == nil then
-                Groupbox = { 
-                    Name = name; -- Static + [Changeable]
-                    Side = side; -- Static + [Changeable]
-                    Vertical = 30; -- Dynamic
+            if Tab.Groupboxes[GroupboxName] == nil then
+                Tab.Groupboxes[GroupboxName] = { 
                     ToolSpacing = 0;
 
                     Visible = true;
 
                     Tools = {};
                     Root = {};
-                 };
-                Tab.Groupboxes[name] = Groupbox
+
+                    Size = {0, 30};
+                    WidthRestraint = dx9.CalcTextWidth(GroupboxName) + 50
+                };
             end
-            Tab.Groupboxes[name].Name = name
-            Groupbox = Tab.Groupboxes[name]
-            Groupbox.Side = side
+            Groupbox = Tab.Groupboxes[GroupboxName]
+
+            --// Adjusting Restraint
+            if dx9.CalcTextWidth(GroupboxName) + 50 > Groupbox.WidthRestraint then 
+                Groupbox.WidthRestraint = dx9.CalcTextWidth(GroupboxName) + 50 
+            end
+
+            --// Setting a width restraint (according to groupbox length)
+            if side == "right" or side == "left" then
+                Groupbox.Size[1] = (Win.Size[1] / 2) - 23
+                
+                Win:SetRestraint({Groupbox.WidthRestraint * 2, 0})
+            else
+                Groupbox.Size[1] = (Win.Size[1]) - 40
+                Win:SetRestraint({Groupbox.WidthRestraint , 0})
+            end
+            
+            --dx9.DrawBox({Groupbox.Root[1], Groupbox.Root[2]}, {Groupbox.Root[1] + Groupbox.Size[1], Groupbox.Root[2] + Groupbox.Size[2]}, {0, 255, 0}) CHANGE: this lets you view groupbox hitboxes
 
             --// Display Groupbox
-            if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Tab.rightstack + Groupbox.Vertical + 10 < 600 then
+            if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active then
                 Groupbox.Visible = true
-                if Groupbox.Side == "Left" then 
-                    dx9.DrawFilledBox( { Win.Location[1] + 20 , Win.Location[2] + Tab.leftstack } , { Win.Location[1] + 270 , Win.Location[2] + Tab.leftstack + Groupbox.Vertical } , Lib.OutlineColor )
-                    if Win.Rainbow == true then 
-                        dx9.DrawFilledBox( { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 1 } , { Win.Location[1] + 269 , Win.Location[2] + Tab.leftstack + 3 } , Lib.CurrentRainbowColor )
-                    else
-                        dx9.DrawFilledBox( { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 1 } , { Win.Location[1] + 269 , Win.Location[2] + Tab.leftstack + 3 } , Lib.AccentColor )
-                    end
-                    dx9.DrawFilledBox( { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 4 } , { Win.Location[1] + 269 , Win.Location[2] + Tab.leftstack + Groupbox.Vertical - 1 } , Lib.BackgroundColor )
+
+                if side == "left" then
+
+                    --// Left Groupbox
+                    dx9.DrawFilledBox( { Win.Location[1] + 20, Win.Location[2] + Tab.Leftstack } , { Win.Location[1] + (Win.Size[1] / 2) - 3, Win.Location[2] + Tab.Leftstack + Groupbox.Size[2] } , OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 1 } , { Win.Location[1] + (Win.Size[1] / 2) - 4, Win.Location[2] + Tab.Leftstack + 3 } , AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 4 } , { Win.Location[1] + (Win.Size[1] / 2) - 4, Win.Location[2] + Tab.Leftstack + Groupbox.Size[2] - 1 } , BackgroundColor )
 
 
-                    dx9.DrawString( { Win.Location[1] + 145 - (dx9.CalcTextWidth(Groupbox.Name) / 2) , Win.Location[2] + Tab.leftstack + 4 } , Lib.FontColor , Groupbox.Name )
+                    dx9.DrawString( { Win.Location[1] + ( ( Win.Size[1] / 4 + 10) ) - (dx9.CalcTextWidth(GroupboxName) / 2) , Win.Location[2] + Tab.Leftstack + 4 } , FontColor , GroupboxName )
 
-                    Groupbox.Root = { Win.Location[1] + 21 , Win.Location[2] + Tab.leftstack + 10 }
-                    Tab.leftstack = Tab.leftstack + Groupbox.Vertical + 10
+                    Groupbox.Root = { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 10 }
+
+                    Tab.Leftstack = Tab.Leftstack + Groupbox.Size[2] + 10
+
+                    Win:SetRestraint({0, Tab.Leftstack + 35})
+                elseif side == "right" then
+
+                    --// Right Groupbox
+                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 3, Win.Location[2] + Tab.Rightstack } , { Win.Location[1] + (Win.Size[1]) - 20, Win.Location[2] + Tab.Rightstack + Groupbox.Size[2] } , OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 4, Win.Location[2] + Tab.Rightstack + 1 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + Tab.Rightstack + 3 } , AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 4, Win.Location[2] + Tab.Rightstack + 4 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + Tab.Rightstack + Groupbox.Size[2] - 1 } , BackgroundColor )
+
+
+                    dx9.DrawString( { ( Win.Location[1] + ( ( Win.Size[1] / 1.4 + 10) ) - (dx9.CalcTextWidth(GroupboxName) / 2)) , Win.Location[2] + Tab.Rightstack + 4 } , FontColor , GroupboxName )
+
+                    Groupbox.Root = {  math.floor(Win.Location[1] + (Win.Size[1] / 2) + 4 + 0.5), math.floor(Win.Location[2] + Tab.Rightstack + 10 + 0.5) }
+
+                    Tab.Rightstack = Tab.Rightstack + Groupbox.Size[2] + 10
+
+                    Win:SetRestraint({0, Tab.Rightstack + 35})
                 else
-                    dx9.DrawFilledBox( { Win.Location[1] + 280 , Win.Location[2] + Tab.rightstack } , { Win.Location[1] + 530 , Win.Location[2] + Tab.rightstack + Groupbox.Vertical } , Lib.OutlineColor )
-                    if Win.Rainbow == true then 
-                        dx9.DrawFilledBox( { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 1 } , { Win.Location[1] + 529 , Win.Location[2] + Tab.rightstack + 3 } , Lib.CurrentRainbowColor )
-                    else
-                        dx9.DrawFilledBox( { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 1 } , { Win.Location[1] + 529 , Win.Location[2] + Tab.rightstack + 3 } , Lib.AccentColor )
-                    end
-                    dx9.DrawFilledBox( { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 4 } , { Win.Location[1] + 529 , Win.Location[2] + Tab.rightstack + Groupbox.Vertical - 1 } , Lib.BackgroundColor )
+
+                    --// Middle Groupbox
+                    local largest_stack = Tab.Leftstack
+                    if Tab.Rightstack > largest_stack then largest_stack = Tab.Rightstack end
+
+                    dx9.DrawFilledBox( { Win.Location[1] + 20, Win.Location[2] + largest_stack } , { Win.Location[1] + (Win.Size[1]) - 20, Win.Location[2] + largest_stack + Groupbox.Size[2] } , OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + largest_stack + 1 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + largest_stack + 3 } , AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + largest_stack + 4 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + largest_stack + Groupbox.Size[2] - 1 } , BackgroundColor )
 
 
-                    dx9.DrawString( { Win.Location[1] + 405 - (dx9.CalcTextWidth(Groupbox.Name) / 2) , Win.Location[2] + Tab.rightstack + 4 } , Lib.FontColor , Groupbox.Name )
+                    dx9.DrawString( { Win.Location[1] + ( ( Win.Size[1] / 2 ) ) - (dx9.CalcTextWidth(GroupboxName) / 2) , Win.Location[2] + largest_stack + 4 } , FontColor , GroupboxName )
 
-                    Groupbox.Root = { Win.Location[1] + 281 , Win.Location[2] + Tab.rightstack + 10 }
-                    Tab.rightstack = Tab.rightstack + Groupbox.Vertical + 10
+                    Groupbox.Root = { Win.Location[1] + 21, Win.Location[2] + largest_stack + 10 }
+
+                    Tab.Leftstack = largest_stack + Groupbox.Size[2] + 10
+                    Tab.Rightstack = largest_stack + Groupbox.Size[2] + 10
+
+                    Win:SetRestraint({0, largest_stack + Groupbox.Size[2] + 45})               
                 end
+                
+
             else
                 Groupbox.Visible = false
             end
@@ -469,82 +891,84 @@ function Lib:CreateWindow( index )
             ╚═════╝  ╚═════╝    ╚═╝      ╚═╝    ╚═════╝ ╚═╝  ╚═══╝                                              
             ]]
 
-            function Groupbox:AddButton( btn_name , func )
-                local idx = "btn_"..btn_name
+            function Groupbox:AddButton( ButtonName , ButtonFunc )
+                local idx = "btn_"..ButtonName
                 local Button = {}
-                
+
                 if Groupbox.Tools[idx] == nil then
-                    Button = { 
-                        Name = btn_name;
-                        Function = func;
+                    Groupbox.Tools[idx] = { 
                         Boundary = { 0 ,0 ,0 ,0 };
                         Holding = false;
                         Hovering = false;
-                     }
-                    Groupbox.Tools[idx] = Button
+                    }
                 end
-                Groupbox.Tools[idx].Name = btn_name
-                Groupbox.Tools[idx].Function = func
 
                 Button = Groupbox.Tools[idx]
 
                 --// Draw Button in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
+                    --// Accounting for \n (to make buttons multiline)
                     local n = 0;
                     local NewButtonName = "";
-                    if string.gmatch(Button.Name, "([^\n]+)") ~= nil then
-                        for i in (string.gmatch(Button.Name, "([^\n]+)")) do
+                    if string.gmatch(ButtonName, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(ButtonName, "([^\n]+)")) do
 
                             local temp = i;
-                            if dx9.CalcTextWidth(temp) >=  230 then
+                            if dx9.CalcTextWidth(temp) >=  Groupbox.Size[1] - 20 then
                                 repeat
                                     temp = temp:sub(1,-2)
-                                until dx9.CalcTextWidth(temp) <= 230
+                                until dx9.CalcTextWidth(temp) <= Groupbox.Size[1] - 20
                             end
 
                             NewButtonName = NewButtonName..temp.."\n"
                             n = n + 1
                         end
                     else
-                        NewButtonName = Button.Name
+                        NewButtonName = ButtonName
                         n = 1
                     end
                     
-                    Groupbox.Vertical = Groupbox.Vertical + (7 + (18 * n))
+                    Groupbox.Size[2] = Groupbox.Size[2] + (7 + (18 * n))
+
+                    --// Calculating button X size
+                    local button_x = dx9.CalcTextWidth(NewButtonName) + 7
+
+                    if Groupbox.Size[1] - 10 > button_x then button_x = Groupbox.Size[1] - 10 end
+
+                    --Groupbox.WidthRestraint = dx9.CalcTextWidth(NewButtonName) + 17 CHANGE THIS SHIT DONT WORK BRO
+
 
                     if Button.Hovering then
-                        if Win.Rainbow == true then 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.CurrentRainbowColor )
-                        else
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.AccentColor )
-                        end
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , AccentColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 21 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , OutlineColor )
 
                     if Button.Holding == true then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 20 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , OutlineColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 20 + ((18 + Groupbox.ToolSpacing) * n) } , Lib.MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , MainColor )
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , NewButtonName )
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , FontColor , NewButtonName )
 
-                    Button.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 22 + ((18 + Groupbox.ToolSpacing) * n) }
+                    --// Boundary and toolspacing
+                    Button.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
 
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
 
                     --// Click Detect
-                    if mouse_in_boundary( { Button.Boundary[1] , Button.Boundary[2] } , { Button.Boundary[3] , Button.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
+                    if Lib.MouseInArea( { Button.Boundary[1] , Button.Boundary[2] , Button.Boundary[3] , Button.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Button.Holding = true;
                         else
                             if Button.Holding == true then
-                                Button.Function();
+                                if ButtonFunc ~= nil then ButtonFunc() end
                                 Button.Holding = false;
                             end
                         end
@@ -560,7 +984,7 @@ function Lib:CreateWindow( index )
                 --// Closing Difines and Resets | Button
                 Groupbox.Tools[idx] = Button;
 
-                WinCheck( Win )
+                Lib:WinCheck( Win )
                 return Button;
             end
 
@@ -572,38 +996,52 @@ function Lib:CreateWindow( index )
             ██║     ██║   ██║██║     ██║   ██║██╔══██╗    ██╔═══╝ ██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
             ╚██████╗╚██████╔╝███████╗╚██████╔╝██║  ██║    ██║     ██║╚██████╗██║  ██╗███████╗██║  ██║
             ╚═════╝ ╚═════╝ ╚══════╝ ╚═════╝ ╚═╝  ╚═╝    ╚═╝     ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
-            :AddColorPicker(index, {Text = "Color Picker", Default = {0, 0, 0} } )                                                                      
+            :AddColorPicker({Text = "Color Picker", Default = {0, 0, 0} } )                                                                      
             ]]
 
-            function Groupbox:AddColorPicker( index , params ) 
+            function Groupbox:AddColorPicker(params)
+
+                --// Pre-Defs
                 local Picker = {}
+                local Text = params.Text or params.Name
+                local Index = params.Index or Text
+
+                --// Error Handling
+                assert(type(Text) == "string" or type(Text) == "number", "[ERROR] AddColorPicker: Name / Text Variable must be a number or string!")
                 
-                if Groupbox.Tools[index] == nil then
-                    Picker = { 
+                --// Init-Defs
+                if Groupbox.Tools[Index] == nil then
+                    Groupbox.Tools[Index] = { 
                         Boundary = { 0 , 0 , 0 , 0 };
                         Value = params.Default or {0,0,0};
                         Holding = false;
-                        Changed = true;
                         Hovering = false;
                         AddonY = nil;
+                        Changed = true;
 
                         TopColor = params.Default or {0,0,0};
-                        StoredIndex = GetIndex((params.Default or {0,0,0}))[1];
-                        StoredIndex2 = GetIndex((params.Default or {0,0,0}))[2];
-                     }
-                    Groupbox.Tools[index] = Picker
+                        StoredIndex = Lib:GetIndex((params.Default or {0,0,0}))[1];
+                        StoredIndex2 = Lib:GetIndex((params.Default or {0,0,0}))[2];
+
+                        --// Bar Hovering
+                        FirstBarHovering = false;
+                        SecondBarHovering = false;
+                    }
                 end
-                Groupbox.Tools[index].Text = params.Text
-                Picker = Groupbox.Tools[index]
 
+                --// Re-Defines
+                Groupbox.Tools[Index].Text = params.Text
+                Picker = Groupbox.Tools[Index]
 
+                --// SetValue
                 function Picker:SetValue( value )
                     Picker.Value = value;
-                    Picker.StoredIndex = GetIndex(value)[1];
-                    Picker.StoredIndex2 = GetIndex(value)[2];
-                    Picker.Changed = true;
+                    Picker.StoredIndex = Lib:GetIndex(value)[1];
+                    Picker.StoredIndex2 = Lib:GetIndex(value)[2];
+                    Picker.Changed = true 
                 end
 
+                --// Picker Show / Hide
                 function Picker:Show()
                     Win.OpenTool = Picker
                 end
@@ -614,81 +1052,90 @@ function Lib:CreateWindow( index )
                 end
 
                 --// Draw Color Picker in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
+                    --// Draw Color Picker
                     if Picker.Hovering then
-                        if Win.Rainbow then 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
-                        else
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.AccentColor )
-                        end
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 32 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 32 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , OutlineColor )
 
                     dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 31 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Picker.Value )
 
+                    --// Trimming Text
                     local TrimmedToggleText = params.Text;
-                    if dx9.CalcTextWidth(TrimmedToggleText) >=  205 then
+                    if dx9.CalcTextWidth(TrimmedToggleText) >=  Groupbox.Size[1] - 45 then 
                         repeat
                             TrimmedToggleText = TrimmedToggleText:sub(1,-2)
-                        until dx9.CalcTextWidth(TrimmedToggleText) <= 205
+                        until dx9.CalcTextWidth(TrimmedToggleText) <= Groupbox.Size[1] - 45
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Lib.FontColor , " "..TrimmedToggleText)
+                    --// Drawing Text
+                    dx9.DrawString( { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , FontColor , " "..TrimmedToggleText)
 
-                    Picker.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
-
+                    --// Boundaries and Addon
+                    Picker.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing ,  Groupbox.Root[1] + Groupbox.Size[1] - 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
                     Picker.AddonY = Groupbox.ToolSpacing
 
+                    --// Render Picker Box
                     function Picker:Render()
-                        if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                        if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
                             Win.DeadZone = { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 42 + Picker.AddonY, Groupbox.Root[1] + 223 , Groupbox.Root[2] + 125 + Picker.AddonY }
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 42 + Picker.AddonY } , { Groupbox.Root[1] + 223 , Groupbox.Root[2] + 125 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 43 + Picker.AddonY } , { Groupbox.Root[1] + 222 , Groupbox.Root[2] + 124 + Picker.AddonY } , Lib.OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 123 + Picker.AddonY } , Lib.BackgroundColor )
 
-                            if Win.Rainbow then
-                                dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Picker.AddonY } , Lib.CurrentRainbowColor )
-                            else
-                                dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Picker.AddonY } , Lib.AccentColor )
-                            end
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 42 + Picker.AddonY } , { Groupbox.Root[1] + 223 , Groupbox.Root[2] + 125 + Picker.AddonY } , Lib.Black )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 43 + Picker.AddonY } , { Groupbox.Root[1] + 222 , Groupbox.Root[2] + 124 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 123 + Picker.AddonY } , BackgroundColor )
+
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Picker.AddonY } , AccentColor )
 
                             --// DRAWING THE COLORS BRUH
                             -- Bar 1
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + Picker.AddonY } , Lib.OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + Picker.AddonY } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + Picker.AddonY } , Lib.AccentColor )
+                            if Picker.SecondBarHovering then
+                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + Picker.AddonY } , AccentColor )
+                            else
+                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + Picker.AddonY } , Lib.Black )
+                            end
+                            
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 70 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 69 + Picker.AddonY } , AccentColor )
                             
 
                             -- Bar 2
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + 25 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 25 + Picker.AddonY } , Lib.OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 25 + Picker.AddonY } , Lib.AccentColor )
+                            if Picker.FirstBarHovering then
+                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + 25 + Picker.AddonY } , AccentColor )
+                            else
+                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + 25 + Picker.AddonY } , Lib.Black )
+                            end
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 70 + 25 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 69 + 25 + Picker.AddonY } , AccentColor )
 
                             -- Rest
                             dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 113 , Groupbox.Root[2] + 71 + 50 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 112 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , Lib.OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 111 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , Lib.MainColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 112 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 111 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , MainColor )
 
-                            dx9.DrawString( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , Lib.FontColor , " "..rgbToHex(Picker.Value))
+                            dx9.DrawString( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , FontColor , " "..Lib:rgbToHex(Picker.Value))
 
                             dx9.DrawFilledBox( { Groupbox.Root[1] + 116 , Groupbox.Root[2] + 49 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + 50 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 117 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , Lib.OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , Lib.MainColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 117 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , MainColor )
 
                             -- rgb
-                            dx9.DrawString( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , Lib.FontColor , " ".. math.floor(Picker.Value[1] + 0.5)..", ".. math.floor(Picker.Value[2] + 0.5)..", ".. math.floor(Picker.Value[3] + 0.5))
+                            dx9.DrawString( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , FontColor , " ".. math.floor(Picker.Value[1] + 0.5)..", ".. math.floor(Picker.Value[2] + 0.5)..", ".. math.floor(Picker.Value[3] + 0.5))
 
                             --// AIDS BELOW
                             local FirstBarHue = 0
+                            local CurrentRainbowColor
+
                             for i = 1, 205 do 
 
                                 if FirstBarHue > 1530 then
                                     FirstBarHue = 0        
                                 end
+
                                 if FirstBarHue <= 255 then
                                     CurrentRainbowColor = {255, FirstBarHue, 0}
                                 elseif FirstBarHue <= 510 then
@@ -705,14 +1152,20 @@ function Lib:CreateWindow( index )
 
                                 FirstBarHue = FirstBarHue + 7.5
 
-                                if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Picker.AddonY}, { Groupbox.Root[1] + 217 + i , Groupbox.Root[2] + 69 + Picker.AddonY }) and not Lib.Dragging then
-                                    if i < 5 then 
-                                        Picker.StoredIndex2 = 1 
-                                    elseif i > 200 then 
-                                        Picker.StoredIndex2 = 205
-                                    else 
-                                        Picker.StoredIndex2 = i 
+                                if Lib.MouseInArea({ Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + Picker.AddonY , Groupbox.Root[1] + 217, Groupbox.Root[2] + 69 + Picker.AddonY }) then
+                                    Picker.SecondBarHovering = true
+
+                                    if dx9.isLeftClickHeld() and Lib.MouseInArea({ Groupbox.Root[1] + 12 + i , Groupbox.Root[2] + 51 + Picker.AddonY, Groupbox.Root[1] + 15 + i , Groupbox.Root[2] + 69 + Picker.AddonY }) and not Win.Dragging then
+                                        if i < 5 then 
+                                            Picker.StoredIndex2 = 1 
+                                        elseif i > 200 then 
+                                            Picker.StoredIndex2 = 205
+                                        else 
+                                            Picker.StoredIndex2 = i 
+                                        end
                                     end
+                                else
+                                    Picker.SecondBarHovering = false
                                 end
 
                                 if Picker.StoredIndex2 == i then Picker.TopColor = CurrentRainbowColor end
@@ -724,9 +1177,9 @@ function Lib:CreateWindow( index )
                             for i = 1, 205 do 
                                 local Color = {0,0,0}
 
-                                --if SecondBarHue > 510 
+                                --if SecondBarHue > 765
                                 if SecondBarHue > 765 then
-                                    SecondBarHue = 0   
+                                    SecondBarHue = 0  
                                 end
 
                                 if SecondBarHue < 255 then
@@ -743,41 +1196,51 @@ function Lib:CreateWindow( index )
                                 if Color[2] > 255 then Color[2] = 255 end
                                 if Color[3] > 255 then Color[3] = 255 end
 
-                                if dx9.isLeftClickHeld() and mouse_in_boundary({ Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY }, { Groupbox.Root[1] + 217 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }) and not Lib.Dragging then
-                                    if i < 5 then 
-                                        Picker.StoredIndex = 1 
-                                    elseif i >= 66 and i <= 72 then
-                                        Picker.StoredIndex = 69
-                                    elseif i >= 134 and i <= 140 then
-                                        Picker.StoredIndex = 137 
-                                    elseif i > 200 then 
-                                        Picker.StoredIndex = 205
-                                    else 
-                                        Picker.StoredIndex = i 
+                                if Lib.MouseInArea({ Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 25 + Picker.AddonY , Groupbox.Root[1] + 217, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }) then
+                                    Picker.FirstBarHovering = true
+
+                                    if dx9.isLeftClickHeld() and Lib.MouseInArea({ Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY , Groupbox.Root[1] + 15 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }) and not Win.Dragging then
+                                        if i < 5 then 
+                                            Picker.StoredIndex = 1
+                                        elseif i >= 66 and i <= 72 then
+                                            Picker.StoredIndex = 69
+                                        elseif i >= 134 and i <= 140 then
+                                            Picker.StoredIndex = 137 
+                                        elseif i > 200 then 
+                                            Picker.StoredIndex = 205
+                                        else 
+                                            Picker.StoredIndex = i 
+                                        end
                                     end
+                                else
+                                    Picker.FirstBarHovering = false
                                 end
 
                                 if Picker.StoredIndex == i then 
-                                    Picker.Value = Color
-                                    Picker.Changed = true 
+                                    if Color ~= Picker.Value then
+                                        Picker.Value = Color
+                                        Picker.Changed = true 
+                                    end
                                 end
 
                                 dx9.DrawBox( { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }, Color )
                             end
 
-                            dx9.DrawBox( { Groupbox.Root[1] + 10 + Picker.StoredIndex2 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 14 + Picker.StoredIndex2 , Groupbox.Root[2] + 71 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 + Picker.StoredIndex2 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 13 + Picker.StoredIndex2 , Groupbox.Root[2] + 70 + Picker.AddonY } , Lib.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex2 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex2 , Groupbox.Root[2] + 70 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex2 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex2 , Groupbox.Root[2] + 71 + Picker.AddonY } , Lib.Black )
 
-                            dx9.DrawBox( { Groupbox.Root[1] + 10 + Picker.StoredIndex, Groupbox.Root[2] + 74 + Picker.AddonY } , { Groupbox.Root[1] + 14 + Picker.StoredIndex , Groupbox.Root[2] + 96 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 + Picker.StoredIndex, Groupbox.Root[2] + 75 + Picker.AddonY } , { Groupbox.Root[1] + 13 + Picker.StoredIndex , Groupbox.Root[2] + 95 + Picker.AddonY } , Lib.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex, Groupbox.Root[2] + 75 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex , Groupbox.Root[2] + 95 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex, Groupbox.Root[2] + 74 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex , Groupbox.Root[2] + 96 + Picker.AddonY } , Lib.Black )
                         end
                     end
 
-                    Groupbox.Vertical = Groupbox.Vertical + 25
+                    --// Expand Groupbox
+                    Groupbox.Size[2] = Groupbox.Size[2] + 25
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
 
                     --// Click Detect
-                    if mouse_in_boundary( { Picker.Boundary[1] , Picker.Boundary[2] } , { Picker.Boundary[3] , Picker.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
+                    if Lib.MouseInArea( { Picker.Boundary[1] , Picker.Boundary[2] , Picker.Boundary[3] , Picker.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+                        
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Picker.Holding = true;
@@ -800,15 +1263,15 @@ function Lib:CreateWindow( index )
                 function Picker:OnChanged( func )
                     if Picker.Changed then
                         Picker.Changed = false
-                        func()
+                        func(Picker.Value)
                     end
+                    return Picker;
                 end
 
                 --// Closing Difines and Resets | Picker
-                Groupbox.Tools[index] = Picker;
-                Win.Tools[index] = Picker;
+                Groupbox.Tools[Index] = Picker;
 
-                WinCheck( Win )
+                Lib:WinCheck( Win ) 
                 return Picker;
             end
 
@@ -826,20 +1289,53 @@ function Lib:CreateWindow( index )
             function Groupbox:AddTitle(text)
 
                 --// Draw Title in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
-
-                    Groupbox.Vertical = Groupbox.Vertical + (7 + 18)
-
-                    dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , Lib.FontColor , text)
-
-                    if Win.Rainbow == true then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
-                    else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Lib.AccentColor )
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+                    
+                    --// Trimming Text
+                    local trimmed_text = text;
+                    if dx9.CalcTextWidth(text) >=  Groupbox.Size[1] - 15 then
+                        repeat
+                            trimmed_text = trimmed_text:sub(1,-2)
+                        until dx9.CalcTextWidth(trimmed_text) <= Groupbox.Size[1] - 15
                     end
 
+                    --// Displaying Title
+                    dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , FontColor , trimmed_text)
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , AccentColor )
+
+                    --// Expanding Groupbox
+                    Groupbox.Size[2] = Groupbox.Size[2] + (7 + 18) --// CHANGE MIGHT NEED TO PUT ABOVE ALL THE STUFF
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + 18)
                 end
+
+                Lib:WinCheck( Win )
+            end
+
+
+
+            --[[
+            ██████╗  ██████╗ ██████╗ ██████╗ ███████╗██████╗ 
+            ██╔══██╗██╔═══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗
+            ██████╔╝██║   ██║██████╔╝██║  ██║█████╗  ██████╔╝
+            ██╔══██╗██║   ██║██╔══██╗██║  ██║██╔══╝  ██╔══██╗
+            ██████╔╝╚██████╔╝██║  ██║██████╔╝███████╗██║  ██║
+            ╚═════╝  ╚═════╝ ╚═╝  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝
+            :AddBorder()
+            ]]
+            function Groupbox:AddBorder()
+
+                --// Draw Border in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+            
+                    --// Displaying Border
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + Groupbox.ToolSpacing + 20} , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 2 + Groupbox.ToolSpacing + 20} , AccentColor )
+
+                    --// Expanding Groupbox
+                    Groupbox.Size[2] = Groupbox.Size[2] + 8
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + 8
+                end
+
+                Lib:WinCheck( Win )
             end
 
             --[[
@@ -853,12 +1349,16 @@ function Lib:CreateWindow( index )
             ]]
 
             function Groupbox:AddBlank(size)
-                --// Draw Blank in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
-                    Groupbox.Vertical = Groupbox.Vertical + size
 
+                --// Draw Blank in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+
+                    --// Expanding Groupbox
+                    Groupbox.Size[2] = Groupbox.Size[2] + size
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + size
                 end
+
+                Lib:WinCheck( Win )
             end
 
 
@@ -875,23 +1375,39 @@ function Lib:CreateWindow( index )
             function Groupbox:AddLabel(text)
 
                 --// Draw Label in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
+                    --// Trimming Text
                     local n = 0;
+                    local trimmed_text = "";
+                    
                     if string.gmatch(text, "([^\n]+)") ~= nil then
                         for i in (string.gmatch(text, "([^\n]+)")) do
+
+                            local temp = i;
+                            if dx9.CalcTextWidth(temp) >=  Groupbox.Size[1] - 20 then
+                                repeat
+                                    temp = temp:sub(1,-2)
+                                until dx9.CalcTextWidth(temp) <= Groupbox.Size[1] - 20
+                            end
+
+                            trimmed_text = trimmed_text..temp.."\n"
                             n = n + 1
                         end
                     else
+                        trimmed_text = text
                         n = 1
                     end
 
-                    Groupbox.Vertical = Groupbox.Vertical + (7 + (18 * n))
+                    --// Drawing Label
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , FontColor , trimmed_text)
 
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.FontColor , text)
-
+                    --// End Statements
+                    Groupbox.Size[2] = Groupbox.Size[2] + (7 + (18 * n))
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
                 end
+
+                Lib:WinCheck( Win )
             end
 
 
@@ -917,8 +1433,7 @@ function Lib:CreateWindow( index )
                         Value = params.Default or "";
                         Rounding = ( params.Rounding or 0 );
                         Suffix = ( params.Suffix or "" );
-                        Changed = false;
-                     }
+                    }
                     Groupbox.Tools[index] = Input
                 end
                 Input = Groupbox.Tools[index]
@@ -927,7 +1442,7 @@ function Lib:CreateWindow( index )
                 Input.Suffix = ( params.Suffix or "" );
 
                 
-                WinCheck( Win )
+                Lib:WinCheck( Win )
                 return Input;
             end
 
@@ -939,97 +1454,110 @@ function Lib:CreateWindow( index )
             ╚════██║██║     ██║██║  ██║██╔══╝  ██╔══██╗
             ███████║███████╗██║██████╔╝███████╗██║  ██║
             ╚══════╝╚══════╝╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝
-            :AddSlider( index , {Text = "Text", Min = 0, Max = 100, Default = 50} )
+            :AddSlider( index , {Text = "Text", Min = 0, Max = 100, Default = 50, Rounding = 0, Suffix = ""} )
             ]]
 
-            function Groupbox:AddSlider( index , params )
-                local Slider = {}
+            function Groupbox:AddSlider( params )
                 
-                if Groupbox.Tools[index] == nil then
+                --// Pre-Defs
+                local Slider = {}
+                local Name = params.Name or params.Text
+                local Index = params.Index or Name
+
+                --// Error Handling
+                assert(type(Name) == "string" or type(Name) == "number", "[ERROR] AddSlider: Text / Name parameter must be a string or number!")
+
+                --// Init Def
+                if Groupbox.Tools[Index] == nil then
                     Slider = { 
-                        Text = params.Text;
-                        Boundary = { 0 ,0 ,0 ,0 };
+                        Name = Name;
+                        Boundary = { 0 , 0 , 0 , 0 };
                         Holding = false;
                         Value = params.Default or params.Min or 0;
                         Rounding = ( params.Rounding or 0 );
                         Suffix = ( params.Suffix or "" );
-                        Changed = false;
                         Hovering = false;
-                     }
-                    Groupbox.Tools[index] = Slider
+                        Changed = false;
+                    }
+                    Groupbox.Tools[Index] = Slider
                 end
-                Slider = Groupbox.Tools[index]
-                Slider.Text = params.Text;
+
+                --// Re-Setting Values
+                Slider = Groupbox.Tools[Index]
                 Slider.Rounding = ( params.Rounding or 0 );
                 Slider.Suffix = ( params.Suffix or "" );
     
+                --// Setvalue Func
                 function Slider:SetValue( num )
                     if Slider.Value ~= num then
+                        Slider.Value = num;
                         Slider.Changed = true;
-                        Slider.Value = num
                     end
                 end
 
-
                 --// Draw Slider in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+
+                    --// Bar Defs
                     local temp = Slider.Value..Slider.Suffix.."/"..params.Max..Slider.Suffix
-                    local bar_length = 235
+                    local bar_length = Groupbox.Size[1] - 14
 
                     local val = ( 1 / ( ( params.Max - params.Min ) / (Slider.Value - params.Min) )  )
                     if val >= .98 then val = 1 end
                     if val <= .02 then val = 0 end
 
-                    Groupbox.Vertical = Groupbox.Vertical + 40
+                    --// Expanding Groupbox
+                    Groupbox.Size[2] = Groupbox.Size[2] + 40
 
+                    --// Drawing Slider
                     if Slider.Hovering then
-                        if Win.Rainbow == true then 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
-                        else
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , Lib.AccentColor )
-                        end
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 6, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , AccentColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 243 , Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , Lib.Black )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 6, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 35 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 242 , Groupbox.Root[2] + 54 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 35 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7 , Groupbox.Root[2] + 54 + Groupbox.ToolSpacing } , OutlineColor )
 
                     if Slider.Holding then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , OutlineColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 241 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Lib.MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , MainColor )
                     end
 
-                    if Win.Rainbow == true then 
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 6 + ( bar_length * val ) , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
-                    else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 6 + ( bar_length * val ) , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Lib.AccentColor )
-                    end
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 6 + ( bar_length * val ) , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , AccentColor )
 
-                    dx9.DrawString( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 18 + Groupbox.ToolSpacing } , Lib.FontColor , params.Text )
+                    --// Writing Text
+                    dx9.DrawString( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 18 + Groupbox.ToolSpacing } , FontColor , Slider.Name )
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , FontColor , temp )
 
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Lib.FontColor , temp )
 
-                    Slider.Boundary = { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing , Groupbox.Root[1] + 241 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing }
+                    --// Setting Boundary
+                    Slider.Boundary = { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing , Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing }
 
+                    --// end Statements
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 40
 
-                    --// Hovering
-                    if mouse_in_boundary( { Slider.Boundary[1] , Slider.Boundary[2] } , { Slider.Boundary[3] , Slider.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
+
+                    --// If Mouse in Area
+                    if Lib.MouseInArea( { Slider.Boundary[1] , Slider.Boundary[2] , Slider.Boundary[3] , Slider.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Slider.Holding = true;
 
-                            local bar_length = 234
+                            local bar_length = Groupbox.Size[1] - 14
 
                             local cursor = ( ( dx9.GetMouse().x ) - ( Groupbox.Root[1] + 6 ) )
 
                             local val = 1 / ( bar_length/cursor )
                             if val >= .98 then val = 1 end
                             if val <= .02 then val = 0 end
-                            Slider.Value = math.floor(((val * ( params.Max - params.Min )) + params.Min) + 0.5)
-                            
-                            Slider.Changed = true;
+
+                            --// Change Check
+                            if math.floor(((val * ( params.Max - params.Min )) + params.Min) + 0.5) ~= Slider.Value then 
+                                Slider.Value = math.floor(((val * ( params.Max - params.Min )) + params.Min) + 0.5)
+                                Slider.Changed = true 
+                            end
                         else
                             if Slider.Holding == true then
                                 Slider.Holding = false;
@@ -1043,18 +1571,19 @@ function Lib:CreateWindow( index )
                     end
                 end
 
+                --// Slider OnChanged
                 function Slider:OnChanged( func )
                     if Slider.Changed then
                         Slider.Changed = false
-                        func()
+                        func(Slider.Value)
                     end
+                    return Slider;
                 end
 
                 --// Closing Difines and Resets | Slider
-                Groupbox.Tools[index] = Slider;
-                Win.Tools[index] = Slider;
+                Groupbox.Tools[Index] = Slider;
 
-                WinCheck( Win )
+                Lib:WinCheck( Win )
                 return Slider;
             end
 
@@ -1069,24 +1598,32 @@ function Lib:CreateWindow( index )
             :AddToggle( index , { Default = true , Text = "Toggle" } )                                  
             ]]
 
-            function Groupbox:AddToggle( index , params ) 
-                local Toggle = {}
+            function Groupbox:AddToggle( params ) 
                 
-                if Groupbox.Tools[index] == nil then
-                    Toggle = { 
-                        Text = params.Text or index;
-                        Boundary = { 0 ,0 ,0 ,0 };
+                --// Pre-Defs
+                local Toggle = {}
+                local Name = params.Text or params.Name
+                local Index = params.Index or Name
+                
+                --// Error Handling
+                assert(type(Name) == "string" or type(Name) == "number", "[ERROR] AddToggle: Text / Name Argument must be a string or number!")
+
+                --// Init Defs
+                if Groupbox.Tools[Index] == nil then
+                    Groupbox.Tools[Index] = { 
+                        Boundary = { 0 , 0 , 0 , 0 };
                         Value = params.Default or false;
                         Holding = false;
-                        Changed = false;
                         Hovering = false;
+                        Changed = false;
+                        Name = Name;
                     }
-                    Groupbox.Tools[index] = Toggle
                 end
-                Groupbox.Tools[index].Text = params.Text
-                Toggle = Groupbox.Tools[index]
 
+                --// Re-Setting Toggle
+                Toggle = Groupbox.Tools[Index]
 
+                --// Set Value
                 function Toggle:SetValue( value )
                     Toggle.Value = value;
                     Toggle.Changed = true;
@@ -1094,47 +1631,47 @@ function Lib:CreateWindow( index )
 
 
                 --// Draw Toggle in Groupbox
-                if Win.CurrentTab ~= nil and Win.CurrentTab == Tab.Name and Lib.Active and Groupbox.Visible then
-                    Groupbox.Vertical = Groupbox.Vertical + 25
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
+                    --// Expanding Groupbox
+                    Groupbox.Size[2] = Groupbox.Size[2] + 25
+
+                    --// Drawing Toggle
                     if Toggle.Hovering then
-                        if Win.Rainbow then 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
-                        else
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.AccentColor )
-                        end
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 22 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , Lib.OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 22 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , OutlineColor )
 
                     if Toggle.Value then
-                        if Win.Rainbow then 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
-                        else
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Lib.AccentColor )
-                        end
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , AccentColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Lib.MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , MainColor )
                     end
 
-                    local TrimmedToggleText = Toggle.Text;
-                    if dx9.CalcTextWidth(TrimmedToggleText) >= 215 then
+                    --// Trimming Text
+                    local TrimmedToggleText = Toggle.Name;
+                    if dx9.CalcTextWidth(TrimmedToggleText) >= Groupbox.Size[1] - 30 then -- HERE
                         repeat
                             TrimmedToggleText = TrimmedToggleText:sub(1,-2)
-                        until dx9.CalcTextWidth(TrimmedToggleText) <= 215
+                        until dx9.CalcTextWidth(TrimmedToggleText) <= Groupbox.Size[1] - 30
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Lib.FontColor , " "..TrimmedToggleText)
+                    --// Drawing Text
+                    dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , FontColor , " "..TrimmedToggleText)
 
-                    Toggle.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 243 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
+                    --// Setting Boundary
+                    Toggle.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + Groupbox.Size[1] - 5, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
 
+                    --// Tool Spacing
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
 
                     
                     --// Click Detect Toggle
-                    if mouse_in_boundary( { Toggle.Boundary[1] , Toggle.Boundary[2] } , { Toggle.Boundary[3] , Toggle.Boundary[4] }, Win.DeadZone ) and not Lib.Dragging then
+                    if Lib.MouseInArea( { Toggle.Boundary[1] , Toggle.Boundary[2] , Toggle.Boundary[3] , Toggle.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+                        
                         --// Click Detection
                         if dx9.isLeftClickHeld() then
                             Toggle.Holding = true;
@@ -1153,113 +1690,126 @@ function Lib:CreateWindow( index )
                     end
                 end
 
-
                 --// Toggle Onchanged
                 function Toggle:OnChanged( func )
                     if Toggle.Changed then
                         Toggle.Changed = false
-                        func()
+                        func(Toggle.Value)
                     end
+                    return Toggle;
                 end
 
                 --// Closing Difines and Resets | Toggle
-                Groupbox.Tools[index] = Toggle;
-                Win.Tools[index] = Toggle;
+                Groupbox.Tools[Index] = Toggle;
 
-                WinCheck( Win )
+                Lib:WinCheck( Win )
                 return Toggle;
             end
 
 
+
             --// Closing Difines and Resets | Groupbox
-            Groupbox.Vertical = 30;
+            Groupbox.Size[2] = 30;
             Groupbox.ToolSpacing = 0;
 
-            Tab.Groupboxes[name] = Groupbox;
-
-            WinCheck( Win )
+            Tab.Groupboxes[GroupboxName] = Groupbox;
+ 
+            Lib:WinCheck( Win )
             return Groupbox;
         end
-    
+
+
+
 
 
         --// Add Left Groupbox Function
         function Tab:AddLeftGroupbox( name )
-            return Tab:AddGroupbox( name , "Left" )
+            return Tab:AddGroupbox( name , "left" )
         end
 
         --// Add Right Groupbox Function
         function Tab:AddRightGroupbox( name )
-            return Tab:AddGroupbox( name , "Right" )
+            return Tab:AddGroupbox( name , "right" )
         end
 
+        --// Focus Tab
         function Tab:Focus()
-            Win.CurrentTab = Tab.Name;
+            Win.CurrentTab = TabName;
         end
 
-        --// Closing Difines and Resets | Tab
-        Win.Tabs[TabName] = Tab;
+        --// Closing and Resets | Tab
+        Tab.Leftstack = 60;
+        Tab.Rightstack = 60;
 
-        Tab.leftstack = 60;
-        Tab.rightstack = 60;
+        Win.Tabs[TabName] = Tab;
         
-        WinCheck( Win )
+        Lib:WinCheck( Win )
 
         return Tab;
     end
 
+
     --// Closing Difines and Resets | Window
-    Lib.Windows[index] = Win
-
     Win.TabMargin = 0
-    Win.Tools = {};
+    Win.Restraint = {FooterWidth + 12, 200}
+    Lib.Windows[WindowName] = Win
 
-    return( Win )
+    FooterWidth = 0
+    
+    return Win
 end
 
 
 --[[
-██╗    ██╗ █████╗ ████████╗███████╗██████╗ ███╗   ███╗ █████╗ ██████╗ ██╗  ██╗
-██║    ██║██╔══██╗╚══██╔══╝██╔════╝██╔══██╗████╗ ████║██╔══██╗██╔══██╗██║ ██╔╝
-██║ █╗ ██║███████║   ██║   █████╗  ██████╔╝██╔████╔██║███████║██████╔╝█████╔╝ 
-██║███╗██║██╔══██║   ██║   ██╔══╝  ██╔══██╗██║╚██╔╝██║██╔══██║██╔══██╗██╔═██╗ 
-╚███╔███╔╝██║  ██║   ██║   ███████╗██║  ██║██║ ╚═╝ ██║██║  ██║██║  ██║██║  ██╗
- ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
+███╗   ██╗ ██████╗ ████████╗██╗███████╗██╗   ██╗
+████╗  ██║██╔═══██╗╚══██╔══╝██║██╔════╝╚██╗ ██╔╝
+██╔██╗ ██║██║   ██║   ██║   ██║█████╗   ╚████╔╝ 
+██║╚██╗██║██║   ██║   ██║   ██║██╔══╝    ╚██╔╝  
+██║ ╚████║╚██████╔╝   ██║   ██║██║        ██║   
+╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝╚═╝        ╚═╝   
 ]]
 
-function Lib:SetWatermarkVisibility( bool )
-    Lib.Watermark.Visible = bool
+local total_seconds = os.clock() --(os.date("*t").hour * 3600) + (os.date("*t").min * 60) + (os.date("*t").sec)
+
+function Lib:Notify(text, length)
+
+    if length == nil then length = 3 end
+
+    local notif = {Text = text, Start = total_seconds, Length = length}
+
+    table.insert(Lib.Notifications, notif)
 end
 
-function Lib:SetWatermark( text )
-    Lib.Watermark.Text = text;
+for i,v in pairs(Lib.Notifications) do
+    if v.Start < total_seconds - v.Length then
+        Lib.Notifications[i] = nil
 
-    local textwidth = dx9.CalcTextWidth( text.." | UI Toggle: "..Lib.Keybind ) + 10
-
-    --// Watermark Dragging
-    if dx9.isLeftClickHeld() then
-
-        --// Drag Func
-        if mouse_in_boundary( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } ) and not Lib.Dragging then
-            
-            if Lib.Watermark.MouseOffset == nil then
-                Lib.Watermark.MouseOffset = { dx9.GetMouse().x - Lib.Watermark.Location[1] , dx9.GetMouse().y - Lib.Watermark.Location[2] }
-            end
-
-            Lib.Watermark.Location = { dx9.GetMouse().x - Lib.Watermark.MouseOffset[1] , dx9.GetMouse().y - Lib.Watermark.MouseOffset[2] }
+        --// Pushing Items Down
+        for d,f in pairs(Lib.Notifications) do
+           if f ~= nil and d-1 ~= 0 then
+            Lib.Notifications[d-1] = f
+           end
         end
-    else
-        Lib.Watermark.MouseOffset = nil
-    end
 
-    if Lib.Watermark.Visible then
-        local textwidth = dx9.CalcTextWidth( Lib.Watermark.Text.." | UI Toggle: "..Lib.Keybind ) + 10
-    
-        dx9.DrawFilledBox( { Lib.Watermark.Location[1] , Lib.Watermark.Location[2] } , { Lib.Watermark.Location[1] + textwidth + 2 , Lib.Watermark.Location[2] + 23 } , Lib.Black )
-        dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 1 , Lib.Watermark.Location[2] + 1 } , { Lib.Watermark.Location[1] + textwidth + 1 , Lib.Watermark.Location[2] + 22 } , Lib.CurrentRainbowColor )
-        dx9.DrawFilledBox( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 2 } , { Lib.Watermark.Location[1] + textwidth , Lib.Watermark.Location[2] + 21 } , Lib.MainColor )
-    
-        dx9.DrawString( { Lib.Watermark.Location[1] + 2 , Lib.Watermark.Location[2] + 1 } , Lib.FontColor , " "..Lib.Watermark.Text.." | UI Toggle: "..Lib.Keybind ) 
+        --// Resseting Last Item
+        if #Lib.Notifications ~= 0 then
+            Lib.Notifications[#Lib.Notifications] = nil
+        end
+    elseif v ~= nil then
+
+        --// Notification Root
+        local root = {0, 200 + (22 * i)}
+
+        --// Text Length
+        local length = dx9.CalcTextWidth(v.Text)
+
+        --// Draw Notification
+        dx9.DrawFilledBox( { root[1] + 4 , root[2] + 19 } , { root[1] + 4 + length + 12, root[2] + 22 + (18) } , Lib.Black )
+        dx9.DrawFilledBox( { root[1] + 5 , root[2] + 20 } , { root[1] + 3 + length + 12, root[2] + 21 + (18) } , Lib.OutlineColor )
+        dx9.DrawFilledBox( { root[1] + 6 , root[2] + 21 } , { root[1] + 2 + length + 12, root[2] + 20 + (18) } , Lib.MainColor )
+        dx9.DrawFilledBox( { root[1] + 6 , root[2] + 21 } , { root[1] + 8 , root[2] + 20 + ((total_seconds - v.Start) * (18/v.Length)) } , Lib.CurrentRainbowColor )
+
+        dx9.DrawString( { root[1] + 11 , root[2] + 20 } , Lib.FontColor , v.Text )
     end
 end
 
@@ -1287,5 +1837,15 @@ do
     end
 end
 
---// Final Statements
+
+--// Logo Tick
+if Lib.LogoTick > 80 then
+    Lib.LogoTick = 0
+else
+    Lib.LogoTick = Lib.LogoTick + 1
+end
+
+
+--// End Statements
+_G.Lib = Lib
 return Lib
