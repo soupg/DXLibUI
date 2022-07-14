@@ -1732,6 +1732,11 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
             return Tab:AddGroupbox( name , "right" )
         end
 
+        --// Add Middle Groupbox Function
+        function Tab:AddMiddleGroupbox( name )
+            return Tab:AddGroupbox( name , "middle" )
+        end
+
         --// Focus Tab
         function Tab:Focus()
             Win.CurrentTab = TabName;
