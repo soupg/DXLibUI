@@ -1372,8 +1372,9 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
             :AddLabel(text)                                
             ]]
 
-            function Groupbox:AddLabel(text)
-
+            function Groupbox:AddLabel(text, color)
+                if color == nil then color = {255, 255, 255} end
+                
                 --// Draw Label in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
@@ -1400,7 +1401,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
 
                     --// Drawing Label
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , FontColor , trimmed_text)
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , color , trimmed_text)
 
                     --// End Statements
                     Groupbox.Size[2] = Groupbox.Size[2] + (7 + (18 * n))
