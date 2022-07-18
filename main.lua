@@ -21,10 +21,6 @@ function Log( ... )
 end
 
 
---// KeyRead (dont move anywhere lower)
-local KeyRead = dx9.GetKey()
-local uses = 0
-
 --[[
 
 ██████╗ ███████╗███████╗██╗███╗   ██╗██╗███╗   ██╗ ██████╗     ██╗     ██╗██████╗ 
@@ -95,9 +91,13 @@ if _G.Lib == nil then
         --// Notifications
         Notifications = {};
         LatestNotif = nil; -- CHANGE (pretty useless but might come in handy some time)
+
+        --// Key
+        Key = dx9.GetKey();
      };
 end
 local Lib = _G.Lib
+Lib.Key = dx9.GetKey()
 
 --// First Run
 if Lib.FirstRun == nil then
@@ -457,7 +457,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
     end
 
     --// Keybind Open / Close
-    if KeyRead == Win.ToggleKey and KeyRead ~= "[ESCAPE]" and not Win.ToggleReading then
+    if Lib.Key == Win.ToggleKey and Lib.Key ~= "[ESCAPE]" and not Win.ToggleReading then
         Win.Active = not Win.Active;
     end
 
@@ -639,8 +639,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     
 
                     --// Toggle Key Set Detect
-                    if Win.ToggleReading and KeyRead ~= "[Unknown]" and KeyRead ~= "[LBUTTON]" then
-                        Win.ToggleKey = KeyRead
+                    if Win.ToggleReading and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
+                        Win.ToggleKey = Lib.Key
                         Win.ToggleReading = false
                     end
 
