@@ -56,6 +56,13 @@ Lib:CreateWindow(WindowTitle)
 			Groupbox:AddSlider({Index = "unique tool index", Default = 0, Text = "Text", Min = 0, Max = 100, Suffix = "%"}
 				Slider:OnChanged(Function)
 				Slider:SetValue(Int)
+				
+			Groupbox:AddDropdown({Index = "unique tool index", Text = "Text", Default = 1, Values = {"Option 1", "Option 2", "Option 3"}})
+				Dropdown:SetValues(table)
+				Dropdown:Show() 
+				Dropdown:Hide() 
+				Dropdown:OnChanged(Func) 
+				Dropdown:SetValue(val) --// Value can be a number (index of item) or string (name of item)
 			
 			Groupbox:AddLabel(text) --// Supports Multiline
 			Groupbox:AddTitle(text) --// Does not support multiline
