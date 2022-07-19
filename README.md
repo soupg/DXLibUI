@@ -41,26 +41,26 @@ Lib:CreateWindow(WindowTitle)
 		Tab:AddLeftGroupbox(Name)
 		Tab:AddRightGroupbox(Name)
 		
-		Groupbox:AddButton(Text, Function) --// Function AND Text can be one-line or multi-line
+			Groupbox:AddButton(Text, Function) --// Function AND Text can be one-line or multi-line
 
-		Groupbox:AddColorPicker({Index = "unique tool index", Default = {r,g,b}, Text = "Text"})
-			ColorPicker:OnChanged(Function)
-			ColorPicker:SetValue({r,g,b})
-			ColorPicker:Show()
-			ColorPicker:Hide()
+			Groupbox:AddColorPicker({Index = "unique tool index", Default = {r,g,b}, Text = "Text"})
+				ColorPicker:OnChanged(Function)
+				ColorPicker:SetValue({r,g,b})
+				ColorPicker:Show()
+				ColorPicker:Hide()
 
-		Groupbox:AddToggle({Index = "unique tool index", Default = false, Text = "Text"})
-			Toggle:OnChanged(Function)
-			Toggle:SetValue(Bool)
+			Groupbox:AddToggle({Index = "unique tool index", Default = false, Text = "Text"})
+				Toggle:OnChanged(Function)
+				Toggle:SetValue(Bool)
 		
-		Groupbox:AddSlider({Index = "unique tool index", Default = 0, Text = "Text", Min = 0, Max = 100, Suffix = "%"}
-			Slider:OnChanged(Function)
-			Slider:SetValue(Int)
+			Groupbox:AddSlider({Index = "unique tool index", Default = 0, Text = "Text", Min = 0, Max = 100, Suffix = "%"}
+				Slider:OnChanged(Function)
+				Slider:SetValue(Int)
 			
-		Groupbox:AddLabel(text) --// Supports Multiline
-		Groupbox:AddTitle(text) --// Does not support multiline
-		Groupbox:AddBlank(sizeNum) --// Adds an empty space of said size
-		Groupbox:AddBorder() --// Adds Border
+			Groupbox:AddLabel(text) --// Supports Multiline
+			Groupbox:AddTitle(text) --// Does not support multiline
+			Groupbox:AddBlank(sizeNum) --// Adds an empty space of said size
+			Groupbox:AddBorder() --// Adds Border
 ```
 
 
