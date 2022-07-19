@@ -1661,7 +1661,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                         Dropdown.HoveredValue = Dropdown.Values[index]
 
-                        if dx9.isLeftClickHeld() then
+                        if dx9.isLeftClickHeld() and Dropdown.ValueIndex ~= index then
                             Dropdown.ValueIndex = index
                             Dropdown.Changed = true
                         end
