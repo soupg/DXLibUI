@@ -6,6 +6,7 @@ Try and fix rendering bug of tools / groupboxes on tab switch
 
 ADD WINDOW DEADZONES SO U CANT CLICK THROUGH WINDOWS INFRONT
 
+some tools have a line that expands groupbox restraint according to text length, its overriden by text trimming
 ]]
 
 
@@ -90,7 +91,6 @@ if _G.Lib == nil then
 
         --// Notifications
         Notifications = {};
-        LatestNotif = nil; -- CHANGE (pretty useless but might come in handy some time)
 
         --// Key
         Key = dx9.GetKey();
@@ -98,6 +98,7 @@ if _G.Lib == nil then
 end
 local Lib = _G.Lib
 Lib.Key = dx9.GetKey()
+local Mouse = dx9.GetMouse()
 
 --// First Run
 if Lib.FirstRun == nil then
@@ -278,7 +279,7 @@ end
 
 if Lib.FirstRun then
 
-    --// Better Loadstring DONE
+    --// Better Loadstring
     function Lib.loadstring(string)
         assert(type(string) == "string", "[Error] loadstring: First Argument needs to be a string!")
 
@@ -291,7 +292,7 @@ if Lib.FirstRun then
     _G.loadstring = Lib.loadstring
 
 
-    --// Better Get DONE
+    --// Better Get
     function Lib.Get(string)
         assert(type(string) == "string", "[Error] Get: First Argument needs to be a string!")
 
@@ -936,9 +937,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     if Groupbox.Size[1] - 10 > button_x then button_x = Groupbox.Size[1] - 10 end
 
-                    --Groupbox.WidthRestraint = dx9.CalcTextWidth(NewButtonName) + 17 CHANGE THIS SHIT DONT WORK BRO
-
-
                     if Button.Hovering then
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , AccentColor )
                     else
@@ -1003,7 +1001,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 --// Pre-Defs
                 local Picker = {}
-                local Text = params.Text or params.Name
+                local Text = params.Text or params.Name or params.Index
                 local Index = params.Index or Text
 
                 --// Error Handling
@@ -1304,7 +1302,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , AccentColor )
 
                     --// Expanding Groupbox
-                    Groupbox.Size[2] = Groupbox.Size[2] + (7 + 18) --// CHANGE MIGHT NEED TO PUT ABOVE ALL THE STUFF
+                    Groupbox.Size[2] = Groupbox.Size[2] + (7 + 18)
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + 18)
                 end
 
@@ -1447,6 +1445,251 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 return Input;
             end
 
+            --[[
+            ██████╗ ██████╗  ██████╗ ██████╗ ██████╗  ██████╗ ██╗    ██╗███╗   ██╗
+            ██╔══██╗██╔══██╗██╔═══██╗██╔══██╗██╔══██╗██╔═══██╗██║    ██║████╗  ██║
+            ██║  ██║██████╔╝██║   ██║██████╔╝██║  ██║██║   ██║██║ █╗ ██║██╔██╗ ██║
+            ██║  ██║██╔══██╗██║   ██║██╔═══╝ ██║  ██║██║   ██║██║███╗██║██║╚██╗██║
+            ██████╔╝██║  ██║╚██████╔╝██║     ██████╔╝╚██████╔╝╚███╔███╔╝██║ ╚████║
+            ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═════╝  ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝
+            :AddDropdown({Index = "", Text = "Dropdown", Default = 1, Values = {"Option 1", "Option 2"}})
+                Dropdown:SetValues()
+                Dropdown:Show() -
+                Dropdown:Hide() -
+                Dropdown:OnChanged(Func) -
+                Dropdown:SetValue(val) -- CHECK IF THIS TAKES NUMBER OR STRING
+            ]]
+
+            function Groupbox:AddDropdown(params)
+
+                --// Pre-Defs
+                local Dropdown = {}
+                local Name = params.Name or params.Text or params.Index
+                local Index = params.Index or Name
+                local Values = params.Values or params.Table or params.List
+
+                --// Error Handling
+                assert(type(Name) == "string" or type(Name) == "number", "[ERROR] AddDropdown: Text / Name parameter must be a string or number!")
+                assert(type(Values) == "table" and #Values > 0, "[ERROR] AddDropdown: Values argument must be a table larger than 0!")
+                
+                if Groupbox.Tools[Index] == nil then
+                    Dropdown = { 
+                        Name = Name;
+                        Boundary = { 0 , 0 , 0 , 0 };
+                        Holding = false;
+
+                        --// Value Stuff
+                        Value = ""; -- CHANGE | Might need to be changed later
+                        ValueIndex = params.Default or 1; -- CHANGE | Needs to actually set the value to the index thing
+                        Values = Values;
+                        HoveredValue = nil;
+
+                        Hovering = false;
+                        Changed = false;
+                        AddonY = nil;
+                    }
+                    Groupbox.Tools[Index] = Dropdown
+                end
+
+                --// Re-Setting Values
+                Dropdown = Groupbox.Tools[Index]
+
+                --// Setting / clearing values
+                if Dropdown.ValueIndex > #Dropdown.Values then Dropdown.ValueIndex = #Dropdown.Values end
+                if Dropdown.Values[Dropdown.ValueIndex] ~= nil then Dropdown.Value = Dropdown.Values[Dropdown.ValueIndex] end
+
+                --// Set Value
+                function Dropdown:SetValue( value ) -- CHANGE
+                    for i,v in ipairs(Dropdown.Values) do
+                        if v == value then
+                            Dropdown.ValueIndex = i
+                            return
+                        end
+                    end
+
+                    if Dropdown.Values[tonumber(value)] then Dropdown.ValueIndex = tonumber(value) end
+                end
+
+                --// Set Values
+                function Dropdown:SetValues( table )
+                    if type(table) == "table" and #table > 0 then
+                        Dropdown.Values = table
+                    end
+                end
+
+                --// Picker Show / Hide
+                function Dropdown:Show()
+                    Win.OpenTool = Dropdown
+                end
+
+                function Dropdown:Hide()
+                    Win.OpenTool = nil 
+                    Win.DeadZone = nil
+                end
+
+        
+                --// Draw Dropdown in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+
+
+                    --// Trimming Text
+                    local TrimmedText = Name;
+                    if dx9.CalcTextWidth(TrimmedText) >=  Groupbox.Size[1] - 20 then 
+                        repeat
+                            TrimmedText = TrimmedText:sub(1,-2)
+                        until dx9.CalcTextWidth(TrimmedText) <= Groupbox.Size[1] - 20
+                    end                    
+
+                    --// Calculating button X size
+                    local dropdown_x = dx9.CalcTextWidth(TrimmedText) + 7
+
+                    if Groupbox.Size[1] - 10 > dropdown_x then dropdown_x = Groupbox.Size[1] - 10 end
+
+                    if Dropdown.Hovering or Win.OpenTool == Dropdown then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] + 22 + 15 + (18) + Groupbox.ToolSpacing } , AccentColor )
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] + 22 + 15 + (18) + Groupbox.ToolSpacing } , Lib.Black )
+                    end
+
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + dropdown_x , Groupbox.Root[2] + 21 + 15 + (18) + Groupbox.ToolSpacing } , OutlineColor )
+
+                    if Dropdown.Holding == true then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] + 20 + 15 + (18) + Groupbox.ToolSpacing } , OutlineColor )
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] + 20 + 15 + (18) + Groupbox.ToolSpacing } , MainColor )
+                    end
+
+                    --// Draw Selection
+                    if Dropdown.Value ~= nil then
+
+                        --// Trimming Value
+                        local TrimmedValue = Dropdown.Value;
+                        if dx9.CalcTextWidth(TrimmedValue) >=  Groupbox.Size[1] - 30 then 
+                            repeat
+                                TrimmedValue = TrimmedValue:sub(1,-2)
+                            until dx9.CalcTextWidth(TrimmedValue) <= Groupbox.Size[1] - 30
+                        end
+                        dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + 15 + Groupbox.ToolSpacing } , FontColor , TrimmedValue )
+                    end
+
+                    --// Draw Name
+                    dx9.DrawString( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 17 + Groupbox.ToolSpacing } , FontColor , TrimmedText )
+
+                    --// Draw Dropdown Indicator
+                    local root = {Groupbox.Root[1] + Groupbox.Size[1] - 17, Groupbox.Root[2] + 44.5 + Groupbox.ToolSpacing}
+
+                    if Win.OpenTool == Dropdown then
+                        dx9.DrawCircle(root, Lib.Black, 6)
+                        dx9.DrawCircle(root, AccentColor, 5)
+                        dx9.DrawCircle(root, OutlineColor, 4)
+
+                    elseif Dropdown.Hovering then
+                        dx9.DrawCircle(root, Lib.Black, 4)
+                        dx9.DrawCircle(root, AccentColor, 3)
+                        dx9.DrawCircle(root, OutlineColor, 2)
+                    else
+                        dx9.DrawCircle(root, Lib.Black, 5)
+                        dx9.DrawCircle(root, OutlineColor, 4)
+                    end
+
+                    
+                    --// Boundary and toolspacing
+                    Dropdown.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + 15 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] + 22 + 15 + ((18)) + Groupbox.ToolSpacing }
+
+                    Dropdown.AddonY = Groupbox.ToolSpacing
+
+                    --// Render Box CHANGE
+                    function Dropdown:Render()
+                        if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+                            Win.DeadZone = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66, Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] - 11 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY }
+
+                            
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66} , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] - 11 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , AccentColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66} , { Groupbox.Root[1] + 3 + dropdown_x , Groupbox.Root[2] - 12 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 12 + 66} , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 13 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , BackgroundColor )
+                            
+                            --// Displaying Options in Dropdown
+                            for i,v in ipairs(Dropdown.Values) do
+
+                                if Dropdown.HoveredValue == v then
+                                    dx9.DrawBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 11 + 45 + (21 * i) } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 12 + 66 + (21 * i) + Dropdown.AddonY } , AccentColor )
+                                else
+                                    dx9.DrawBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 11 + 45 + (21 * i) } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 12 + 66 + (21 * i) + Dropdown.AddonY } , OutlineColor )
+                                end
+                                
+                                --// Trimming Value
+                                local TrimmedText = v;
+                                if dx9.CalcTextWidth(TrimmedText) >=  Groupbox.Size[1] - 30 then 
+                                    repeat
+                                        TrimmedText = TrimmedText:sub(1,-2)
+                                    until dx9.CalcTextWidth(TrimmedText) <= Groupbox.Size[1] - 30
+                                end
+
+                                if Dropdown.Value == v then
+                                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + Dropdown.AddonY - 32 + 66 + (21 * i) }, AccentColor, TrimmedText )
+                                else
+                                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + Dropdown.AddonY - 32 + 66 + (21 * i) }, FontColor, TrimmedText )
+                                end
+                            end
+                        
+                        end
+                    end
+
+                    --// Expand Groupbox
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25 + 15
+                    Groupbox.Size[2] = Groupbox.Size[2] + 25 + 15
+
+                    --// Click Detect
+                    if Lib.MouseInArea( { Dropdown.Boundary[1] , Dropdown.Boundary[2] , Dropdown.Boundary[3] , Dropdown.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+                        Dropdown.HoveredValue = nil;
+
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() then
+                            Dropdown.Holding = true;
+                        else
+                            if Dropdown.Holding == true then
+                                if Win.OpenTool == Dropdown then Dropdown:Hide() else Dropdown:Show() end
+                                Dropdown.Holding = false;
+                            end
+                        end
+
+                        --// Hover Detection
+                        Dropdown.Hovering = true;
+                    elseif Win.OpenTool == Dropdown and Lib.MouseInArea(Win.DeadZone) then
+                        local offset = Mouse.y - Win.DeadZone[2]
+                        local index = math.floor(offset / 21) + 1
+
+                        Dropdown.HoveredValue = Dropdown.Values[index]
+
+                        if dx9.isLeftClickHeld() then
+                            Dropdown.ValueIndex = index
+                            Dropdown.Changed = true
+                        end
+                    else
+                        Dropdown.HoveredValue = nil;
+                        Dropdown.Hovering = false;
+                        Dropdown.Holding = false;
+                    end
+                end
+
+                Log(Dropdown.HoveredValue)
+
+                --// Dropdown Onchanged
+                function Dropdown:OnChanged( func )
+                    if Dropdown.Changed then
+                        Dropdown.Changed = false
+                        func(Dropdown.Value)
+                    end
+                    return Dropdown;
+                end
+
+                --// Closing Difines and Resets | Dropdown
+                Groupbox.Tools[Index] = Dropdown;
+
+                Lib:WinCheck( Win )
+                return Dropdown;
+            end
+
 
             --[[
             ███████╗██╗     ██╗██████╗ ███████╗██████╗ 
@@ -1462,7 +1705,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 
                 --// Pre-Defs
                 local Slider = {}
-                local Name = params.Name or params.Text
+                local Name = params.Name or params.Text or params.Index
                 local Index = params.Index or Name
 
                 --// Error Handling
@@ -1603,7 +1846,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 
                 --// Pre-Defs
                 local Toggle = {}
-                local Name = params.Text or params.Name
+                local Name = params.Text or params.Name or params.Index
                 local Index = params.Index or Name
                 
                 --// Error Handling
@@ -1654,7 +1897,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     --// Trimming Text
                     local TrimmedToggleText = Toggle.Name;
-                    if dx9.CalcTextWidth(TrimmedToggleText) >= Groupbox.Size[1] - 30 then -- HERE
+                    if dx9.CalcTextWidth(TrimmedToggleText) >= Groupbox.Size[1] - 30 then
                         repeat
                             TrimmedToggleText = TrimmedToggleText:sub(1,-2)
                         until dx9.CalcTextWidth(TrimmedToggleText) <= Groupbox.Size[1] - 30
