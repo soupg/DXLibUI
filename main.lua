@@ -2,11 +2,20 @@
 
 --[[
 
-Try and fix rendering bug of tools / groupboxes on tab switch
-
 ADD WINDOW DEADZONES SO U CANT CLICK THROUGH WINDOWS INFRONT
 
 some tools have a line that expands groupbox restraint according to text length, its overriden by text trimming
+
+make tooltips work for all tools
+
+code sections
+
+add multiline notifications
+
+fix colorpicker lag
+
+add toggle keybinds
+
 ]]
 
 
@@ -338,12 +347,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
     local WindowName = params.Name or params.Title
 
-    local FontColor = params.FontColor or Lib.FontColor
-    local MainColor = params.MainColor or Lib.MainColor
-    local BackgroundColor = params.BackgroundColor or Lib.BackgroundColor
-    local AccentColor = params.AccentColor or Lib.AccentColor
-    local OutlineColor = params.OutlineColor or Lib.OutlineColor
-
     local StartRainbow = params.Rainbow or params.RGB or false
 
     local ToggleKeyPreset = "[ESCAPE]"
@@ -355,18 +358,13 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
     --// Error Handling
     assert(type(WindowName) == "string" or type(WindowName) == "number", "[ERROR] CreateWindow: Window name parameter must be a string or number!")
-    assert(type(FontColor) == "table" and #FontColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
-    assert(type(MainColor) == "table" and #MainColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
-    assert(type(BackgroundColor) == "table" and #BackgroundColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
-    assert(type(AccentColor) == "table" and #AccentColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
-    assert(type(OutlineColor) == "table" and #OutlineColor == 3, "[ERROR] CreateWindow: Window Color parameters must be tables with 3 RGB values!")
     assert(type(StartRainbow) == "boolean", "[ERROR] CreateWindow: Rainbow parameter must be a boolean!")
     assert(type(ToggleKeyPreset) == "string" and string.sub(ToggleKeyPreset, 1, 1) == "[", "[ERROR] CreateWindow: ToggleKey needs to have this format: [KEY]!")
 
 
     if Lib.Windows[WindowName] == nil then
         Lib.Windows[WindowName] = {
-            Location = params.StartLocation or { 200 , 200 };
+            Location = params.StartLocation or { 100 , 100 };
             Size = params.Size or { 600 , 500 };
 
             Rainbow = StartRainbow;
@@ -393,7 +391,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
             ToggleKeyHovering = false;
             ToggleKey = ToggleKeyPreset;
             ToggleReading = false;
-            KeyMemory = {};
 
             --// RGB Key
             RGBKeyHolding = false;
@@ -416,6 +413,13 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
             --// Tools 
             OpenTool = nil;
+
+            --// Color
+            FontColor = params.FontColor or Lib.FontColor;
+            MainColor = params.MainColor or Lib.MainColor;
+            BackgroundColor = params.BackgroundColor or Lib.BackgroundColor;
+            AccentColor = params.AccentColor or Lib.AccentColor;
+            OutlineColor = params.OutlineColor or Lib.OutlineColor
         }
 
         Lib.WindowCount = Lib.WindowCount + 1
@@ -452,9 +456,9 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
     --// Accent to rainbow change
     if Win.Rainbow then 
-        AccentColor = Lib.CurrentRainbowColor 
+        Win.AccentColor = Lib.CurrentRainbowColor 
     else 
-        AccentColor = params.AccentColor or Lib.AccentColor
+        Win.AccentColor = Win.AccentColor or Lib.AccentColor
     end
 
     --// Keybind Open / Close
@@ -517,6 +521,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
         Lib.DraggingWindow = nil
     end
 
+    --// Borders
+    if Win.Location[1] < 0 then Win.Location[1] = 0 end
+    --if Win.Location[2] < 0 then Win.Location[2] = 0 end
+    --if Win.Location[1] + Win.Size[1] > dx9.size().width then Win.Location[1] = dx9.size().width - Win.Size[1] end
+    --if Win.Location[2] + Win.Size[2] > dx9.size().height then Win.Location[2] = dx9.size().height - Win.Size[2] end
+
     --// Display Window //--
 
     --// Trimming Window Name
@@ -537,27 +547,27 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 --// Draw Main Outer
                 dx9.DrawFilledBox( { Win.Location[1] - 1 , Win.Location[2] - 1 } , { Win.Location[1] + Win.Size[1] + 1 , Win.Location[2] + Win.Size[2] + 1 } , Lib.Black ) 
 
-                dx9.DrawFilledBox( Win.Location , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , AccentColor )
+                dx9.DrawFilledBox( Win.Location , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , Win.AccentColor )
 
-                dx9.DrawFilledBox( { Win.Location[1] + 1 , Win.Location[2] + 1 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , MainColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 1 , Win.Location[2] + 1 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , Win.MainColor )
 
                 --// Draw Corner
                 if resizable then
-                    dx9.DrawFilledBox( { Win.Location[1] + Win.Size[1] - 7, Win.Location[2] + Win.Size[2] - 7} , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + Win.Size[1] - 7, Win.Location[2] + Win.Size[2] - 7} , { Win.Location[1] + Win.Size[1] , Win.Location[2] + Win.Size[2] } , Win.AccentColor )
 
-                    dx9.DrawFilledBox( { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 6 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , MainColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 6 } , { Win.Location[1] + Win.Size[1] - 1 , Win.Location[2] + Win.Size[2] - 1 } , Win.MainColor )
                 end
 
                 --// Draw Main Inner
 
-                dx9.DrawFilledBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 32 } , BackgroundColor ) 
+                dx9.DrawFilledBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 32 } , Win.BackgroundColor ) 
 
-                dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 31 } , OutlineColor ) 
+                dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 31 } , Win.OutlineColor ) 
                 dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + 21 } , { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 32 } , Lib.Black ) 
 
-                dx9.DrawString( Win.Location , FontColor , "  "..TrimmedWinName)
-                dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 36 } , OutlineColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 37 } , MainColor ) 
+                dx9.DrawString( Win.Location , Win.FontColor , "  "..TrimmedWinName)
+                dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 36 } , Win.OutlineColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 37 } , Win.MainColor ) 
             end
 
             --// Footer //--
@@ -567,9 +577,9 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 local Watermark = "     DXLibUI"
                 local Watermark_Width = dx9.CalcTextWidth(Watermark)
 
-                dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { Win.Location[1] + 15 + Watermark_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+                dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { Win.Location[1] + 15 + Watermark_Width , Win.Location[2] + Win.Size[2] - 4 } , Win.OutlineColor ) 
                 dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { Win.Location[1] + 14 + Watermark_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
-                dx9.DrawFilledBox( { Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { Win.Location[1] + 13 + Watermark_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+                dx9.DrawFilledBox( { Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { Win.Location[1] + 13 + Watermark_Width , Win.Location[2] + Win.Size[2] - 6 } , Win.BackgroundColor ) 
 
                 dx9.DrawString( { Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Lib.CurrentRainbowColor , Watermark)
                 FooterWidth = FooterWidth + Watermark_Width + 12
@@ -598,20 +608,20 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     local Toggle_Width = dx9.CalcTextWidth(Toggle)
 
-                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + Toggle_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + Toggle_Width , Win.Location[2] + Win.Size[2] - 4 } , Win.OutlineColor ) 
 
                     if Win.ToggleKeyHovering then
-                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Toggle_Width , Win.Location[2] + Win.Size[2] - 5 } , AccentColor ) 
+                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Toggle_Width , Win.Location[2] + Win.Size[2] - 5 } , Win.AccentColor ) 
                     else
                         dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Toggle_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
                     end
 
-                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + Toggle_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + Toggle_Width , Win.Location[2] + Win.Size[2] - 6 } , Win.BackgroundColor ) 
 
                     if Win.ToggleReading then
                         dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Lib.CurrentRainbowColor , Toggle)
                     else
-                        dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , FontColor , Toggle)
+                        dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Win.FontColor , Toggle)
                     end
                     
                     --// Click Detect //--
@@ -655,17 +665,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     if Win.Rainbow then RGB = "RGB: ON" end
 
 
-                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + RGB_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + RGB_Width , Win.Location[2] + Win.Size[2] - 4 } , Win.OutlineColor ) 
 
                     if Win.RGBHovering then
-                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + RGB_Width , Win.Location[2] + Win.Size[2] - 5 } , AccentColor ) 
+                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + RGB_Width , Win.Location[2] + Win.Size[2] - 5 } , Win.AccentColor ) 
                     else
                         dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + RGB_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
                     end
 
-                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + RGB_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + RGB_Width , Win.Location[2] + Win.Size[2] - 6 } , Win.BackgroundColor ) 
 
-                    dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , FontColor , RGB)
+                    dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Win.FontColor , RGB)
 
 
                     --// Click Detect
@@ -697,11 +707,11 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     local Coords = "Mouse: "..dx9.GetMouse().x..", "..dx9.GetMouse().y
                     local Coords_Width = dx9.CalcTextWidth(Coords)
 
-                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + Coords_Width , Win.Location[2] + Win.Size[2] - 4 } , OutlineColor ) 
+                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + Coords_Width , Win.Location[2] + Win.Size[2] - 4 } , Win.OutlineColor ) 
                     dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + Coords_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
-                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + Coords_Width , Win.Location[2] + Win.Size[2] - 6 } , BackgroundColor ) 
+                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + Coords_Width , Win.Location[2] + Win.Size[2] - 6 } , Win.BackgroundColor ) 
 
-                    dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , FontColor , Coords)
+                    dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Win.FontColor , Coords)
                     FooterWidth = FooterWidth + 116 + 12
                 end
 
@@ -751,21 +761,21 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
             if Win.CurrentTab ~= nil and Win.CurrentTab == TabName then 
 
                 --// If tab selected
-                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 25 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , OutlineColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , MainColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , MainColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 25 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Win.OutlineColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Win.MainColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Win.MainColor )
 
-                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 27 } , AccentColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 27 } , Win.AccentColor )
             else
 
                 --// Else
-                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , OutlineColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 49 } , MainColor )
-                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 48 } , BackgroundColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 } , { Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 } , Win.OutlineColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 11 + Win.TabMargin , Win.Location[2] + 27 } , { Win.Location[1] + 13 + TabLength + Win.TabMargin , Win.Location[2] + 49 } , Win.MainColor )
+                dx9.DrawFilledBox( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , { Win.Location[1] + 12 + TabLength + Win.TabMargin , Win.Location[2] + 48 } , Win.BackgroundColor )
             end
 
             --// Draw Tab Name
-            dx9.DrawString( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , FontColor , " "..TabName )
+            dx9.DrawString( { Win.Location[1] + 12 + Win.TabMargin , Win.Location[2] + 28 } , Win.FontColor , " "..TabName )
             
             --// Defining Boundaries and Setting Margin
             Tab.Boundary = { Win.Location[1] + 10 + Win.TabMargin , Win.Location[2] + 26 , Win.Location[1] + 14 + TabLength + Win.TabMargin , Win.Location[2] + 50 }
@@ -829,12 +839,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 if side == "left" then
 
                     --// Left Groupbox
-                    dx9.DrawFilledBox( { Win.Location[1] + 20, Win.Location[2] + Tab.Leftstack } , { Win.Location[1] + (Win.Size[1] / 2) - 3, Win.Location[2] + Tab.Leftstack + Groupbox.Size[2] } , OutlineColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 1 } , { Win.Location[1] + (Win.Size[1] / 2) - 4, Win.Location[2] + Tab.Leftstack + 3 } , AccentColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 4 } , { Win.Location[1] + (Win.Size[1] / 2) - 4, Win.Location[2] + Tab.Leftstack + Groupbox.Size[2] - 1 } , BackgroundColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 20, Win.Location[2] + Tab.Leftstack } , { Win.Location[1] + (Win.Size[1] / 2) - 3, Win.Location[2] + Tab.Leftstack + Groupbox.Size[2] } , Win.OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 1 } , { Win.Location[1] + (Win.Size[1] / 2) - 4, Win.Location[2] + Tab.Leftstack + 3 } , Win.AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 4 } , { Win.Location[1] + (Win.Size[1] / 2) - 4, Win.Location[2] + Tab.Leftstack + Groupbox.Size[2] - 1 } , Win.BackgroundColor )
 
 
-                    dx9.DrawString( { Win.Location[1] + ( ( Win.Size[1] / 4 + 10) ) - (dx9.CalcTextWidth(GroupboxName) / 2) , Win.Location[2] + Tab.Leftstack + 4 } , FontColor , GroupboxName )
+                    dx9.DrawString( { Win.Location[1] + ( ( Win.Size[1] / 4 + 10) ) - (dx9.CalcTextWidth(GroupboxName) / 2) , Win.Location[2] + Tab.Leftstack + 4 } , Win.FontColor , GroupboxName )
 
                     Groupbox.Root = { Win.Location[1] + 21, Win.Location[2] + Tab.Leftstack + 10 }
 
@@ -844,12 +854,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 elseif side == "right" then
 
                     --// Right Groupbox
-                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 3, Win.Location[2] + Tab.Rightstack } , { Win.Location[1] + (Win.Size[1]) - 20, Win.Location[2] + Tab.Rightstack + Groupbox.Size[2] } , OutlineColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 4, Win.Location[2] + Tab.Rightstack + 1 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + Tab.Rightstack + 3 } , AccentColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 4, Win.Location[2] + Tab.Rightstack + 4 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + Tab.Rightstack + Groupbox.Size[2] - 1 } , BackgroundColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 3, Win.Location[2] + Tab.Rightstack } , { Win.Location[1] + (Win.Size[1]) - 20, Win.Location[2] + Tab.Rightstack + Groupbox.Size[2] } , Win.OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 4, Win.Location[2] + Tab.Rightstack + 1 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + Tab.Rightstack + 3 } , Win.AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + (Win.Size[1] / 2) + 4, Win.Location[2] + Tab.Rightstack + 4 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + Tab.Rightstack + Groupbox.Size[2] - 1 } , Win.BackgroundColor )
 
 
-                    dx9.DrawString( { ( Win.Location[1] + ( ( Win.Size[1] / 1.4 + 10) ) - (dx9.CalcTextWidth(GroupboxName) / 2)) , Win.Location[2] + Tab.Rightstack + 4 } , FontColor , GroupboxName )
+                    dx9.DrawString( { ( Win.Location[1] + ( ( Win.Size[1] / 1.4 + 10) ) - (dx9.CalcTextWidth(GroupboxName) / 2)) , Win.Location[2] + Tab.Rightstack + 4 } , Win.FontColor , GroupboxName )
 
                     Groupbox.Root = {  math.floor(Win.Location[1] + (Win.Size[1] / 2) + 4 + 0.5), math.floor(Win.Location[2] + Tab.Rightstack + 10 + 0.5) }
 
@@ -862,12 +872,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     local largest_stack = Tab.Leftstack
                     if Tab.Rightstack > largest_stack then largest_stack = Tab.Rightstack end
 
-                    dx9.DrawFilledBox( { Win.Location[1] + 20, Win.Location[2] + largest_stack } , { Win.Location[1] + (Win.Size[1]) - 20, Win.Location[2] + largest_stack + Groupbox.Size[2] } , OutlineColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + largest_stack + 1 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + largest_stack + 3 } , AccentColor )
-                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + largest_stack + 4 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + largest_stack + Groupbox.Size[2] - 1 } , BackgroundColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 20, Win.Location[2] + largest_stack } , { Win.Location[1] + (Win.Size[1]) - 20, Win.Location[2] + largest_stack + Groupbox.Size[2] } , Win.OutlineColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + largest_stack + 1 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + largest_stack + 3 } , Win.AccentColor )
+                    dx9.DrawFilledBox( { Win.Location[1] + 21, Win.Location[2] + largest_stack + 4 } , { Win.Location[1] + (Win.Size[1]) - 21, Win.Location[2] + largest_stack + Groupbox.Size[2] - 1 } , Win.BackgroundColor )
 
 
-                    dx9.DrawString( { Win.Location[1] + ( ( Win.Size[1] / 2 ) ) - (dx9.CalcTextWidth(GroupboxName) / 2) , Win.Location[2] + largest_stack + 4 } , FontColor , GroupboxName )
+                    dx9.DrawString( { Win.Location[1] + ( ( Win.Size[1] / 2 ) ) - (dx9.CalcTextWidth(GroupboxName) / 2) , Win.Location[2] + largest_stack + 4 } , Win.FontColor , GroupboxName )
 
                     Groupbox.Root = { Win.Location[1] + 21, Win.Location[2] + largest_stack + 10 }
 
@@ -938,20 +948,20 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     if Groupbox.Size[1] - 10 > button_x then button_x = Groupbox.Size[1] - 10 end
 
                     if Button.Hovering then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , AccentColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , Win.OutlineColor )
 
                     if Button.Holding == true then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , Win.OutlineColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , Win.MainColor )
                     end
 
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , FontColor , NewButtonName )
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Win.FontColor , NewButtonName )
 
                     --// Boundary and toolspacing
                     Button.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
@@ -976,6 +986,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     else
                         Button.Hovering = false;
                         Button.Holding = false;
+                    end
+
+                    function Button:AddTooltip(string)
+                        if Button.Hovering then
+                            -- HERE
+                        end
                     end
                 end
 
@@ -1028,7 +1044,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 end
 
                 --// Re-Defines
-                Groupbox.Tools[Index].Text = params.Text
+                Groupbox.Tools[Index].Text = Text
                 Picker = Groupbox.Tools[Index]
 
                 --// SetValue
@@ -1054,17 +1070,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     --// Draw Color Picker
                     if Picker.Hovering then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , AccentColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 32 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 32 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , Win.OutlineColor )
 
                     dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 31 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Picker.Value )
 
                     --// Trimming Text
-                    local TrimmedToggleText = params.Text;
+                    local TrimmedToggleText = Text;
                     if dx9.CalcTextWidth(TrimmedToggleText) >=  Groupbox.Size[1] - 45 then 
                         repeat
                             TrimmedToggleText = TrimmedToggleText:sub(1,-2)
@@ -1072,7 +1088,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
 
                     --// Drawing Text
-                    dx9.DrawString( { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , FontColor , " "..TrimmedToggleText)
+                    dx9.DrawString( { Groupbox.Root[1] + 33 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Win.FontColor , " "..TrimmedToggleText)
 
                     --// Boundaries and Addon
                     Picker.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing ,  Groupbox.Root[1] + Groupbox.Size[1] - 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
@@ -1084,45 +1100,45 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                             Win.DeadZone = { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 42 + Picker.AddonY, Groupbox.Root[1] + 223 , Groupbox.Root[2] + 125 + Picker.AddonY }
 
                             dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 42 + Picker.AddonY } , { Groupbox.Root[1] + 223 , Groupbox.Root[2] + 125 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 43 + Picker.AddonY } , { Groupbox.Root[1] + 222 , Groupbox.Root[2] + 124 + Picker.AddonY } , OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 123 + Picker.AddonY } , BackgroundColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 43 + Picker.AddonY } , { Groupbox.Root[1] + 222 , Groupbox.Root[2] + 124 + Picker.AddonY } , Win.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 123 + Picker.AddonY } , Win.BackgroundColor )
 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Picker.AddonY } , AccentColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 44 + Picker.AddonY } , { Groupbox.Root[1] + 221 , Groupbox.Root[2] + 46 + Picker.AddonY } , Win.AccentColor )
 
                             --// DRAWING THE COLORS BRUH
                             -- Bar 1
                             if Picker.SecondBarHovering then
-                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + Picker.AddonY } , AccentColor )
+                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + Picker.AddonY } , Win.AccentColor )
                             else
                                 dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + Picker.AddonY } , Lib.Black )
                             end
                             
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 70 + Picker.AddonY } , OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 69 + Picker.AddonY } , AccentColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 70 + Picker.AddonY } , Win.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 69 + Picker.AddonY } , Win.AccentColor )
                             
 
                             -- Bar 2
                             if Picker.FirstBarHovering then
-                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + 25 + Picker.AddonY } , AccentColor )
+                                dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + 25 + Picker.AddonY } , Win.AccentColor )
                             else
                                 dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 220 , Groupbox.Root[2] + 71 + 25 + Picker.AddonY } , Lib.Black )
                             end
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 70 + 25 + Picker.AddonY } , OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 69 + 25 + Picker.AddonY } , AccentColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 70 + 25 + Picker.AddonY } , Win.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 69 + 25 + Picker.AddonY } , Win.AccentColor )
 
                             -- Rest
                             dx9.DrawFilledBox( { Groupbox.Root[1] + 10 , Groupbox.Root[2] + 49 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 113 , Groupbox.Root[2] + 71 + 50 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 112 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 111 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , MainColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 11 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 112 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , Win.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 111 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , Win.MainColor )
 
-                            dx9.DrawString( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , FontColor , " "..Lib:rgbToHex(Picker.Value))
+                            dx9.DrawString( { Groupbox.Root[1] + 12 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , Win.FontColor , " "..Lib:rgbToHex(Picker.Value))
 
                             dx9.DrawFilledBox( { Groupbox.Root[1] + 116 , Groupbox.Root[2] + 49 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 219 , Groupbox.Root[2] + 71 + 50 + Picker.AddonY } , Lib.Black )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 117 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , MainColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 117 , Groupbox.Root[2] + 50 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 218 , Groupbox.Root[2] + 70 + 50 + Picker.AddonY } , Win.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , { Groupbox.Root[1] + 217 , Groupbox.Root[2] + 69 + 50 + Picker.AddonY } , Win.MainColor )
 
                             -- rgb
-                            dx9.DrawString( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , FontColor , " ".. math.floor(Picker.Value[1] + 0.5)..", ".. math.floor(Picker.Value[2] + 0.5)..", ".. math.floor(Picker.Value[3] + 0.5))
+                            dx9.DrawString( { Groupbox.Root[1] + 118 , Groupbox.Root[2] + 51 + 50 + Picker.AddonY } , Win.FontColor , " ".. math.floor(Picker.Value[1] + 0.5)..", ".. math.floor(Picker.Value[2] + 0.5)..", ".. math.floor(Picker.Value[3] + 0.5))
 
                             --// AIDS BELOW
                             local FirstBarHue = 0
@@ -1224,10 +1240,10 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                                 dx9.DrawBox( { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 51 + 25 + Picker.AddonY } , { Groupbox.Root[1] + 12 + i, Groupbox.Root[2] + 69 + 25 + Picker.AddonY }, Color )
                             end
 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex2 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex2 , Groupbox.Root[2] + 70 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex2 , Groupbox.Root[2] + 50 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex2 , Groupbox.Root[2] + 70 + Picker.AddonY } , Win.OutlineColor )
                             dx9.DrawBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex2 , Groupbox.Root[2] + 49 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex2 , Groupbox.Root[2] + 71 + Picker.AddonY } , Lib.Black )
 
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex, Groupbox.Root[2] + 75 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex , Groupbox.Root[2] + 95 + Picker.AddonY } , OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex, Groupbox.Root[2] + 75 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex , Groupbox.Root[2] + 95 + Picker.AddonY } , Win.OutlineColor )
                             dx9.DrawBox( { Groupbox.Root[1] + 12 + Picker.StoredIndex, Groupbox.Root[2] + 74 + Picker.AddonY } , { Groupbox.Root[1] + 15 + Picker.StoredIndex , Groupbox.Root[2] + 96 + Picker.AddonY } , Lib.Black )
                         end
                     end
@@ -1298,8 +1314,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
 
                     --// Displaying Title
-                    dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , FontColor , trimmed_text)
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , AccentColor )
+                    dx9.DrawString( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , Win.FontColor , trimmed_text)
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 40 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 42 + Groupbox.ToolSpacing } , Win.AccentColor )
 
                     --// Expanding Groupbox
                     Groupbox.Size[2] = Groupbox.Size[2] + (7 + 18)
@@ -1326,7 +1342,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
             
                     --// Displaying Border
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + Groupbox.ToolSpacing + 20} , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 2 + Groupbox.ToolSpacing + 20} , AccentColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + Groupbox.ToolSpacing + 20} , { Groupbox.Root[1] + Groupbox.Size[1] - 7, Groupbox.Root[2] + 2 + Groupbox.ToolSpacing + 20} , Win.AccentColor )
 
                     --// Expanding Groupbox
                     Groupbox.Size[2] = Groupbox.Size[2] + 8
@@ -1546,17 +1562,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     if Groupbox.Size[1] - 10 > dropdown_x then dropdown_x = Groupbox.Size[1] - 10 end
 
                     if Dropdown.Hovering or Win.OpenTool == Dropdown then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] + 22 + 15 + (18) + Groupbox.ToolSpacing } , AccentColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] + 22 + 15 + (18) + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] + 22 + 15 + (18) + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + dropdown_x , Groupbox.Root[2] + 21 + 15 + (18) + Groupbox.ToolSpacing } , OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + dropdown_x , Groupbox.Root[2] + 21 + 15 + (18) + Groupbox.ToolSpacing } , Win.OutlineColor )
 
                     if Dropdown.Holding == true then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] + 20 + 15 + (18) + Groupbox.ToolSpacing } , OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] + 20 + 15 + (18) + Groupbox.ToolSpacing } , Win.OutlineColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] + 20 + 15 + (18) + Groupbox.ToolSpacing } , MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + 15 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] + 20 + 15 + (18) + Groupbox.ToolSpacing } , Win.MainColor )
                     end
 
                     --// Draw Selection
@@ -1569,27 +1585,27 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                                 TrimmedValue = TrimmedValue:sub(1,-2)
                             until dx9.CalcTextWidth(TrimmedValue) <= Groupbox.Size[1] - 30
                         end
-                        dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + 15 + Groupbox.ToolSpacing } , FontColor , TrimmedValue )
+                        dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + 15 + Groupbox.ToolSpacing } , Win.FontColor , TrimmedValue )
                     end
 
                     --// Draw Name
-                    dx9.DrawString( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 17 + Groupbox.ToolSpacing } , FontColor , TrimmedText )
+                    dx9.DrawString( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 17 + Groupbox.ToolSpacing } , Win.FontColor , TrimmedText )
 
                     --// Draw Dropdown Indicator
                     local root = {Groupbox.Root[1] + Groupbox.Size[1] - 17, Groupbox.Root[2] + 44.5 + Groupbox.ToolSpacing}
 
                     if Win.OpenTool == Dropdown then
                         dx9.DrawCircle(root, Lib.Black, 6)
-                        dx9.DrawCircle(root, AccentColor, 5)
-                        dx9.DrawCircle(root, OutlineColor, 4)
+                        dx9.DrawCircle(root, Win.AccentColor, 5)
+                        dx9.DrawCircle(root, Win.OutlineColor, 4)
 
                     elseif Dropdown.Hovering then
                         dx9.DrawCircle(root, Lib.Black, 4)
-                        dx9.DrawCircle(root, AccentColor, 3)
-                        dx9.DrawCircle(root, OutlineColor, 2)
+                        dx9.DrawCircle(root, Win.AccentColor, 3)
+                        dx9.DrawCircle(root, Win.OutlineColor, 2)
                     else
                         dx9.DrawCircle(root, Lib.Black, 5)
-                        dx9.DrawCircle(root, OutlineColor, 4)
+                        dx9.DrawCircle(root, Win.OutlineColor, 4)
                     end
 
                     
@@ -1604,17 +1620,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                             Win.DeadZone = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66, Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] - 11 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY }
 
                             
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66} , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] - 11 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , AccentColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66} , { Groupbox.Root[1] + 3 + dropdown_x , Groupbox.Root[2] - 12 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , OutlineColor )
-                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 12 + 66} , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 13 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , BackgroundColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66} , { Groupbox.Root[1] + 4 + dropdown_x , Groupbox.Root[2] - 11 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , Win.AccentColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + Dropdown.AddonY - 13 + 66} , { Groupbox.Root[1] + 3 + dropdown_x , Groupbox.Root[2] - 12 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , Win.OutlineColor )
+                            dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 12 + 66} , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 13 + 67 + (21 * #Dropdown.Values) + Dropdown.AddonY } , Win.BackgroundColor )
                             
                             --// Displaying Options in Dropdown
                             for i,v in ipairs(Dropdown.Values) do
 
                                 if Dropdown.HoveredValue == v then
-                                    dx9.DrawBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 11 + 45 + (21 * i) } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 12 + 66 + (21 * i) + Dropdown.AddonY } , AccentColor )
+                                    dx9.DrawBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 11 + 45 + (21 * i) } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 12 + 66 + (21 * i) + Dropdown.AddonY } , Win.AccentColor )
                                 else
-                                    dx9.DrawBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 11 + 45 + (21 * i) } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 12 + 66 + (21 * i) + Dropdown.AddonY } , OutlineColor )
+                                    dx9.DrawBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + Dropdown.AddonY - 11 + 45 + (21 * i) } , { Groupbox.Root[1] + 2 + dropdown_x , Groupbox.Root[2] - 12 + 66 + (21 * i) + Dropdown.AddonY } , Win.OutlineColor )
                                 end
                                 
                                 --// Trimming Value
@@ -1626,9 +1642,9 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                                 end
 
                                 if Dropdown.Value == v then
-                                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + Dropdown.AddonY - 32 + 66 + (21 * i) }, AccentColor, TrimmedText )
+                                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + Dropdown.AddonY - 32 + 66 + (21 * i) }, Win.AccentColor, TrimmedText )
                                 else
-                                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + Dropdown.AddonY - 32 + 66 + (21 * i) }, FontColor, TrimmedText )
+                                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + Dropdown.AddonY - 32 + 66 + (21 * i) }, Win.FontColor, TrimmedText )
                                 end
                             end
                         
@@ -1670,15 +1686,37 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Dropdown.Hovering = false;
                         Dropdown.Holding = false;
                     end
-                end
 
-                Log(Dropdown.HoveredValue)
+                    function Dropdown:AddTooltip(str)
+                        local n = 0; -- Line Count
+                        local Tooltip = "";
+
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
+                                Tooltip = Tooltip..i.."\n"
+                                n = n + 1
+                            end
+                        else
+                            Tooltip = str
+                            n = 1
+                        end
+
+                        if Dropdown.Hovering then
+                            dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
+                            dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
+
+                            dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
+                        end
+
+                        return Dropdown
+                    end
+                end
 
                 --// Dropdown Onchanged
                 function Dropdown:OnChanged( func )
                     if Dropdown.Changed then
                         Dropdown.Changed = false
-                        func(Dropdown.Value)
+                        func(Dropdown.Values[Dropdown.ValueIndex])
                     end
                     return Dropdown;
                 end
@@ -1755,24 +1793,24 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     --// Drawing Slider
                     if Slider.Hovering then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 6, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , AccentColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 6, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 34 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 6, Groupbox.Root[2] + 55 + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 35 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7 , Groupbox.Root[2] + 54 + Groupbox.ToolSpacing } , OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 35 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 7 , Groupbox.Root[2] + 54 + Groupbox.ToolSpacing } , Win.OutlineColor )
 
                     if Slider.Holding then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Win.OutlineColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + Groupbox.Size[1] - 8 , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Win.MainColor )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 6 + ( bar_length * val ) , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , AccentColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 6 + ( bar_length * val ) , Groupbox.Root[2] + 53 + Groupbox.ToolSpacing } , Win.AccentColor )
 
                     --// Writing Text
-                    dx9.DrawString( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 18 + Groupbox.ToolSpacing } , FontColor , Slider.Name )
-                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , FontColor , temp )
+                    dx9.DrawString( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 18 + Groupbox.ToolSpacing } , Win.FontColor , Slider.Name )
+                    dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Win.FontColor , temp )
 
 
                     --// Setting Boundary
@@ -1798,8 +1836,10 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                             if val <= .02 then val = 0 end
 
                             --// Change Check
-                            if math.floor(((val * ( params.Max - params.Min )) + params.Min) + 0.5) ~= Slider.Value then 
-                                Slider.Value = math.floor(((val * ( params.Max - params.Min )) + params.Min) + 0.5)
+                            local value = math.floor(((val * ( params.Max - params.Min )) + params.Min) * (10^(params.Rounding or 0)) + 0.5) / (10^(params.Rounding or 0))
+
+                            if value ~= Slider.Value then 
+                                Slider.Value = value
                                 Slider.Changed = true 
                             end
                         else
@@ -1812,6 +1852,30 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     else
                         Slider.Hovering = false;
                         Slider.Holding = false;
+                    end
+
+                    function Slider:AddTooltip(str)
+                        local n = 0; -- Line Count
+                        local Tooltip = "";
+
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
+                                Tooltip = Tooltip..i.."\n"
+                                n = n + 1
+                            end
+                        else
+                            Tooltip = str
+                            n = 1
+                        end
+
+                        if Slider.Hovering then
+                            dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
+                            dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
+
+                            dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
+                        end
+
+                        return Slider
                     end
                 end
 
@@ -1882,17 +1946,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     --// Drawing Toggle
                     if Toggle.Hovering then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , AccentColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 38 + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 22 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , OutlineColor )
+                    dx9.DrawFilledBox( { Groupbox.Root[1] + 7 , Groupbox.Root[2] + 22 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 22 , Groupbox.Root[2] + 37 + Groupbox.ToolSpacing } , Win.OutlineColor )
 
                     if Toggle.Value then
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , AccentColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
-                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , MainColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 23 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 21 , Groupbox.Root[2] + 36 + Groupbox.ToolSpacing } , Win.MainColor )
                     end
 
                     --// Trimming Text
@@ -1904,7 +1968,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
 
                     --// Drawing Text
-                    dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , FontColor , " "..TrimmedToggleText)
+                    dx9.DrawString( { Groupbox.Root[1] + 23 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , Win.FontColor , " "..TrimmedToggleText)
 
                     --// Setting Boundary
                     Toggle.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + Groupbox.Size[1] - 5, Groupbox.Root[2] + 40 + Groupbox.ToolSpacing }
@@ -1931,6 +1995,30 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     else
                         Toggle.Hovering = false;
                         Toggle.Holding = false;
+                    end
+
+                    function Toggle:AddTooltip(str)
+                        local n = 0; -- Line Count
+                        local Tooltip = "";
+
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
+                                Tooltip = Tooltip..i.."\n"
+                                n = n + 1
+                            end
+                        else
+                            Tooltip = str
+                            n = 1
+                        end
+
+                        if Toggle.Hovering then
+                            dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
+                            dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
+
+                            dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
+                        end
+
+                        return Toggle
                     end
                 end
 
