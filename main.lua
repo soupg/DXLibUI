@@ -15,7 +15,7 @@ add multiline notifications
 fix colorpicker lag
 
 add toggle keybinds
-
+1
 ]]
 
 
