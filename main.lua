@@ -366,7 +366,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
     if Lib.Windows[WindowName] == nil then
         Lib.Windows[WindowName] = {
-            Location = params.StartLocation or { 1300 , 300 };
+            Location = params.StartLocation or { 200 , 200 };
             Size = params.Size or { 600 , 500 };
 
             Rainbow = StartRainbow;
