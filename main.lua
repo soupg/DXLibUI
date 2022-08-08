@@ -57,7 +57,7 @@ if _G.Lib == nil then
         CurrentRainbowColor = { 0 , 0 , 0 }; 
         LogoTick = 0;
 
-        Active = true;
+        Active = false;
 
         -- Change later
         Watermark = { 
