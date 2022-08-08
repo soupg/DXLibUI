@@ -466,7 +466,13 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
     --// Keybind Open / Close
     if Lib.Key == Win.ToggleKey and Lib.Key ~= "[ESCAPE]" and not Win.ToggleReading then
-        Win.Active = not Win.Active;
+        Win.Active = not Win.Active
+    end
+
+    if Win.Active then
+        Lib.Active = true
+    else
+        Lib.Active = false
     end
 
     --// Left Click Held
@@ -2188,7 +2194,7 @@ end
 
 
 --// Cursor
-if Lib.Cursor then
+if Lib.Cursor and Lib.Active then
     dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.Black, 3)
     dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.CurrentRainbowColor, 2)
 end
