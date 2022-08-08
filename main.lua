@@ -103,6 +103,9 @@ if _G.Lib == nil then
 
         --// Key
         Key = dx9.GetKey();
+
+        --// Cursor
+        Cursor = true;
      };
 end
 local Lib = _G.Lib
@@ -2181,6 +2184,13 @@ if Lib.LogoTick > 80 then
     Lib.LogoTick = 0
 else
     Lib.LogoTick = Lib.LogoTick + 1
+end
+
+
+--// Cursor
+if Lib.Cursor then
+    dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.Black, 3)
+    dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.CurrentRainbowColor, 2)
 end
 
 
