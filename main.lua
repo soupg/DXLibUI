@@ -15,7 +15,7 @@ add multiline notifications
 fix colorpicker lag
 
 add toggle keybinds
-1
+
 ]]
 
 
@@ -2108,11 +2108,12 @@ end
 
 local total_seconds = os.clock() --(os.date("*t").hour * 3600) + (os.date("*t").min * 60) + (os.date("*t").sec)
 
-function Lib:Notify(text, length)
+function Lib:Notify(text, length, color)
 
     if length == nil then length = 3 end
+    if color == nil then color = Lib.FontColor end
 
-    local notif = {Text = text, Start = total_seconds, Length = length}
+    local notif = {Text = text, Start = total_seconds, Length = length, Color = color}
 
     table.insert(Lib.Notifications, notif)
 end
@@ -2146,7 +2147,7 @@ for i,v in pairs(Lib.Notifications) do
         dx9.DrawFilledBox( { root[1] + 6 , root[2] + 21 } , { root[1] + 2 + length + 12, root[2] + 20 + (18) } , Lib.MainColor )
         dx9.DrawFilledBox( { root[1] + 6 , root[2] + 21 } , { root[1] + 8 , root[2] + 20 + ((total_seconds - v.Start) * (18/v.Length)) } , Lib.CurrentRainbowColor )
 
-        dx9.DrawString( { root[1] + 11 , root[2] + 20 } , Lib.FontColor , v.Text )
+        dx9.DrawString( { root[1] + 11 , root[2] + 20 } , v.Color , v.Text )
     end
 end
 
