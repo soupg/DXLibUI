@@ -275,6 +275,12 @@ function Lib:WinCheck( Win )
                 v.OpenTool:Render()
             end
         end
+
+        --// Cursor
+        if Lib.Cursor and Lib.Active then
+            dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.Black, 3)
+            dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.CurrentRainbowColor, 2)
+        end
     end
 end
 
@@ -2190,13 +2196,6 @@ if Lib.LogoTick > 80 then
     Lib.LogoTick = 0
 else
     Lib.LogoTick = Lib.LogoTick + 1
-end
-
-
---// Cursor
-if Lib.Cursor and Lib.Active then
-    dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.Black, 3)
-    dx9.DrawCircle({Mouse.x, Mouse.y}, Lib.CurrentRainbowColor, 2)
 end
 
 
