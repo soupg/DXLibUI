@@ -321,6 +321,37 @@ if Lib.FirstRun then
         end
     end
     _G.dx9.Get = Lib.Get
+
+    --// Hooking Draw Funcs
+    for i,v in pairs({"DrawFilledBox", "DrawLine", "DrawBox"}) do
+        local old = _G["dx9"][v]
+        _G["dx9"][v] = function(...)
+            local args = {...}
+
+            if args[1][1] + args[1][2] == 0 then return end
+            if args[2][1] + args[2][2] == 0 then return end
+
+            return old(...)
+        end
+    end
+
+    local old = _G["dx9"]["DrawCircle"]
+    _G["dx9"]["DrawCircle"] = function(...)
+        local args = {...}
+
+        if args[1][1] + args[1][2] == 0 then return end
+
+        return old(...)
+    end
+
+    local old = _G["dx9"]["DrawString"]
+    _G["dx9"]["DrawString"] = function(...)
+        local args = {...}
+
+        if args[1][1] + args[1][2] == 0 then return end
+
+        return old(...)
+    end
 end
 
 
