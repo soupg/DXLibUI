@@ -502,7 +502,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
     end
 
     --// Keybind Open / Close
-    if Lib.Key == Win.ToggleKey and Lib.Key ~= "[ESCAPE]" and not Win.ToggleReading then
+    if Lib.Key and Lib.Key ~= "[None]" and Lib.Key == Win.ToggleKey and not Win.ToggleReading then
         Win.Active = not Win.Active
     end
 
@@ -696,7 +696,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     
 
                     --// Toggle Key Set Detect
-                    if Win.ToggleReading and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
+                    if Win.ToggleReading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
                         Win.ToggleKey = Lib.Key
                         Win.ToggleReading = false
                     end
