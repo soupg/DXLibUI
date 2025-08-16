@@ -115,7 +115,7 @@ local Mouse = dx9.GetMouse()
 --// First Run
 if Lib.FirstRun == nil then
     Lib.FirstRun = true
-elseif Lib.FirstRun == true then 
+elseif Lib.FirstRun == true then
     Lib.FirstRun = false
 end
 
