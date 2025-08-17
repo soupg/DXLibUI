@@ -1970,7 +1970,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
             :AddToggle( index , { Default = true , Text = "Toggle" } )                                  
             ]]
 
-            function Groupbox:AddToggle( params ) 
+            function Groupbox:AddToggle( params )
                 
                 --// Pre-Defs
                 local Toggle = {}
@@ -2165,25 +2165,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     local button_x = dx9.CalcTextWidth(NewKeybindButtonName) + 7
 
                     if Groupbox.Size[1] - 10 > button_x then button_x = Groupbox.Size[1] - 10 end
-                    
-                    --[[ FOOTER COLORING
-
-                    dx9.DrawBox( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 } , { FooterWidth + Win.Location[1] + 15 + KeybindButton_Width , Win.Location[2] + Win.Size[2] - 4 } , Win.OutlineColor ) 
-
-                    if Win.ToggleKeyHovering then
-                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + KeybindButton_Width , Win.Location[2] + Win.Size[2] - 5 } , Win.AccentColor ) 
-                    else
-                        dx9.DrawBox( { FooterWidth + Win.Location[1] + 6 , Win.Location[2] + Win.Size[2] - 27 } , { FooterWidth + Win.Location[1] + 14 + KeybindButton_Width , Win.Location[2] + Win.Size[2] - 5 } , Lib.Black ) 
-                    end
-
-                    dx9.DrawFilledBox( { FooterWidth + Win.Location[1] + 7 , Win.Location[2] + Win.Size[2] - 26 } , { FooterWidth + Win.Location[1] + 13 + KeybindButton_Width , Win.Location[2] + Win.Size[2] - 6 } , Win.BackgroundColor ) 
-
-                    if Win.ToggleReading then
-                        dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Lib.CurrentRainbowColor , NewKeybindButtonName)
-                    else
-                        dx9.DrawString( { FooterWidth + Win.Location[1] + 10 , Win.Location[2] + Win.Size[2] - 25 } , Win.FontColor , NewKeybindButtonName)
-                    end
-                    ]]
 
                     if KeybindButton.Hovering then
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Win.AccentColor )
