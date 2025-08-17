@@ -957,10 +957,36 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Boundary = { 0 ,0 ,0 ,0 };
                         Holding = false;
                         Hovering = false;
+                        ConnectedKeybindButton = nil;
                     }
                 end
 
                 Button = Groupbox.Tools[idx]
+
+                function Button:DisconnectKeybindButton()
+                    if Button.ConnectedKeybindButton ~= nil then
+                        Button.ConnectedKeybindButton = nil
+                    end
+                end
+
+                function Button:ConnectKeybindButton(KeybindButton)
+                    assert(type(KeybindButton) == "table", "[ERROR] ConnectKeybindButton: KeybindButton parameter must be of type table (KeybindButton)!")
+                    Button.ConnectedKeybindButton = KeybindButton
+                end
+
+                --// Keybind Detection
+                if Button.ConnectedKeybindButton ~= nil then
+                    if Button.ConnectedKeybindButton.Key ~= nil then
+                        if Lib.Key == Button.ConnectedKeybindButton.Key then
+                            Button.Holding = true;
+                        else
+                            if Button.Holding == true then
+                                if ButtonFunc ~= nil then ButtonFunc() end
+                                Button.Holding = false;
+                            end
+                        end
+                    end
+                end
 
                 --// Draw Button in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
@@ -1989,6 +2015,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Hovering = false;
                         Changed = false;
                         Name = Name;
+                        ConnectedKeybindButton = nil;
                     }
                 end
 
@@ -1999,6 +2026,31 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 function Toggle:SetValue( value )
                     Toggle.Value = value;
                     Toggle.Changed = true;
+                end
+
+                function Toggle:DisconnectKeybindButton()
+                    if Toggle.ConnectedKeybindButton ~= nil then
+                        Toggle.ConnectedKeybindButton = nil
+                    end
+                end
+
+                function Toggle:ConnectKeybindButton(KeybindButton)
+                    assert(type(KeybindButton) == "table", "[ERROR] ConnectKeybindButton: KeybindButton parameter must be of type table (KeybindButton)!")
+                    Toggle.ConnectedKeybindButton = KeybindButton
+                end
+
+                --// Keybind Detection
+                if Toggle.ConnectedKeybindButton ~= nil then
+                    if Toggle.ConnectedKeybindButton.Key ~= nil then
+                        if Lib.Key == Toggle.ConnectedKeybindButton.Key then
+                            Toggle.Holding = true;
+                        else
+                            if Toggle.Holding == true then
+                                Toggle:SetValue( not Toggle.Value )
+                                Toggle.Holding = false;
+                            end
+                        end
+                    end
                 end
 
 
