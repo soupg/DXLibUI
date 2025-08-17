@@ -2126,7 +2126,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Holding = false;
                         Hovering = false;
                         Changed = false;
-                        Name = Name;
+                        Text = Name;
                         Key = Default;
                         Reading = false;
                     }
