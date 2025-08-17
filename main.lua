@@ -1518,38 +1518,184 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
 
             --[[
-            ██╗███╗   ██╗██████╗ ██╗   ██╗████████╗
-            ██║████╗  ██║██╔══██╗██║   ██║╚══██╔══╝
-            ██║██╔██╗ ██║██████╔╝██║   ██║   ██║   
-            ██║██║╚██╗██║██╔═══╝ ██║   ██║   ██║   
-            ██║██║ ╚████║██║     ╚██████╔╝   ██║   
-            ╚═╝╚═╝  ╚═══╝╚═╝      ╚═════╝    ╚═╝   
-            :AddInput( "index" , { Default = "Default" , Text = "Input" , Placeholder = "Placeholder Text" , MaxLength = nil } )                               
+            ██╗███╗   ██╗██████╗ ██╗   ██╗████████╗██████╗  ██████╗ ██╗  ██╗
+            ██║████╗  ██║██╔══██╗██║   ██║╚══██╔══╝██╔══██╗██╔═══██╗╚██╗██╔╝
+            ██║██╔██╗ ██║██████╔╝██║   ██║   ██║   ██████╔╝██║   ██║ ╚███╔╝ 
+            ██║██║╚██╗██║██╔═══╝ ██║   ██║   ██║   ██╔══██╗██║   ██║ ██╔██╗ 
+            ██║██║ ╚████║██║     ╚██████╔╝   ██║   ██████╔╝╚██████╔╝██╔╝ ██╗
+            ╚═╝╚═╝  ╚═══╝╚═╝      ╚═════╝    ╚═╝   ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
+            :AddInputBox({ Default = "Default" , Index = "InputBox1" , Placeholder = "Placeholder Text" , MaxCharLimit = nil } )                               
             ]]
 
-            function Groupbox:AddInput( index , params )
-                local Input = {}
+            function Groupbox:AddTextInputBox( params )
+                local InputBox = {}
+                local Name = params.Placeholder or params.Index
+                local Index = params.Index or Name
+                local Type = params.Type or "string"
                 
-                if Groupbox.Tools[index] == nil then
-                    Input = { 
-                        Text = params.Text;
-                        Placeholder = params.Placeholder or nil;
+                --// Error Handling
+                assert(type(Name) == "string" or type(Name) == "number", "[ERROR] AddKeybindButton: Text / Name Argument must be a string or number!")
+
+                --// Init Defs
+                if Groupbox.Tools[Index] == nil then
+                    InputBox = {
+                        Placeholder = Name;
                         Boundary = { 0 ,0 ,0 ,0 };
+                        Hovering = false;
                         Holding = false;
                         Value = params.Default or "";
-                        Rounding = ( params.Rounding or 0 );
+                        CursorPosition = string.len(params.Default) + 1;
+                        CursorVisible = false;
+                        LastCursorBlink = nil;
+                        Reading = false;
+                        Capslock = false;
+                        MaxCharLimit = (params.MaxCharLimit or nil);
+                        Prefix = (params.Prefix or "");
                         Suffix = ( params.Suffix or "" );
                     }
-                    Groupbox.Tools[index] = Input
+                    Groupbox.Tools[Index] = InputBox
                 end
-                Input = Groupbox.Tools[index]
-                Input.Text = params.Text;
-                Input.Rounding = ( params.Rounding or 0 );
-                Input.Suffix = ( params.Suffix or "" );
 
+                --// Re-Setting InputBox
+                InputBox = Groupbox.Tools[Index]
+
+                --// Set Text
+                function InputBox:SetValue( newValue )
+                    assert(type(newValue) == "string" or type(newValue) == "number" or newValue == nil, "[ERROR] InputBox:SetText(newText) - newText must be a string!")
+                    InputBox.Value = newValue;
+                end
+
+                function InputBox:GetValue()
+                    local returnValue = InputBox.Value
+                    local originalType = type(returnValue)
+                    if originalType == "string" or originalType == "number" then
+                        if originalType == "number" then
+                            returnValue = tostring(returnValue)
+                        end
+                        if InputBox.MaxCharLimit then
+                            if type(InputBox.MaxCharLimit) == "number" then
+                                local roundedCharLimit = math.floor(InputBox.MaxCharLimit + 0.5)
+                                if roundedCharLimit and roundedCharLimit > 0 then
+                                    returnValue = string.sub(returnValue, 1, roundedCharLimit)
+                                end
+                            end
+                        end
+                    end
+                    return returnValue
+                end
+
+                function InputBox:AddTooltip(str)
+                    local n = 0; -- Line Count
+                    local Tooltip = "";
+
+                    if string.gmatch(str, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(str, "([^\n]+)")) do
+                            Tooltip = Tooltip..i.."\n"
+                            n = n + 1
+                        end
+                    else
+                        Tooltip = str
+                        n = 1
+                    end
+
+                    if Input.Hovering then
+                        dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
+                        dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
+
+                        dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
+                    end
+
+                    return Input
+                end
+
+                local ButtonText = InputBox:GetValue() and InputBox.Prefix..InputBox:GetValue()..InputBox.Suffix or InputBox.Placeholder
+                assert(ButtonText, "[ERROR] AddInputBox: private string variable ButtonText is nil")
+
+                --// Draw InputBox in Groupbox
+                if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
+                    local n = 1;
+                    
+                    Groupbox.Size[2] = Groupbox.Size[2] + (7 + (18 * n))
+
+                    --// Calculating button X size
+                    local button_x = dx9.CalcTextWidth(ButtonText) + 7
+
+                    if Groupbox.Size[1] - 10 > button_x then button_x = Groupbox.Size[1] - 10 end
+
+                    if InputBox.Hovering then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Win.AccentColor )
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Lib.Black )
+                    end
+
+                    if InputBox.Reading then
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , Win.OutlineColor )
+                        dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor , ButtonText )
+                    else
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , Win.OutlineColor )
+                        dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , Win.MainColor )
+                        dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Win.FontColor , ButtonText )
+                    end
+
+                    --// Boundary and toolspacing
+                    InputBox.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
+
+                    Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
+
+                    --// Click Detect
+                    if Lib.MouseInArea( { InputBox.Boundary[1] , InputBox.Boundary[2] , InputBox.Boundary[3] , InputBox.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() and not InputBox.Reading then
+                            InputBox.Holding = true;
+                        else
+                            if InputBox.Holding == true and not InputBox.Reading then
+                                InputBox.Reading = true;
+                                InputBox.Holding = false;
+                            end
+                        end
+
+                        --// Hover Detection
+                        InputBox.Hovering = true;
+                    else
+                        if dx9.isLeftClickHeld() and InputBox.Reading then
+                            InputBox.Reading = false
+                        end
+                        InputBox.Hovering = false;
+                        InputBox.Holding = false;
+                    end
+                end
+
+                --// InputBox Typing
+                if InputBox.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
+                    if Lib.Key == "[RETURN]" then
+                        InputBox.Reading = false
+                    elseif Lib.Key == "[BACK]" then
+                        dx9.ShowConsole(true)
+                        print("Back pressed")
+                        local lastValue = InputBox:GetValue()
+                        if lastValue then
+                            local len = string.len(lastValue)
+                            if len > 1 then
+                                local deletedLastChar = string.sub(lastValue, 1, len-1)
+                                InputBox:SetValue(deletedLastChar)
+                            elseif len == 1 then
+                                InputBox:SetValue(nil)
+                            end
+                        end
+                    elseif Lib.Key == "[SPACE]" then
+                        InputBox:SetValue(InputBox:GetValue() and InputBox:GetValue().." " or " ")
+                    elseif string.len(Lib.Key) == 3 then
+                        local bracketStripped = string.gsub(Lib.Key, "[%[%]]", "")
+                        InputBox:SetValue(InputBox:GetValue() and InputBox:GetValue()..bracketStripped or bracketStripped)
+                    end
+                end
                 
+                 --// Closing Difines and Resets | InputBox
+                Groupbox.Tools[Index] = InputBox;
+
                 Lib:WinCheck( Win )
-                return Input;
+                return InputBox;
             end
 
             --[[
@@ -2154,7 +2300,13 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 return Toggle;
             end
 
-            --[[ KeybindButton
+            --[[
+            ██╗  ██╗███████╗██╗   ██╗██████╗ ██╗███╗   ██╗██████╗ ██████╗ ██╗   ██╗████████╗████████╗ ██████╗ ███╗   ██╗
+            ██║ ██╔╝██╔════╝╚██╗ ██╔╝██╔══██╗██║████╗  ██║██╔══██╗██╔══██╗██║   ██║╚══██╔══╝╚══██╔══╝██╔═══██╗████╗  ██║
+            █████╔╝ █████╗   ╚████╔╝ ██████╔╝██║██╔██╗ ██║██║  ██║██████╔╝██║   ██║   ██║      ██║   ██║   ██║██╔██╗ ██║
+            ██╔═██╗ ██╔══╝    ╚██╔╝  ██╔══██╗██║██║╚██╗██║██║  ██║██╔══██╗██║   ██║   ██║      ██║   ██║   ██║██║╚██╗██║
+            ██║  ██╗███████╗   ██║   ██████╔╝██║██║ ╚████║██████╔╝██████╔╝╚██████╔╝   ██║      ██║   ╚██████╔╝██║ ╚████║
+            ╚═╝  ╚═╝╚══════╝   ╚═╝   ╚═════╝ ╚═╝╚═╝  ╚═══╝╚═════╝ ╚═════╝  ╚═════╝    ╚═╝      ╚═╝    ╚═════╝ ╚═╝  ╚═══╝
             :AddKeybindButton( index , {
                 Default = "[F4]" ,
                 SideText = "ESP Toggle Keybind:" or nil ,
@@ -2166,7 +2318,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 local KeybindButton = {}
                 local Name = params.Text or params.Name or params.Index
                 local Index = params.Index or Name
-                local Default = params.Default
                 
                 --// Error Handling
                 assert(type(Name) == "string" or type(Name) == "number", "[ERROR] AddKeybindButton: Text / Name Argument must be a string or number!")
@@ -2180,13 +2331,13 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Hovering = false;
                         Changed = false;
                         Text = Name;
-                        Key = Default;
+                        Key = params.Default;
                         Reading = false;
                         KeyDown = false;
                     }
                 end
 
-                --// Re-Setting Toggle
+                --// Re-Setting KeybindButton
                 KeybindButton = Groupbox.Tools[Index]
 
                 --// Set Value
@@ -2224,12 +2375,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
 
                     return KeybindButton
-                end
-
-                if Lib.Key and Lib.Key ~= "[None]" and Lib.Key == KeybindButton.Key and not KeybindButton.Reading then
-                    KeybindButton.KeyDown = true
-                else
-                    KeybindButton.KeyDown = false
                 end
                 
                 local ButtonText = type(KeybindButton.Text) == "string" and KeybindButton.Text or tostring(KeybindButton.Text)
@@ -2293,8 +2438,14 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
                 end
 
-                --// Toggle Key Set Detect
-                
+                --// KeybindButton Press
+                if Lib.Key and Lib.Key ~= "[None]" and Lib.Key == KeybindButton.Key and not KeybindButton.Reading then
+                    KeybindButton.KeyDown = true
+                else
+                    KeybindButton.KeyDown = false
+                end
+
+                --// KeybindButton Set Detect
                 if KeybindButton.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
                     KeybindButton:SetKey(Lib.Key)
                     KeybindButton.Reading = false
