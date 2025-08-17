@@ -978,6 +978,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 --// Keybind Detection
                 if Button.ConnectedKeybindButton ~= nil then
                     if Button.ConnectedKeybindButton.Key ~= nil then
+                        print(tostring(Button.ConnectedKeybindButton.KeyDown))
                         if Button.ConnectedKeybindButton.KeyDown then
                             Button.KeybindHolding = true;
                         else
