@@ -2001,6 +2001,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     Toggle.Changed = true;
                 end
 
+
                 --// Draw Toggle in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
