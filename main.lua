@@ -2238,16 +2238,19 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 end
 
                 --// Toggle Key Set Detect
+                
                 if KeybindButton.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
-                    KeybindButton.Key = Lib.Key
+                    print("this was changed")
+                    
+                    KeybindButton:SetKey(Lib.Key)
                     KeybindButton.Reading = false
                 end
 
                 --// KeybindButton Onchanged
-                function KeybindButton:OnChanged( func )
+                function KeybindButton.OnChanged(self, func )
                     if KeybindButton.Changed then
                         KeybindButton.Changed = false
-                        func(KeybindButton.Key)
+                        func(self, KeybindButton.Key)
                     end
                     return KeybindButton;
                 end
