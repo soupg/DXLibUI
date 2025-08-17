@@ -978,8 +978,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 --// Keybind Detection
                 if Button.ConnectedKeybindButton ~= nil then
                     if Button.ConnectedKeybindButton.Key ~= nil then
-                        print(tostring(Lib.Key))
-                        print(tostring(Button.ConnectedKeybindButton.KeyDown))
                         if Button.ConnectedKeybindButton.KeyDown then
                             Button.KeybindHolding = true;
                         else
@@ -2046,8 +2044,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 --// Keybind Detection
                 if Toggle.ConnectedKeybindButton ~= nil then
                     if Toggle.ConnectedKeybindButton.Key ~= nil then
-                        print(tostring(Lib.Key))
-                        print(tostring(Toggle.ConnectedKeybindButton.KeyDown))
                         if Toggle.ConnectedKeybindButton.KeyDown then
                             Toggle.KeybindHolding = true;
                         else
