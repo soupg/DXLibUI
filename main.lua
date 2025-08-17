@@ -2172,15 +2172,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     return KeybindButton
                 end
 
-                --// KeybindButton Onchanged
-                function KeybindButton:OnChanged(func)
-                    if KeybindButton.Changed then
-                        KeybindButton.Changed = false
-                        func(KeybindButton.Key)
-                    end
-                    return KeybindButton;
-                end
-
                 local ButtonText = type(KeybindButton.Text) == "string" and KeybindButton.Text or tostring(KeybindButton.Text)
                 assert(ButtonText, "[ERROR] AddKeybindButton: private variable ButtonText is nil")
 
@@ -2247,6 +2238,15 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 if KeybindButton.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
                     KeybindButton:SetKey(Lib.Key)
                     KeybindButton.Reading = false
+                end
+
+                --// KeybindButton Onchanged
+                function KeybindButton:OnChanged(func)
+                    if KeybindButton.Changed then
+                        KeybindButton.Changed = false
+                        func(KeybindButton.Key)
+                    end
+                    return KeybindButton;
                 end
 
                 --// Closing Difines and Resets | KeybindButton
