@@ -611,7 +611,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 31 } , Win.OutlineColor ) 
                 dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + 21 } , { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 32 } , Lib.Black ) 
 
-                dx9.DrawString( Win. ==Location , Win.FontColor , "  "..TrimmedWinName)
+                dx9.DrawString( Win.Location , Win.FontColor , "  "..TrimmedWinName)
                 dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 36 } , Win.OutlineColor )
                 dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 37 } , Win.MainColor ) 
             end
