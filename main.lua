@@ -2149,6 +2149,30 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     KeybindButton.Text = newText;
                 end
 
+                function KeybindButton:AddTooltip(str)
+                    local n = 0; -- Line Count
+                    local Tooltip = "";
+
+                    if string.gmatch(str, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(str, "([^\n]+)")) do
+                            Tooltip = Tooltip..i.."\n"
+                            n = n + 1
+                        end
+                    else
+                        Tooltip = str
+                        n = 1
+                    end
+
+                    if KeybindButton.Hovering then
+                        dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
+                        dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
+
+                        dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
+                    end
+
+                    return KeybindButton
+                end
+
                 local ButtonText = type(Name) == "string" and Name or tostring(Name)
                 assert(ButtonText, "[ERROR] AddKeybindButton: private variable ButtonText is nil")
 
@@ -2213,30 +2237,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         end
                         KeybindButton.Hovering = false;
                         KeybindButton.Holding = false;
-                    end
-
-                    function KeybindButton:AddTooltip(str)
-                        local n = 0; -- Line Count
-                        local Tooltip = "";
-
-                        if string.gmatch(str, "([^\n]+)") ~= nil then
-                            for i in (string.gmatch(str, "([^\n]+)")) do
-                                Tooltip = Tooltip..i.."\n"
-                                n = n + 1
-                            end
-                        else
-                            Tooltip = str
-                            n = 1
-                        end
-
-                        if KeybindButton.Hovering then
-                            dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
-                            dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
-
-                            dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
-                        end
-
-                        return KeybindButton
                     end
                 end
 
