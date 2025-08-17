@@ -2255,7 +2255,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 end
 
                 --// KeybindButton Onchanged
-                function KeybindButton.OnChanged(self, func )
+                function KeybindButton:OnChanged(func )
                     if KeybindButton.Changed then
                         KeybindButton.Changed = false
                         func(self, KeybindButton.Key)
