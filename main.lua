@@ -1542,8 +1542,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Boundary = { 0 ,0 ,0 ,0 };
                         Hovering = false;
                         Holding = false;
-                        Value = params.Default or "";
-                        CursorPosition = string.len(params.Default) + 1;
+                        Value = (params.Default or "");
+                        CursorPosition = string.len(params.Default or "") + 1;
                         CursorVisible = false;
                         LastCursorBlink = nil;
                         Reading = false;
