@@ -1560,9 +1560,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 --// Set Text
                 function TextBox:SetValue( newValue )
-                    print("fine")
                     assert(type(newValue) == "string" or type(newValue) == "number" or newValue == nil, "[ERROR] TextBox:SetText(newText) - newText must be a string!")
-                    print("more fine")
                     TextBox.Value = newValue;
                 end
 
@@ -1672,8 +1670,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     if Lib.Key == "[RETURN]" then
                         TextBox.Reading = false
                     elseif Lib.Key == "[BACK]" then
-                        dx9.ShowConsole(true)
-                        print("Back pressed")
                         local lastValue = TextBox:GetValue()
                         if lastValue then
                             local len = string.len(lastValue)
