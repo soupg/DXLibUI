@@ -2157,8 +2157,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 --// Draw KeybindButton in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
-
-                    --// Accounting for \n (to make KeybindButtons multiline)
                     local n = 1;
                     local NewKeybindButtonName = ButtonText
                     
@@ -2190,6 +2188,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     KeybindButton.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
 
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
+
+                    print("HERE")
 
                     --// Click Detect
                     if Lib.MouseInArea( { KeybindButton.Boundary[1] , KeybindButton.Boundary[2] , KeybindButton.Boundary[3] , KeybindButton.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
