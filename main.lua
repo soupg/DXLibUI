@@ -2108,6 +2108,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
             })
             ]]
+
+            print("This far start")
             function Groupbox:AddKeybindButton( params )
                 local KeybindButton = {}
                 local Name = params.Text or params.Name or params.Index
@@ -2257,6 +2259,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 return KeybindButton;
             end
 
+            print("This far done")
 
             --// Closing Difines and Resets | Groupbox
             Groupbox.Size[2] = 30;
