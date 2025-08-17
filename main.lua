@@ -2040,7 +2040,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     --// Tool Spacing
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + 25
 
-                    
                     --// Click Detect Toggle
                     if Lib.MouseInArea( { Toggle.Boundary[1] , Toggle.Boundary[2] , Toggle.Boundary[3] , Toggle.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
                         
@@ -2155,6 +2154,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 if KeybindButton.Reading then ButtonText = "Reading Key..." end
 
+                print("BELOW HERE")
+
                 --// Draw KeybindButton in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
                     local n = 1;
@@ -2172,7 +2173,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Lib.Black )
                     end
-
 
                     if KeybindButton.Reading then
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
