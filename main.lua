@@ -399,7 +399,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
     --// Error Handling
     assert(type(WindowName) == "string" or type(WindowName) == "number", "[ERROR] CreateWindow: Window name parameter must be a string or number!")
     assert(type(StartRainbow) == "boolean", "[ERROR] CreateWindow: Rainbow parameter must be a boolean!")
-    assert(type(ToggleKeyPreset) == "string" and string.sub(ToggleKeyPreset, 1, 1) "[", "[ERROR] CreateWindow: ToggleKey needs to have this format: [KEY]!")
+    assert(type(ToggleKeyPreset) == "string" and string.sub(ToggleKeyPreset, 1, 1) == "[", "[ERROR] CreateWindow: ToggleKey needs to have this format: [KEY]!")
 
 
     if Lib.Windows[WindowName] == nil then
