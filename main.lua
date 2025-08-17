@@ -2109,7 +2109,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
             })
             ]]
 
-            print("This far start")
             function Groupbox:AddKeybindButton( params )
                 local KeybindButton = {}
                 local Name = params.Text or params.Name or params.Index
@@ -2213,15 +2212,11 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     --// Click Detect
                     if Lib.MouseInArea( { KeybindButton.Boundary[1] , KeybindButton.Boundary[2] , KeybindButton.Boundary[3] , KeybindButton.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
-                        print("A1 mouse in area")
                         --// Click Detection
                         if dx9.isLeftClickHeld() and not KeybindButton.Reading then
-                            print("A2 left click down")
                             KeybindButton.Holding = true;
                         else
-                            print("A2 left click NOT down")
                             if KeybindButton.Holding == true and not KeybindButton.Reading then
-                                print("A3 rest")
                                 KeybindButton.Reading = true;
                                 KeybindButton.Holding = false;
                             end
@@ -2230,9 +2225,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         --// Hover Detection
                         KeybindButton.Hovering = true;
                     else
-                        print("B1 mouse NOT in area")
                         if dx9.isLeftClickHeld() and KeybindButton.Reading then
-                            print("B2 left click down")
                             KeybindButton.Reading = false
                         end
                         KeybindButton.Hovering = false;
@@ -2241,17 +2234,10 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 end
 
                 --// Toggle Key Set Detect
-
-                print("DOWN HERE")
                 
-                if KeybindButton.Reading then
-                    print("reading")
-                    if Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
-                        print("this was changed")
-                        
-                        KeybindButton:SetKey(Lib.Key)
-                        KeybindButton.Reading = false
-                    end
+                if KeybindButton.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
+                    KeybindButton:SetKey(Lib.Key)
+                    KeybindButton.Reading = false
                 end
 
                 --// KeybindButton Onchanged
@@ -2269,8 +2255,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 Lib:WinCheck( Win )
                 return KeybindButton;
             end
-
-            print("This far done")
 
             --// Closing Difines and Resets | Groupbox
             Groupbox.Size[2] = 30;
