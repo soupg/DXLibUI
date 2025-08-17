@@ -2154,8 +2154,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 if KeybindButton.Reading then ButtonText = "Reading Key..." end
 
-                print("BELOW HERE")
-
                 --// Draw KeybindButton in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
                     local n = 1;
@@ -2188,8 +2186,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     KeybindButton.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
 
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
-
-                    print("HERE")
 
                     --// Click Detect
                     if Lib.MouseInArea( { KeybindButton.Boundary[1] , KeybindButton.Boundary[2] , KeybindButton.Boundary[3] , KeybindButton.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
@@ -2245,12 +2241,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 end
 
                 --// Toggle Key Set Detect
+
+                print("DOWN HERE")
                 
-                if KeybindButton.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
-                    print("this was changed")
-                    
-                    KeybindButton:SetKey(Lib.Key)
-                    KeybindButton.Reading = false
+                if KeybindButton.Reading then
+                    print("reading")
+                    if Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
+                        print("this was changed")
+                        
+                        KeybindButton:SetKey(Lib.Key)
+                        KeybindButton.Reading = false
+                    end
                 end
 
                 --// KeybindButton Onchanged
