@@ -1560,14 +1560,16 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 --// Set Text
                 function TextBox:SetValue( newValue )
+                    print("fine")
                     assert(type(newValue) == "string" or type(newValue) == "number" or newValue == nil, "[ERROR] TextBox:SetText(newText) - newText must be a string!")
+                    print("more fine")
                     TextBox.Value = newValue;
                 end
 
                 function TextBox:GetValue()
                     local returnValue = TextBox.Value
                     local originalType = type(returnValue)
-                    if originalType == "string" or originalType == "number" then
+                    if originalType and originalType == "string" or originalType == "number" then
                         if originalType == "number" then
                             returnValue = tostring(returnValue)
                         end
