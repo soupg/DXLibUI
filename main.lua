@@ -2172,7 +2172,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     return KeybindButton
                 end
 
-                local ButtonText = type(Name) == "string" and Name or tostring(Name)
+                local ButtonText = type(KeybindButton.Text) == "string" and KeybindButton.Text or tostring(KeybindButton.Text)
                 assert(ButtonText, "[ERROR] AddKeybindButton: private variable ButtonText is nil")
 
                 if KeybindButton.Reading then ButtonText = "Reading Key..." end
