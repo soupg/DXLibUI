@@ -1531,7 +1531,6 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 local TextBox = {}
                 local Name = params.Placeholder or params.Index
                 local Index = params.Index or Name
-                local Type = params.Type or "string"
                 
                 --// Error Handling
                 assert(type(Name) == "string" or type(Name) == "number", "[ERROR] AddKeybindButton: Text / Name Argument must be a string or number!")
