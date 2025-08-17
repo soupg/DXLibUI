@@ -399,7 +399,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
     --// Error Handling
     assert(type(WindowName) == "string" or type(WindowName) == "number", "[ERROR] CreateWindow: Window name parameter must be a string or number!")
     assert(type(StartRainbow) == "boolean", "[ERROR] CreateWindow: Rainbow parameter must be a boolean!")
-    assert(type(ToggleKeyPreset) == "string" and string.sub(ToggleKeyPreset, 1, 1) == "[", "[ERROR] CreateWindow: ToggleKey needs to have this format: [KEY]!")
+    assert(type(ToggleKeyPreset) == "string" and string.sub(ToggleKeyPreset, 1, 1) "[", "[ERROR] CreateWindow: ToggleKey needs to have this format: [KEY]!")
 
 
     if Lib.Windows[WindowName] == nil then
@@ -611,7 +611,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 dx9.DrawBox( { Win.Location[1] + 5 , Win.Location[2] + 20 } , { Win.Location[1] + Win.Size[1] - 5 , Win.Location[2] + Win.Size[2] - 31 } , Win.OutlineColor ) 
                 dx9.DrawBox( { Win.Location[1] + 6 , Win.Location[2] + 21 } , { Win.Location[1] + Win.Size[1] - 6 , Win.Location[2] + Win.Size[2] - 32 } , Lib.Black ) 
 
-                dx9.DrawString( Win.Location , Win.FontColor , "  "..TrimmedWinName)
+                dx9.DrawString( Win. ==Location , Win.FontColor , "  "..TrimmedWinName)
                 dx9.DrawFilledBox( { Win.Location[1] + 10 , Win.Location[2] + 49 } , { Win.Location[1] + Win.Size[1] - 10 , Win.Location[2] + Win.Size[2] - 36 } , Win.OutlineColor )
                 dx9.DrawFilledBox( { Win.Location[1] + 11 , Win.Location[2] + 50 } , { Win.Location[1] + Win.Size[1] - 11 , Win.Location[2] + Win.Size[2] - 37 } , Win.MainColor ) 
             end
@@ -2141,19 +2141,23 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     KeybindButton.Changed = true;
                 end
 
+                --// Set Text
+                function KeybindButton:SetText( newText )
+                    assert(type(newText) == "string", "[ERROR] KeybindButton:SetText(newText) - newText must be a string!")
+                    KeybindButton.Text = newText;
+                end
+
                 local ButtonText = type(Name) == "string" and Name or tostring(Name)
                 assert(ButtonText, "[ERROR] AddKeybindButton: private variable ButtonText is nil")
 
                 if KeybindButton.Reading then ButtonText = "Reading Key..." end
-
-                local KeybindButton_Width = dx9.CalcTextWidth(ButtonText)
 
                 --// Draw KeybindButton in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
 
                     --// Accounting for \n (to make KeybindButtons multiline)
                     local n = 1;
-                    local NewKeybindButtonName = Name
+                    local NewKeybindButtonName = ButtonText
                     
                     Groupbox.Size[2] = Groupbox.Size[2] + (7 + (18 * n))
 
