@@ -1518,17 +1518,17 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
 
             --[[
-            ██╗███╗   ██╗██████╗ ██╗   ██╗████████╗██████╗  ██████╗ ██╗  ██╗
-            ██║████╗  ██║██╔══██╗██║   ██║╚══██╔══╝██╔══██╗██╔═══██╗╚██╗██╔╝
-            ██║██╔██╗ ██║██████╔╝██║   ██║   ██║   ██████╔╝██║   ██║ ╚███╔╝ 
-            ██║██║╚██╗██║██╔═══╝ ██║   ██║   ██║   ██╔══██╗██║   ██║ ██╔██╗ 
-            ██║██║ ╚████║██║     ╚██████╔╝   ██║   ██████╔╝╚██████╔╝██╔╝ ██╗
-            ╚═╝╚═╝  ╚═══╝╚═╝      ╚═════╝    ╚═╝   ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
-            :AddInputBox({ Default = "Default" , Index = "InputBox1" , Placeholder = "Placeholder Text" , MaxCharLimit = nil } )                               
+            ████████╗███████╗██╗  ██╗████████╗██████╗  ██████╗ ██╗  ██╗
+            ╚══██╔══╝██╔════╝╚██╗██╔╝╚══██╔══╝██╔══██╗██╔═══██╗╚██╗██╔╝
+               ██║   █████╗   ╚███╔╝    ██║   ██████╔╝██║   ██║ ╚███╔╝ 
+               ██║   ██╔══╝   ██╔██╗    ██║   ██╔══██╗██║   ██║ ██╔██╗ 
+               ██║   ███████╗██╔╝ ██╗   ██║   ██████╔╝╚██████╔╝██╔╝ ██╗
+               ╚═╝   ╚══════╝╚═╝  ╚═╝   ╚═╝   ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
+            :AddTextBox({ Default = "Default" , Index = "TextBox1" , Placeholder = "Placeholder Text" , MaxCharLimit = nil } )                               
             ]]
 
-            function Groupbox:AddTextInputBox( params )
-                local InputBox = {}
+            function Groupbox:AddTextBox( params )
+                local TextBox = {}
                 local Name = params.Placeholder or params.Index
                 local Index = params.Index or Name
                 local Type = params.Type or "string"
@@ -1538,7 +1538,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 --// Init Defs
                 if Groupbox.Tools[Index] == nil then
-                    InputBox = {
+                    TextBox = {
                         Placeholder = Name;
                         Boundary = { 0 ,0 ,0 ,0 };
                         Hovering = false;
@@ -1553,28 +1553,28 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Prefix = (params.Prefix or "");
                         Suffix = ( params.Suffix or "" );
                     }
-                    Groupbox.Tools[Index] = InputBox
+                    Groupbox.Tools[Index] = TextBox
                 end
 
-                --// Re-Setting InputBox
-                InputBox = Groupbox.Tools[Index]
+                --// Re-Setting TextBox
+                TextBox = Groupbox.Tools[Index]
 
                 --// Set Text
-                function InputBox:SetValue( newValue )
-                    assert(type(newValue) == "string" or type(newValue) == "number" or newValue == nil, "[ERROR] InputBox:SetText(newText) - newText must be a string!")
-                    InputBox.Value = newValue;
+                function TextBox:SetValue( newValue )
+                    assert(type(newValue) == "string" or type(newValue) == "number" or newValue == nil, "[ERROR] TextBox:SetText(newText) - newText must be a string!")
+                    TextBox.Value = newValue;
                 end
 
-                function InputBox:GetValue()
-                    local returnValue = InputBox.Value
+                function TextBox:GetValue()
+                    local returnValue = TextBox.Value
                     local originalType = type(returnValue)
                     if originalType == "string" or originalType == "number" then
                         if originalType == "number" then
                             returnValue = tostring(returnValue)
                         end
-                        if InputBox.MaxCharLimit then
-                            if type(InputBox.MaxCharLimit) == "number" then
-                                local roundedCharLimit = math.floor(InputBox.MaxCharLimit + 0.5)
+                        if TextBox.MaxCharLimit then
+                            if type(TextBox.MaxCharLimit) == "number" then
+                                local roundedCharLimit = math.floor(TextBox.MaxCharLimit + 0.5)
                                 if roundedCharLimit and roundedCharLimit > 0 then
                                     returnValue = string.sub(returnValue, 1, roundedCharLimit)
                                 end
@@ -1584,7 +1584,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     return returnValue
                 end
 
-                function InputBox:AddTooltip(str)
+                function TextBox:AddTooltip(str)
                     local n = 0; -- Line Count
                     local Tooltip = "";
 
@@ -1608,10 +1608,10 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     return Input
                 end
 
-                local ButtonText = InputBox:GetValue() and InputBox.Prefix..InputBox:GetValue()..InputBox.Suffix or InputBox.Placeholder
-                assert(ButtonText, "[ERROR] AddInputBox: private string variable ButtonText is nil")
+                local ButtonText = TextBox:GetValue() and TextBox.Prefix..TextBox:GetValue()..TextBox.Suffix or TextBox.Placeholder
+                assert(ButtonText, "[ERROR] AddTextBox: private string variable ButtonText is nil")
 
-                --// Draw InputBox in Groupbox
+                --// Draw TextBox in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
                     local n = 1;
                     
@@ -1622,13 +1622,13 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     if Groupbox.Size[1] - 10 > button_x then button_x = Groupbox.Size[1] - 10 end
 
-                    if InputBox.Hovering then
+                    if TextBox.Hovering then
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Win.AccentColor )
                     else
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing } , Lib.Black )
                     end
 
-                    if InputBox.Reading then
+                    if TextBox.Reading then
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 5 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 3 + button_x , Groupbox.Root[2] + 21 + ((18) * n) + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor )
                         dx9.DrawFilledBox( { Groupbox.Root[1] + 6 , Groupbox.Root[2] + 21 + Groupbox.ToolSpacing } , { Groupbox.Root[1] + 2 + button_x , Groupbox.Root[2] + 20 + ((18) * n) + Groupbox.ToolSpacing } , Win.OutlineColor )
                         dx9.DrawString( { Groupbox.Root[1] + 8 , Groupbox.Root[2] + 20 + Groupbox.ToolSpacing } , Lib.CurrentRainbowColor , ButtonText )
@@ -1639,63 +1639,63 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     end
 
                     --// Boundary and toolspacing
-                    InputBox.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
+                    TextBox.Boundary = { Groupbox.Root[1] + 4 , Groupbox.Root[2] + 19 + Groupbox.ToolSpacing , Groupbox.Root[1] + 4 + button_x , Groupbox.Root[2] + 22 + ((18) * n) + Groupbox.ToolSpacing }
 
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
 
                     --// Click Detect
-                    if Lib.MouseInArea( { InputBox.Boundary[1] , InputBox.Boundary[2] , InputBox.Boundary[3] , InputBox.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
+                    if Lib.MouseInArea( { TextBox.Boundary[1] , TextBox.Boundary[2] , TextBox.Boundary[3] , TextBox.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
                         --// Click Detection
-                        if dx9.isLeftClickHeld() and not InputBox.Reading then
-                            InputBox.Holding = true;
+                        if dx9.isLeftClickHeld() and not TextBox.Reading then
+                            TextBox.Holding = true;
                         else
-                            if InputBox.Holding == true and not InputBox.Reading then
-                                InputBox.Reading = true;
-                                InputBox.Holding = false;
+                            if TextBox.Holding == true and not TextBox.Reading then
+                                TextBox.Reading = true;
+                                TextBox.Holding = false;
                             end
                         end
 
                         --// Hover Detection
-                        InputBox.Hovering = true;
+                        TextBox.Hovering = true;
                     else
-                        if dx9.isLeftClickHeld() and InputBox.Reading then
-                            InputBox.Reading = false
+                        if dx9.isLeftClickHeld() and TextBox.Reading then
+                            TextBox.Reading = false
                         end
-                        InputBox.Hovering = false;
-                        InputBox.Holding = false;
+                        TextBox.Hovering = false;
+                        TextBox.Holding = false;
                     end
                 end
 
-                --// InputBox Typing
-                if InputBox.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
+                --// TextBox Typing
+                if TextBox.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
                     if Lib.Key == "[RETURN]" then
-                        InputBox.Reading = false
+                        TextBox.Reading = false
                     elseif Lib.Key == "[BACK]" then
                         dx9.ShowConsole(true)
                         print("Back pressed")
-                        local lastValue = InputBox:GetValue()
+                        local lastValue = TextBox:GetValue()
                         if lastValue then
                             local len = string.len(lastValue)
                             if len > 1 then
                                 local deletedLastChar = string.sub(lastValue, 1, len-1)
-                                InputBox:SetValue(deletedLastChar)
+                                TextBox:SetValue(deletedLastChar)
                             elseif len == 1 then
-                                InputBox:SetValue(nil)
+                                TextBox:SetValue(nil)
                             end
                         end
                     elseif Lib.Key == "[SPACE]" then
-                        InputBox:SetValue(InputBox:GetValue() and InputBox:GetValue().." " or " ")
+                        TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue().." " or " ")
                     elseif string.len(Lib.Key) == 3 then
                         local bracketStripped = string.gsub(Lib.Key, "[%[%]]", "")
-                        InputBox:SetValue(InputBox:GetValue() and InputBox:GetValue()..bracketStripped or bracketStripped)
+                        TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue()..bracketStripped or bracketStripped)
                     end
                 end
                 
-                 --// Closing Difines and Resets | InputBox
-                Groupbox.Tools[Index] = InputBox;
+                 --// Closing Difines and Resets | TextBox
+                Groupbox.Tools[Index] = TextBox;
 
                 Lib:WinCheck( Win )
-                return InputBox;
+                return TextBox;
             end
 
             --[[
