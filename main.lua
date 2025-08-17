@@ -978,7 +978,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 --// Keybind Detection
                 if Button.ConnectedKeybindButton ~= nil then
                     if Button.ConnectedKeybindButton.Key ~= nil then
-                        if Lib.Key == Button.ConnectedKeybindButton.Key then
+                        if Button.ConnectedKeybindButton.KeyDown then
                             Button.KeybindHolding = true;
                         else
                             if Button.KeybindHolding == true then
@@ -2044,7 +2044,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 --// Keybind Detection
                 if Toggle.ConnectedKeybindButton ~= nil then
                     if Toggle.ConnectedKeybindButton.Key ~= nil then
-                        if Lib.Key == Toggle.ConnectedKeybindButton.Key then
+                        if Toggle.ConnectedKeybindButton.KeyDown then
                             Toggle.KeybindHolding = true;
                         else
                             if Toggle.KeybindHolding == true then
@@ -2226,8 +2226,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     return KeybindButton
                 end
 
-
-
+                if Lib.Key and Lib.Key ~= "[None]" and Lib.Key == KeybindButton.Key and not KeybindButton.Reading then
+                    KeybindButton.KeyDown = true
+                else
+                    KeybindButton.KeyDown = false
+                end
+                
                 local ButtonText = type(KeybindButton.Text) == "string" and KeybindButton.Text or tostring(KeybindButton.Text)
                 assert(ButtonText, "[ERROR] AddKeybindButton: private variable ButtonText is nil")
 
