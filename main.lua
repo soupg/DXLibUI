@@ -957,6 +957,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Boundary = { 0 ,0 ,0 ,0 };
                         Holding = false;
                         Hovering = false;
+                        KeybindHolding = false;
                         ConnectedKeybindButton = nil;
                     }
                 end
@@ -978,11 +979,11 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 if Button.ConnectedKeybindButton ~= nil then
                     if Button.ConnectedKeybindButton.Key ~= nil then
                         if Lib.Key == Button.ConnectedKeybindButton.Key then
-                            Button.Holding = true;
+                            Button.KeybindHolding = true;
                         else
-                            if Button.Holding == true then
+                            if Button.KeybindHolding == true then
                                 if ButtonFunc ~= nil then ButtonFunc() end
-                                Button.Holding = false;
+                                Button.KeybindHolding = false;
                             end
                         end
                     end
@@ -2015,6 +2016,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Hovering = false;
                         Changed = false;
                         Name = Name;
+                        KeybindHolding = false;
                         ConnectedKeybindButton = nil;
                     }
                 end
@@ -2043,16 +2045,15 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 if Toggle.ConnectedKeybindButton ~= nil then
                     if Toggle.ConnectedKeybindButton.Key ~= nil then
                         if Lib.Key == Toggle.ConnectedKeybindButton.Key then
-                            Toggle.Holding = true;
+                            Toggle.KeybindHolding = true;
                         else
-                            if Toggle.Holding == true then
+                            if Toggle.KeybindHolding == true then
                                 Toggle:SetValue( not Toggle.Value )
-                                Toggle.Holding = false;
+                                Toggle.KeybindHolding = false;
                             end
                         end
                     end
                 end
-
 
                 --// Draw Toggle in Groupbox
                 if Win.CurrentTab ~= nil and Win.CurrentTab == TabName and Win.Active and Groupbox.Visible then
@@ -2181,6 +2182,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         Text = Name;
                         Key = Default;
                         Reading = false;
+                        KeyDown = false;
                     }
                 end
 
@@ -2223,6 +2225,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     return KeybindButton
                 end
+
+
 
                 local ButtonText = type(KeybindButton.Text) == "string" and KeybindButton.Text or tostring(KeybindButton.Text)
                 assert(ButtonText, "[ERROR] AddKeybindButton: private variable ButtonText is nil")
