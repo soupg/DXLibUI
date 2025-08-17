@@ -2191,14 +2191,41 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                     Groupbox.ToolSpacing = Groupbox.ToolSpacing + (7 + (18 * n))
 
+                    --// Click Detect //--
+                    if Lib.MouseInArea( { FooterWidth + Win.Location[1] + 5 , Win.Location[2] + Win.Size[2] - 28 , FooterWidth + Win.Location[1] + 15 + Toggle_Width , Win.Location[2] + Win.Size[2] - 4 }, Win.DeadZone ) then
+                        
+                        --// Click Detection
+                        if dx9.isLeftClickHeld() and not Win.ToggleReading then
+                            Win.ToggleKeyHolding = true;
+                        else
+                            if Win.ToggleKeyHolding and not Win.ToggleReading then
+                                Win.ToggleReading = true;
+
+                                Win.ToggleKeyHolding = false;
+                            end
+                        end
+
+                        --// Hover Detection
+                        Win.ToggleKeyHovering = true;
+                    else
+                        if dx9.isLeftClickHeld() and Win.ToggleReading then
+                            Win.ToggleReading = false
+                        end
+                        Win.ToggleKeyHovering = false;
+                        Win.ToggleKeyHolding = false;
+                    end
+
                     --// Click Detect
                     if Lib.MouseInArea( { KeybindButton.Boundary[1] , KeybindButton.Boundary[2] , KeybindButton.Boundary[3] , KeybindButton.Boundary[4] }, Win.DeadZone ) and not Win.Dragging then
-
+                        print("A1 mouse in area")
                         --// Click Detection
                         if dx9.isLeftClickHeld() and not KeybindButton.Reading then
+                            print("A2 left click down")
                             KeybindButton.Holding = true;
                         else
+                            print("A2 left click NOT down")
                             if KeybindButton.Holding == true and not KeybindButton.Reading then
+                                print("A3 rest")
                                 KeybindButton.Reading = true;
                                 KeybindButton.Holding = false;
                             end
@@ -2207,7 +2234,9 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         --// Hover Detection
                         KeybindButton.Hovering = true;
                     else
+                        print("B1 mouse NOT in area")
                         if dx9.isLeftClickHeld() and KeybindButton.Reading then
+                            print("B2 left click down")
                             KeybindButton.Reading = false
                         end
                         KeybindButton.Hovering = false;
