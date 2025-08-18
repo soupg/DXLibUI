@@ -1,9 +1,9 @@
 
 # Welcome to supgLib!
 
-## [Docs](https://supg.gitbook.io/ui/)
+## [Docs](https://brycki404.gitbook.io/brycki404-docs)
 
-supgLib is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which makes UI implementation within your scripts simple and effecient.
+DXLibUI is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which makes UI implementation within your scripts simple and effecient.
 
 ### Current Features
 * Creation of multiple dynamic windows
@@ -21,4 +21,6 @@ supgLib is a library for [dx9ware](https://cultofintellect.com/dx9ware/) which m
 	- Borders
 	- Notifications
 	- Dropdowns
+ 	- TextBoxes
+	- KeybindButtons
 	- More
