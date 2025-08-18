@@ -1669,6 +1669,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                 if TextBox.Reading and Lib.Key and Lib.Key ~= "[None]" and Lib.Key ~= "[Unknown]" and Lib.Key ~= "[LBUTTON]" then
                     if Lib.Key == "[RETURN]" then
                         TextBox.Reading = false
+                    elseif Lib.Key == "[LSHIFT]" or Lib.Key == "[RSHIFT]" then
+                        TextBox.Capslock = (not TextBox.Capslock)
                     elseif Lib.Key == "[BACK]" then
                         local lastValue = TextBox:GetValue()
                         if lastValue then
@@ -1684,6 +1686,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue().." " or " ")
                     elseif string.len(Lib.Key) == 3 then
                         local bracketStripped = string.gsub(Lib.Key, "[%[%]]", "")
+                        if not TextBox.Capslock then
+                            local lowered = string.lower(bracketStripped)
+                            if lowered then
+                                bracketStripped = lowered
+                            end
+                        end
                         TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue()..bracketStripped or bracketStripped)
                     end
                 end
