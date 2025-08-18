@@ -1570,24 +1570,21 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 function TextBox:GetValue()
                     local returnValue = TextBox.Value
-                    if returnValue then
-                        local originalType = type(returnValue)
-                        if originalType and originalType == "string" or originalType == "number" then
-                            if originalType == "number" then
-                                returnValue = tostring(returnValue)
-                            end
-                            if TextBox.MaxCharLimit then
-                                if type(TextBox.MaxCharLimit) == "number" then
-                                    local roundedCharLimit = math.floor(TextBox.MaxCharLimit + 0.5)
-                                    if roundedCharLimit and roundedCharLimit > 0 then
-                                        returnValue = string.sub(returnValue, 1, roundedCharLimit)
-                                    end
+                    local originalType = type(returnValue)
+                    if originalType and originalType == "string" or originalType == "number" then
+                        if originalType == "number" then
+                            returnValue = tostring(returnValue)
+                        end
+                        if TextBox.MaxCharLimit then
+                            if type(TextBox.MaxCharLimit) == "number" then
+                                local roundedCharLimit = math.floor(TextBox.MaxCharLimit + 0.5)
+                                if roundedCharLimit and roundedCharLimit > 0 then
+                                    returnValue = string.sub(returnValue, 1, roundedCharLimit)
                                 end
                             end
                         end
-                        return returnValue
                     end
-                    return nil
+                    return returnValue
                 end
 
                 function TextBox:AddTooltip(str)
