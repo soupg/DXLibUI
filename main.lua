@@ -1570,21 +1570,24 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
 
                 function TextBox:GetValue()
                     local returnValue = TextBox.Value
-                    local originalType = type(returnValue)
-                    if originalType and originalType == "string" or originalType == "number" then
-                        if originalType == "number" then
-                            returnValue = tostring(returnValue)
-                        end
-                        if TextBox.MaxCharLimit then
-                            if type(TextBox.MaxCharLimit) == "number" then
-                                local roundedCharLimit = math.floor(TextBox.MaxCharLimit + 0.5)
-                                if roundedCharLimit and roundedCharLimit > 0 then
-                                    returnValue = string.sub(returnValue, 1, roundedCharLimit)
+                    if returnValue then
+                        local originalType = type(returnValue)
+                        if originalType and originalType == "string" or originalType == "number" then
+                            if originalType == "number" then
+                                returnValue = tostring(returnValue)
+                            end
+                            if TextBox.MaxCharLimit then
+                                if type(TextBox.MaxCharLimit) == "number" then
+                                    local roundedCharLimit = math.floor(TextBox.MaxCharLimit + 0.5)
+                                    if roundedCharLimit and roundedCharLimit > 0 then
+                                        returnValue = string.sub(returnValue, 1, roundedCharLimit)
+                                    end
                                 end
                             end
                         end
+                        return returnValue
                     end
-                    return returnValue
+                    return nil
                 end
 
                 function TextBox:AddTooltip(str)
@@ -1601,14 +1604,14 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         n = 1
                     end
 
-                    if Input.Hovering then
+                    if TextBox.Hovering then
                         dx9.DrawFilledBox({Mouse.x - 1, Mouse.y + 1}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 5, Mouse.y - (18 * n) - 1}, Win.AccentColor)
                         dx9.DrawFilledBox({Mouse.x, Mouse.y}, {Mouse.x + dx9.CalcTextWidth(Tooltip) + 4, Mouse.y - (18 * n)}, Win.OutlineColor)
 
                         dx9.DrawString({Mouse.x + 2, Mouse.y - (18 * n)}, Win.FontColor, str)
                     end
 
-                    return Input
+                    return TextBox
                 end
 
                 local ButtonText = TextBox:GetValue() and TextBox.Prefix..TextBox:GetValue()..TextBox.Suffix or TextBox.Placeholder
