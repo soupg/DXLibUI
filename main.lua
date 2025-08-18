@@ -995,8 +995,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     --// Accounting for \n (to make buttons multiline)
                     local n = 0;
                     local NewButtonName = "";
-                    if string.gmatch(ButtonName, "([^<br/>]+)") ~= nil then
-                        for i in (string.gmatch(ButtonName, "([^<br/>]+)")) do
+                    if string.gmatch(ButtonName, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(ButtonName, "([^\n]+)")) do
 
                             local temp = i;
                             if dx9.CalcTextWidth(temp) >=  Groupbox.Size[1] - 20 then
@@ -1065,8 +1065,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         local n = 0; -- Line Count
                         local Tooltip = "";
 
-                        if string.gmatch(str, "([^<br/>]+)") ~= nil then
-                            for i in (string.gmatch(str, "([^<br/>]+)")) do
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
                                 Tooltip = Tooltip..i.."\n"
                                 n = n + 1
                             end
@@ -1487,8 +1487,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     local n = 0;
                     local trimmed_text = "";
                     
-                    if string.gmatch(text, "([^<br/>]+)") ~= nil then
-                        for i in (string.gmatch(text, "([^<br/>]+)")) do
+                    if string.gmatch(text, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(text, "([^\n]+)")) do
 
                             local temp = i;
                             if dx9.CalcTextWidth(temp) >=  Groupbox.Size[1] - 20 then
@@ -1591,8 +1591,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     local n = 0; -- Line Count
                     local Tooltip = "";
 
-                    if string.gmatch(str, "([^<br/>]+)") ~= nil then
-                        for i in (string.gmatch(str, "([^<br/>]+)")) do
+                    if string.gmatch(str, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(str, "([^\n]+)")) do
                             Tooltip = Tooltip..i.."\n"
                             n = n + 1
                         end
@@ -1943,8 +1943,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         local n = 0; -- Line Count
                         local Tooltip = "";
 
-                        if string.gmatch(str, "([^<br/>]+)") ~= nil then
-                            for i in (string.gmatch(str, "([^<br/>]+)")) do
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
                                 Tooltip = Tooltip..i.."\n"
                                 n = n + 1
                             end
@@ -2110,8 +2110,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         local n = 0; -- Line Count
                         local Tooltip = "";
 
-                        if string.gmatch(str, "([^<br/>]+)") ~= nil then
-                            for i in (string.gmatch(str, "([^<br/>]+)")) do
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
                                 Tooltip = Tooltip..i.."\n"
                                 n = n + 1
                             end
@@ -2278,8 +2278,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         local n = 0; -- Line Count
                         local Tooltip = "";
 
-                        if string.gmatch(str, "([^<br/>]+)") ~= nil then
-                            for i in (string.gmatch(str, "([^<br/>]+)")) do
+                        if string.gmatch(str, "([^\n]+)") ~= nil then
+                            for i in (string.gmatch(str, "([^\n]+)")) do
                                 Tooltip = Tooltip..i.."\n"
                                 n = n + 1
                             end
@@ -2372,8 +2372,8 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     local n = 0; -- Line Count
                     local Tooltip = "";
 
-                    if string.gmatch(str, "([^<br/>]+)") ~= nil then
-                        for i in (string.gmatch(str, "([^<br/>]+)")) do
+                    if string.gmatch(str, "([^\n]+)") ~= nil then
+                        for i in (string.gmatch(str, "([^\n]+)")) do
                             Tooltip = Tooltip..i.."\n"
                             n = n + 1
                         end
