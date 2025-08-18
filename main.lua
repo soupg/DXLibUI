@@ -956,6 +956,7 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                     Groupbox.Tools[idx] = { 
                         Boundary = { 0 ,0 ,0 ,0 };
                         Holding = false;
+                        Cooldown = false;
                         Hovering = false;
                         KeybindHolding = false;
                         ConnectedKeybindButton = nil;
@@ -1048,9 +1049,11 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                         if dx9.isLeftClickHeld() then
                             Button.Holding = true;
                         else
-                            if Button.Holding == true then
+                            if Button.Holding == true and Button.Cooldown == false then
+                                Button.Cooldown = true;
                                 if ButtonFunc ~= nil then ButtonFunc() end
                                 Button.Holding = false;
+                                Button.Cooldown = false;
                             end
                         end
 
