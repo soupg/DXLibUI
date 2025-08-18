@@ -1686,6 +1686,12 @@ function Lib:CreateWindow( params ) --// Title, FontColor, MainColor, Background
                                 TextBox:SetValue(nil)
                             end
                         end
+                    elseif Lib.Key == "[SUBTRACT]" then
+                        if TextBox.Capslock then
+                            TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue().."_" or "_")
+                        else
+                            TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue().."-" or "-")
+                        end
                     elseif Lib.Key == "[SPACE]" then
                         TextBox:SetValue(TextBox:GetValue() and TextBox:GetValue().." " or " ")
                     elseif string.len(Lib.Key) == 3 then
