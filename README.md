@@ -1,7 +1,6 @@
 
 # Welcome to DX404LibUI!
-
-## [Docs](https://brycki404.gitbook.io/brycki404-docs)
+## [Docs](https://brycki404.gitbook.io/dx404libui-docs)
 
 DX404LibUI is a library for [dx9ware](https://cultofintellect.com/dx9ware/) forked from supg's DXLibUI which makes UI implementation within your scripts simple and effecient.
 
